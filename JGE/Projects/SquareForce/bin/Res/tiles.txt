@@ -1,0 +1,34 @@
+Type = HULL
+Hull = 200.0
+RegenSpeed = 5.0
+RecoveryTime = 10.0
+
+Type = ENGINE
+Hull = 100.0
+RegenSpeed = 5.0
+RecoveryTime = 10.0
+EngineAcceleration = 200000.0
+
+Type = GUN
+Hull = 100.0
+RegenSpeed = 5.0
+RecoveryTime = 10.0
+MissileSpeed = 300.0
+MissileFrequency = 10.0
+HullDamages = 4.0f
+
+Type = MISSILE
+Hull = 100.0
+RegenSpeed = 5.0
+RecoveryTime = 10.0
+MissileSpeed = 200.0
+MissileFrequency = 0.5
+HullDamages = 50.0f
+
+Type = MINE
+Hull = 100.0
+RegenSpeed = 5.0
+RecoveryTime = 10.0
+MissileSpeed = 0.0
+MissileFrequency = 2.0
+HullDamages = 20.0f
