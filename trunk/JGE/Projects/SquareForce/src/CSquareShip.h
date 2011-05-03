@@ -1,0 +1,114 @@
+#ifndef _CSQUARESHIP_H_
+#define _CSQUARESHIP_H_
+#include "utils.h"
+
+#include <list>
+
+#include "Box2D.h"
+#include "CObject.h"
+#include "CSquareTile.h"
+#include "CMissile.h"
+
+#include "CSquareShipAI.h"
+
+using namespace std;
+
+class hgeParticleSystem;
+class hgeVector;
+
+class CSquareShipData
+{
+public:
+	CSquareShipData():mSize(0), mTilesId(NULL) {}
+	~CSquareShipData() {SAFE_DELETE_ARRAY(mTilesId);}
+
+	u32 mSize;
+	u32 *mTilesId;
+};
+
+class CSquareShip: public CObject
+{
+public:
+
+	CSquareShip(b2World* world, list<CMissile*> &missilesPt);
+	~CSquareShip();
+
+	inline const CSquareTile* GetSquareTile(int slot)
+	{
+		if(slot<0 || slot>=mSize*mSize)
+			return NULL;
+		return mSquareTiles[slot];
+	}
+	CSquareTile* SetSquareTile(CSquareTile* squareTile, int slot);
+	void LoadShape(CSquareShipData* datas, const vector<CSquareTile*>& listTiles);
+	void UnloadShape();
+
+	virtual void LoadPhysic();
+	virtual void UnloadPhysic();
+
+	void Create(int size);
+	void Render(const b2Vec2& camPos, const float32& camRot);
+	void Update(float dt, bool updatePhysic = true);
+
+	void FireAt(const b2Vec2& target, float ratioError);
+
+	void AddEnginePS(const hgeVector& pos);
+	void AddExplosionPS(CSquareTile* squareTile);
+	void SetMissileParticleSystem();
+
+	void Straff(float power);
+	inline void DashR() {if(mDashRTimer>0.5f) mDashRTimer = 0.0f;}
+	inline void DashL() {if(mDashLTimer>0.5f) mDashLTimer = 0.0f;}
+
+	b2Vec2 GetShootPoint(const b2Vec2& pos, const b2Vec2& vel);
+
+	void ComputeCollision(CMissile* missile);
+
+	inline void ToggleStopEngine() {mStopEngine = !mStopEngine;}
+
+	inline CSquareShipAI *SetAI(CSquareShipAI *AI) {CSquareShipAI *lastAI = mAI; mAI = AI; return lastAI;}
+
+	inline bool IsDestroyed() {return mDestroyed;}
+
+	int mSize;// taille du squareship (carré de mSize*mSize)
+
+	float mEnginePower;// puissance actuelle du moteur (de 0 à 1)
+
+	float mAngularAcceleration;// accélération angulaire max
+	float mAngularPower;// puissance actuelle de rotation (de -1 à 1)
+
+	bool mStopEngine;// moteurs stoppés ?
+
+	// Ne pas faire n'importe quoi avec ces datas. Hormis le hero tous les autres ont 
+	// des datas originales donc à ne surtout pas supprimer.
+	CSquareShipData* mDatas;
+
+protected:
+	void Dash(float power);
+
+	JQuad** mQuad;
+	JQuad* mQuadPcl;
+	JQuad** mLightningQuads;
+
+	hgeParticleSystem* mEnginePS;
+
+	hgeParticleSystem* mMissilePS;
+
+	CSquareTile **mSquareTiles;
+	list<CSquareTileEngine*> mlistSTEngine;
+	list<CSquareTileGun*> mlistSTGun;
+	list<CSquareTileMissile*> mlistSTMissile;
+	list<CSquareTileMine*> mlistSTMine;
+
+	list<CMissile*> &mMissilesPt;// référence sur la liste de projectiles
+
+	CSquareShipAI* mAI;
+
+	bool mDestroyed;
+
+	float mDashRTimer;
+	float mDashLTimer;
+};
+
+#endif
+

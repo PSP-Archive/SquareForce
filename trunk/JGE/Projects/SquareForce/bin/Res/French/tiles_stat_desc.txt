@@ -1,0 +1,7 @@
+Résistance
+Vitesse de régénération
+Temps de régénération
+Acceleration linéaire
+Vitesse du projectile
+Cadence de tir
+Dégâts par tir
