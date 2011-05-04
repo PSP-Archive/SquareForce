@@ -47,7 +47,7 @@ void CPlanet::Update(float dt)
 {
 	mDeltaTime = dt;
 	mTimer += mDeltaTime;
-	mCloudsRotation = fmod(mTimer*0.04f, M_PI*2.0f);
+	mCloudsRotation = fmod(mTimer*0.04f, (float)M_PI*2.0f);
 }
 
 void CPlanet::Render(const b2Vec2& camPos, const float32& camRot)
@@ -60,11 +60,11 @@ void CPlanet::Render(const b2Vec2& camPos, const float32& camRot)
 	float rotation = mRotation-camRot;
 
 	mPlanetMesh->SetTexture(mPlanetTex);
-	mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+	mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
 	mPlanetMesh->Clear(ARGB(255,255,255,255));
 	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, 1.0f*mSizeX, 1.0f*mSizeY, -rotation);
 	mPlanetMesh->SetTexture(mCloudsTex);
-	mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+	mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
 	//mDistortMeshPlanet->Clear(ARGB(255,255,255,255));
 	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.06f*mSizeX, 1.06f*mSizeY, -rotation-mCloudsRotation);
 	mPlanetMesh->SetTexture(mLightsTex);

@@ -1,9 +1,12 @@
-TARGET = Box2D
+TARGET = SquareForce
 OBJS = src/CLocalization.o \
+	src/CResourceManager.o \
 	src/CMissile.o \
 	src/CGlobalParticleEmitter.o \
 	src/CObject.o \
 	src/CSquareShip.o  \
+	src/CPlanet.o \
+	src/CSpawnManager.o  \
 	src/CWorldObjects.o  \
 	src/CSquareShipAI.o \
 	src/GameMenuLang.o \
