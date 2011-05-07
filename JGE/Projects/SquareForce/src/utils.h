@@ -1,6 +1,16 @@
 #ifndef _UTILS_H_
 #define _UTILS_H_
 
+#ifdef PSP
+#include <pspctrl.h>
+#include <pspsdk.h>
+#include <pspkernel.h>
+#include <pspsysmem_kernel.h>
+#include <pspdisplay_kernel.h>
+#include <pspsysevent.h>
+#include <psppower.h>
+#endif
+
 #include "Box2D.h"
 #include <stdio.h>
 #include <iostream>
@@ -47,7 +57,7 @@ using namespace std;
 #define NB_LIGHTNING_FRAMES				10
 
 // temp : nb objects
-#define NB_OBJECTS						200
+#define NB_OBJECTS						50
 #define NB_PLANETS						5
 
 // smooth coeff for the camera
@@ -185,18 +195,107 @@ inline string FloatToString(float val)
 	return str;
 }
 
-inline int GetFreeMemory()
+#define RAM_BLOCK (1024 * 1024)
+/* RAM simple check functions source */
+
+// *** FUNCTIONS ***
+
+inline u32 ramAvailableLineareMax(void)
 {
-	void* buf[64];
-	int i = 0;
-	for (i = 0; i < 64 ; i++) {
-		buf[i] = malloc(1024 * 1024);
-		if (!buf[i]) break;
+	u32 size, sizeblock;
+	u8 *ram;
+
+	// Init variables
+	size = 0;
+	sizeblock = RAM_BLOCK;
+
+#ifdef PSP
+	int disableInterrupts = pspSdkDisableInterrupts();
+#endif
+
+	// Check loop
+	while (sizeblock)
+	{
+		// Increment size
+		size += sizeblock;
+
+		// Allocate ram
+		ram = (u8 *) malloc(size);
+
+		// Check allocate
+		if (!(ram))
+		{
+			// Restore old size
+			size -= sizeblock;
+
+			// Size block / 2
+			sizeblock >>= 1;
+		}
+		else
+			free(ram);
 	}
-	int result = i;
-	for (; i >= 0; i--) {
-		free(buf[i]);
-	}
-	return result;
+
+#ifdef PSP
+	pspSdkEnableInterrupts(disableInterrupts);
+#endif
+
+	return size;
 }
+
+inline u32 ramAvailable(void)
+{
+	u8 **ram, **temp;
+	u32 size, count, x;
+
+	// Init variables
+	ram = NULL;
+	size = 0;
+	count = 0;
+
+#ifdef PSP
+	int disableInterrupts = pspSdkDisableInterrupts();
+#endif
+
+	// Check loop
+	for (;;)
+	{
+		// Check size entries
+		if (!(count % 10))
+		{
+			// Allocate more entries if needed
+			temp = (u8**) realloc(ram, sizeof(u8 *) * (count + 10));
+			if (!(temp)) break;
+
+			// Update entries and size (size contains also size of entries)
+			ram = temp;
+			size += (sizeof(u8 *) * 10);
+		}
+
+		// Find max lineare size available
+		x = ramAvailableLineareMax();
+		if (!(x)) break;
+
+		// Allocate ram
+		ram[count] = (u8 *) malloc(x);
+		if (!(ram[count])) break;
+
+		// Update variables
+		size += x;
+		count++;
+	}
+
+	// Free ram
+	if (ram)
+	{
+		for (x = 0; x < count; x++)
+			free(ram[x]);
+		free(ram);
+	}
+
+#ifdef PSP
+	pspSdkEnableInterrupts(disableInterrupts);
+#endif
+	return size;
+}
+
 #endif

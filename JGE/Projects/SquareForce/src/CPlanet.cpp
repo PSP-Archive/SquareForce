@@ -19,8 +19,8 @@ CPlanet::CPlanet()
 	mPlanetAngularVelocity = 2.0f;
 	mCloudsAngularVelocity = 3.0f;
 
-	mSizeX = 5.0f;
-	mSizeY = 5.0f;
+	mSizeX = 4.0f;
+	mSizeY = 4.0f;
 
 	mPlanetColor = ARGB(255,255,255,255);
 	mCloudsColor = ARGB(255,255,255,255);
@@ -61,18 +61,18 @@ void CPlanet::Render(const b2Vec2& camPos, const float32& camRot)
 
 	mPlanetMesh->SetTexture(mPlanetTex);
 	mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
-	mPlanetMesh->Clear(ARGB(255,255,255,255));
+	mPlanetMesh->Clear(mPlanetColor);
 	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, 1.0f*mSizeX, 1.0f*mSizeY, -rotation);
 	mPlanetMesh->SetTexture(mCloudsTex);
 	mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
-	//mDistortMeshPlanet->Clear(ARGB(255,255,255,255));
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.06f*mSizeX, 1.06f*mSizeY, -rotation-mCloudsRotation);
+	mPlanetMesh->Clear(mCloudsColor);
+	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.03f*mSizeX, 1.03f*mSizeY, -rotation-mCloudsRotation);
 	mPlanetMesh->SetTexture(mLightsTex);
 	mPlanetMesh->SetTextureRect(0,0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
-	mPlanetMesh->Clear(ARGB(255,0,150,255));
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.14f*mSizeX, 1.14f*mSizeY, -rotation);
-	mPlanetMesh->SetTexture(mShadowsTex);
-	//mDistortMeshPlanet->SetTextureRect(0,0,TEXTURE_WIDTH,TEXTURE_HEIGHT);
-	mPlanetMesh->Clear(ARGB(220,0xFF,0xFF,0xFF));
+	mPlanetMesh->Clear(mLightsColor);
 	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.07f*mSizeX, 1.07f*mSizeY, -rotation);
+	mPlanetMesh->SetTexture(mShadowsTex);
+	//mPlanetMesh->SetTextureRect(0,0,TEXTURE_WIDTH,TEXTURE_HEIGHT);
+	mPlanetMesh->Clear(mShadowsColor);
+	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.04f*mSizeX, 1.04f*mSizeY, -rotation);
 }

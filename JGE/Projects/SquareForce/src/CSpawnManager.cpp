@@ -79,10 +79,10 @@ void CSpawnManager::Update()
 	list<CObject*>::const_iterator it = mListObjects.begin();
 	++it;
 	const list<CObject*>::const_iterator itEnd = mListObjects.end();
-	const b2Vec2& selfPos = mHero->GetCenterPosition();
+	const b2Vec2& selfPos = mHero->GetOriginPosition();
 	while(it != itEnd)
 	{
-		float dist2 = ((*it)->GetCenterPosition() - selfPos).Length2();
+		float dist2 = ((*it)->GetOriginPosition() - selfPos).Length2();
 		if(dist2 < 90000.0f)// dist<300 : on est dans le champ de vision
 		{
 			mVisibleObjects.push_back(*it);

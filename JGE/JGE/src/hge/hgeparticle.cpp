@@ -97,6 +97,9 @@ hgeParticleSystem::hgeParticleSystem(const char *filename, JQuad *sprite)
 
 	rectBoundingBox.Clear();
 	bUpdateBoundingBox=false;
+
+	nMaxParticles = info.fParticleLifeMax*info.nEmission;
+	particles = new hgeParticle[nMaxParticles];
 }
 
 hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi)
@@ -115,6 +118,9 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi)
 
 	rectBoundingBox.Clear();
 	bUpdateBoundingBox=false;
+
+	nMaxParticles = info.fParticleLifeMax*info.nEmission;
+	particles = new hgeParticle[nMaxParticles];
 }
 
 hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
@@ -143,6 +149,16 @@ void hgeParticleSystem::Update(float fDeltaTime)
 	fDeltaTime = mTimer;
 	mTimer = 0.0f;
 
+
+	int maxParticles = info.fParticleLifeMax*info.nEmission;
+	if( nMaxParticles != maxParticles)
+	{
+		hgeParticle* p = particles;
+		particles = new hgeParticle[maxParticles];
+		memcpy(particles, p, nParticlesAlive*sizeof(hgeParticle));
+		delete[] p;
+		nMaxParticles = maxParticles;
+	}
 
 	// update all alive particles
 
@@ -199,7 +215,7 @@ void hgeParticleSystem::Update(float fDeltaTime)
 
 		for(i=0; i<nParticlesCreated; i++)
 		{
-			if(nParticlesAlive>=MAX_PARTICLES) break;
+			if(nParticlesAlive>=nMaxParticles) break;
 
 			par->fAge = 0.0f;
 			par->fTerminalAge = Random_Float(info.fParticleLifeMin, info.fParticleLifeMax);
