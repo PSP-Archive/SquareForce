@@ -213,7 +213,7 @@ void CSquareShip::LoadShape(CSquareShipData* datas, const vector<CSquareTile*>& 
 
 	// Define the dynamic body. We set its position,
 	// add the box shape, and call the body factory.
-	LoadPhysic();
+	//LoadPhysic();
 }
 
 void CSquareShip::UnloadShape()
@@ -221,7 +221,7 @@ void CSquareShip::UnloadShape()
 	int size2 = mSize*mSize;
 
 	// on supprime la physique
-	UnloadPhysic();
+	//UnloadPhysic();
 
 	if(mSquareTiles)// s'il y en avait on supprime les anciennes tiles
 	{

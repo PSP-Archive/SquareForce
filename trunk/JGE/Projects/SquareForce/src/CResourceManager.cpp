@@ -50,8 +50,8 @@ CResourceManager::CResourceManager()
 		mParticlesQuads[i] = NULL;
 
 
-	int rows = 16;
-	int cols = 16;
+	int rows = 32;
+	int cols = 32;
 	float cellW =(float)(PLANET_TEXTURE_WIDTH/(cols-1));
 	float cellH=(float)(PLANET_TEXTURE_HEIGHT/(rows-1));
 

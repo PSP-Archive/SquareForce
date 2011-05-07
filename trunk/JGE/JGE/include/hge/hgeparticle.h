@@ -91,7 +91,7 @@ public:
 	hgeParticleSystem(const char *filename, JQuad *sprite);
 	hgeParticleSystem(hgeParticleSystemInfo *psi);
 	hgeParticleSystem(const hgeParticleSystem &ps);
-	~hgeParticleSystem() { }
+	~hgeParticleSystem() { delete[] particles;}
 
 	hgeParticleSystem&	operator= (const hgeParticleSystem &ps);
 
@@ -124,11 +124,12 @@ protected:
 	hgeVector			vecLocation;
 	float				fTx, fTy;
 
+	int					nMaxParticles;
 	int					nParticlesAlive;
 	hgeRect				rectBoundingBox;
 	bool				bUpdateBoundingBox;
 
-	hgeParticle			particles[MAX_PARTICLES];
+	hgeParticle*		particles;
 
 	float				mTimer;
 };

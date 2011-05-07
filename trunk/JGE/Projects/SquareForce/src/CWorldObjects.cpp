@@ -7,6 +7,8 @@
 #include "CWorldObjects.h"
 #include "CSquareShipAI.h"
 
+#include "utils.h"
+
 
 CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 {	
@@ -73,14 +75,14 @@ void CWorldObjects::Create()
 
 	// Construct a world object, which will hold and simulate the rigid bodies.
 	mWorld = new b2World(worldAABB, gravity, doSleep);
-
-
+	
 	mNbObjects = NB_OBJECTS;
 	mObjects = new CObject*[mNbObjects];
 
 	mHero = new CSquareShip(mWorld, mListMissiles);
 	mHero->Create(3);
-	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), mSpawnMgr->mListTiles);// vaisseau sans tiles
+	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), mSpawnMgr->mListTiles);// vaisseau sans tile
+	mHero->LoadPhysic();
 	mObjects[0] = mHero;
 	mSpawnMgr->SetHero(mHero);
 
@@ -89,8 +91,6 @@ void CWorldObjects::Create()
 		CSquareShip *ship = new CSquareShip(mWorld, mListMissiles);
 		ship->Create(3);
 		ship->LoadShape(mSpawnMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], mSpawnMgr->mListTiles);
-		ship->UnloadPhysic();
-		mWorld->CleanBodyList();
 		ship->SetAI(new CSquareShipAI(this, ship));
 		mObjects[i] = ship;
 		mSpawnMgr->AddObject(ship);
