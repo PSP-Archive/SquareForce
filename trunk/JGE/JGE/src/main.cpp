@@ -37,7 +37,7 @@
 	
 	PSP_MODULE_INFO(JGEApp_Title, 0, 1, 1);
 	PSP_MAIN_THREAD_ATTR(THREAD_ATTR_USER | THREAD_ATTR_VFPU);
-	PSP_HEAP_SIZE_MAX();
+	PSP_HEAP_SIZE_KB(-256);
 
 #else
 
@@ -214,6 +214,30 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	pspDebugScreenPrintf("BadVAddr  - %08X\n", (int)regs->badvaddr);
 	for (i = 0; i < 32; i += 4) pspDebugScreenPrintf("%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
 
+	FILE *log = fopen("exception.txt", "w");
+	if (log)
+	{
+		char testo[512];
+		sprintf(testo, "Exception details:\n\n");
+		fprintf(log, testo);
+		sprintf(testo, "Exception - %s\n", codeTxt[(regs->cause >> 2) & 31]);
+		fprintf(log, testo);
+		sprintf(testo, "EPC       - %08X / %s.text + %08X\n", (int)regs->epc, module_info.modname, (unsigned int)(regs->epc-(int)&_ftext));
+		fprintf(log, testo);
+		sprintf(testo, "Cause     - %08X\n", (int)regs->cause);
+		fprintf(log, testo);
+		sprintf(testo, "Status    - %08X\n", (int)regs->status);
+		fprintf(log, testo);
+		sprintf(testo, "BadVAddr  - %08X\n", (int)regs->badvaddr);
+		fprintf(log, testo);
+		for (i = 0; i < 32; i += 4)
+		{
+			sprintf(testo, "%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
+			fprintf(log, testo);
+		}
+		fclose(log);
+	}
+
 	sceKernelDelayThread(1000000);
 	pspDebugScreenPrintf("\n\nPress X to dump information on file exception.log and quit");
 	pspDebugScreenPrintf("\nPress O to quit");
@@ -223,7 +247,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		sceCtrlReadBufferPositive(&pad, 1);
 		if (pad.Buttons & PSP_CTRL_CROSS)
 		{
-			FILE *log = fopen("exception.log", "w");
+			log = fopen("exception.log", "w");
 			if (log != NULL)
 			{
 				char testo[512];
@@ -256,6 +280,26 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 }
 
 void initExceptionHandler()
+{
+	SceKernelLMOption option;
+	int args[2], fd, modid;
+
+	memset(&option, 0, sizeof(option));
+	option.size = sizeof(option);
+	option.mpidtext = PSP_MEMORY_PARTITION_KERNEL;
+	option.mpiddata = PSP_MEMORY_PARTITION_KERNEL;
+	option.position = 0;
+	option.access = 1;
+
+	if ((modid = sceKernelLoadModule("exception.prx", 0, &option)) >= 0)
+	{
+		args[0] = (int)ExceptionHandler;
+		args[1] = (int)&exception_regs;
+		sceKernelStartModule(modid, 8, args, &fd, NULL);
+	}
+}
+
+void EndExceptionHandler()
 {
 	SceKernelLMOption option;
 	int args[2], fd, modid;

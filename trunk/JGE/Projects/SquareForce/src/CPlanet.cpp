@@ -19,8 +19,8 @@ CPlanet::CPlanet()
 	mPlanetAngularVelocity = 2.0f;
 	mCloudsAngularVelocity = 3.0f;
 
-	mSizeX = 4.0f;
-	mSizeY = 4.0f;
+	mSizeX = b2Random(1.0f, 4.0f);
+	mSizeY = mSizeX;
 
 	mPlanetColor = ARGB(255,255,255,255);
 	mCloudsColor = ARGB(255,255,255,255);

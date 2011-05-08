@@ -1885,62 +1885,75 @@ void JRenderer::DrawLine(float x1, float y1, float x2, float y2, float lineWidth
 
 void JRenderer::DrawCircle(float x, float y, float radius, PIXEL_TYPE color)
 {
-	struct VertexColor* vertices = (struct VertexColor*)sceGuGetMemory(181 * sizeof(struct VertexColor));
+	int nbVertices = (int)(4.0f*radius);
+	if(nbVertices > 360)
+		nbVertices = 360;
+	struct VertexColor* vertices = (struct VertexColor*)sceGuGetMemory((nbVertices+1) * sizeof(struct VertexColor));
 
-	int angle = 359;
-	for(int i=0; i<180; i++)
+	float angle = 360.0f;
+	float da = angle/(float)nbVertices;
+	angle -= 1.0f;
+	for(int i=0; i<nbVertices; i++)
 	{
+		int a = (int)angle;
 		vertices[i].color = color;
-		vertices[i].x = x+radius*COSF(angle);
-		vertices[i].y = y+radius*SINF(angle);
+		vertices[i].x = x+radius*COSF(a);
+		vertices[i].y = y+radius*SINF(a);
 		vertices[i].z = 0.0f;
-		angle -= 2;
-		if (angle < 0)
-			angle = 0;
+		angle -= da;
+		if (angle < 0.0f)
+			angle = 0.0f;
 	}
 
-	vertices[180].color = color;
-	vertices[180].x = x+radius*COSF(0);
-	vertices[180].y = y+radius*SINF(0);
-	vertices[180].z = 0.0f;
+	vertices[nbVertices].color = color;
+	vertices[nbVertices].x = x+radius*COSF(0);
+	vertices[nbVertices].y = y+radius*SINF(0);
+	vertices[nbVertices].z = 0.0f;
 
 	sceGuDisable(GU_TEXTURE_2D);
 	sceGuShadeModel(GU_SMOOTH);
 	sceGuAmbientColor(0xffffffff);
-	sceGuDrawArray(GU_LINE_STRIP, TEXTURE_COLOR_FORMAT|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 181, 0, vertices);
+	sceGuDrawArray(GU_LINE_STRIP, TEXTURE_COLOR_FORMAT|GU_VERTEX_32BITF|GU_TRANSFORM_2D, nbVertices+1, 0, vertices);
 	sceGuEnable(GU_TEXTURE_2D);
 }
 
 void JRenderer::FillCircle(float x, float y, float radius, PIXEL_TYPE color)
 {
-	struct VertexColor* vertices = (struct VertexColor*)sceGuGetMemory(182 * sizeof(struct VertexColor));
+	int nbVertices = (int)(4.0f*radius);
+	if(nbVertices > 360)
+		nbVertices = 360;
+	struct VertexColor* vertices = (struct VertexColor*)sceGuGetMemory((nbVertices+2) * sizeof(struct VertexColor));
 
 	vertices[0].color = color;
 	vertices[0].x = x;
 	vertices[0].y = y;
 	vertices[0].z = 0.0f;
 
-	int angle = 359;
-	for(int i=0; i<180; i++)
+	float angle = 360.0f;
+	float da = angle/(float)nbVertices;
+	angle -= 1.0f;
+	for(int i=0; i<nbVertices; i++)
 	{
+		int a = (int)angle;
 		vertices[i+1].color = color;
-		vertices[i+1].x = x+radius*COSF(angle);
-		vertices[i+1].y = y+radius*SINF(angle);
+		vertices[i+1].x = x+radius*COSF(a);
+		vertices[i+1].y = y+radius*SINF(a);
 		vertices[i+1].z = 0.0f;
-		angle -= 2;
-		if (angle < 0)
-			angle = 0;
+		angle -= da;
+		if (angle < 0.0f)
+			angle = 0.0f;
 	}
 
-	vertices[181].color = color;
-	vertices[181].x = x+radius*COSF(359);
-	vertices[181].y = y+radius*SINF(359);
-	vertices[181].z = 0.0f;
+	int lastVertex = nbVertices+1;
+	vertices[lastVertex].color = color;
+	vertices[lastVertex].x = x+radius*COSF(359);
+	vertices[lastVertex].y = y+radius*SINF(359);
+	vertices[lastVertex].z = 0.0f;
 
 	sceGuDisable(GU_TEXTURE_2D);
 	sceGuShadeModel(GU_SMOOTH);
 	sceGuAmbientColor(0xffffffff);
-	sceGuDrawArray(GU_TRIANGLE_FAN, TEXTURE_COLOR_FORMAT|GU_VERTEX_32BITF|GU_TRANSFORM_2D, 182, 0, vertices);
+	sceGuDrawArray(GU_TRIANGLE_FAN, TEXTURE_COLOR_FORMAT|GU_VERTEX_32BITF|GU_TRANSFORM_2D, nbVertices+2, 0, vertices);
 	sceGuEnable(GU_TEXTURE_2D);
 }
 
