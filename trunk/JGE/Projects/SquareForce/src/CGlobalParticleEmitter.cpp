@@ -19,8 +19,9 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 	mDeltaColor = hgeColor(0, 0, 0, 0);
 
 	hgeParticle* par = mParticles;
-	for(int i=0; i<mNbParticles; i++)
+	for(int i=0; i<mNbParticles; ++i)
 	{
+		memset(par, 0, sizeof(hgeParticle));
 		hgeColor deltaColor = hgeColor(
 			b2Random(0.0f, mDeltaColor.r), 
 			b2Random(0.0f, mDeltaColor.g), 
@@ -35,9 +36,9 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 		float y = b2Random(-mRadius, mRadius);
 
 		par->vecLocation = mPos+hgeVector(x, y);
-		par->vecVelocity = hgeVector();
+		par->vecVelocity = hgeVector(0.0f, 0.0f);
 
-		par++;
+		++par;
 	}
 
 	mQuad = quad;
@@ -84,7 +85,7 @@ void CGlobalParticleEmitter::Update(float deltaTime, const b2Vec2& camPos)
 			localPos *= popSize - 1.0f;
 
 			par->vecLocation = mPos+localPos;
-			par->vecVelocity = hgeVector();
+			par->vecVelocity = hgeVector(0.0f, 0.0f);
 		}
 		par++;
 	}
@@ -104,7 +105,7 @@ void CGlobalParticleEmitter::Render(const b2Vec2& camPos, const float32& camRot)
 		float32 rotation = par->fSpin-camRot;
 
 		mQuad->SetColor(par->colColor.GetHWColor());
-		renderer->RenderQuad(mQuad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, 0, size, size);
+		renderer->RenderQuad(mQuad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation, size, size);
 		par++;
 	}
 }

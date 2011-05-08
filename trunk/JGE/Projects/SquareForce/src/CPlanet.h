@@ -49,6 +49,8 @@ protected:
 	PIXEL_TYPE mCloudsColor;
 	PIXEL_TYPE mLightsColor;
 	PIXEL_TYPE mShadowsColor;
+
+	float mRenderDist;
 };
 
 #endif
