@@ -122,8 +122,8 @@ void CWorldObjects::Create()
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	int num = 10;
-	mGPE1 = new CGlobalParticleEmitter(150, resMgr->GetParticlesQuad(10), 1.0f, 
-		hgeColor(0.6f, 0.9f, 0.9f, 0.9f), hgeColor(-0.2f, -0.3f, -0.2f, 0.0f));
+	mGPE1 = new CGlobalParticleEmitter(80, resMgr->GetParticlesQuad(10), 1.0f, 
+		hgeColor(0.6f, 0.9f, 0.9f, 0.9f), hgeColor(-0.3f, -0.4f, -0.3f, 0.0f));
 	mGPE1->SpawnAt(mCamPos.x, mCamPos.y);
 	
 	num = 1;
