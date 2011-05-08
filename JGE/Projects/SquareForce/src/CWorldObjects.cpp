@@ -74,14 +74,23 @@ void CWorldObjects::Create()
 	bool doSleep = true;				// Do we want to let bodies sleep?
 
 	// Construct a world object, which will hold and simulate the rigid bodies.
+#ifdef PSP
+	int size = ramAvailable();
+#endif
 	mWorld = new b2World(worldAABB, gravity, doSleep);
-	
+#ifdef PSP
+	int size2 = ramAvailable();
+	FILE *f = fopen("debug.txt", "w");
+	fprintf(f, "ram free : %d o\nCreating b2World.\nram free : %d o\n", size, size2);
+	fclose(f);
+#endif
+
 	mNbObjects = NB_OBJECTS;
 	mObjects = new CObject*[mNbObjects];
 
 	mHero = new CSquareShip(mWorld, mListMissiles);
 	mHero->Create(3);
-	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), mSpawnMgr->mListTiles);// vaisseau sans tile
+	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), mSpawnMgr->mListTiles);// vaisseau sans tiles
 	mHero->LoadPhysic();
 	mObjects[0] = mHero;
 	mSpawnMgr->SetHero(mHero);
@@ -95,6 +104,12 @@ void CWorldObjects::Create()
 		mObjects[i] = ship;
 		mSpawnMgr->AddObject(ship);
 	}
+#ifdef PSP
+	size = ramAvailable();
+	f = fopen("debug.txt", "a");
+	fprintf(f, "Creating objects.\nram free : %d o\n", size);
+	fclose(f);
+#endif
 	
 	mCamPos = mHero->GetCenterPosition();
 	mCamRot = M_PI_4;
@@ -114,7 +129,7 @@ void CWorldObjects::Create()
 
 	mNbPlanets = NB_PLANETS;
 	mPlanets = new CPlanet*[mNbPlanets];
-	for(int i=0; i<mNbPlanets; i++)
+	for(int i=0; i<mNbPlanets; ++i)
 	{
 		mPlanets[i] = new CPlanet;
 		mPlanets[i]->SetOriginPosition(b2Vec2(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
@@ -145,7 +160,7 @@ void CWorldObjects::Update(float dt)
 
 	// on update les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
-	list<CMissile*>::iterator itEnd = mListMissiles.end();
+	const list<CMissile*>::const_iterator itEnd = mListMissiles.end();
 	while(it != itEnd)
 	{
 		(*it)->Update(timeStep);
@@ -216,18 +231,38 @@ void CWorldObjects::Update(float dt)
 
 void CWorldObjects::Render()
 {
+// #ifdef PSP
+// 	FILE *f = fopen("debug.txt", "a");
+// 	fprintf(f, "starting render\n");
+// 	fclose(f);
+// #endif
 	JRenderer* renderer = JRenderer::GetInstance();	
 
 	// on dessine le fond
 	//renderer->RenderQuad(mBGQuad, 0, 0);
 
 	mGPE2->Render(mCamPos, mCamRot);
+// #ifdef PSP
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "mGPE2 rendered\n");
+// 	fclose(f);
+// #endif
 
 	// on dessine l'émetteur de particules global
 	mGPE1->Render(mCamPos, mCamRot);
+// #ifdef PSP
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "mGPE1 rendered\n");
+// 	fclose(f);
+// #endif
 
 	for(int i=0; i<mNbPlanets; i++)
 		mPlanets[i]->Render(mCamPos, mCamRot);
+// #ifdef PSP
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "planets rendered\n");
+// 	fclose(f);
+// #endif
 
 	// on dessine les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
@@ -237,6 +272,11 @@ void CWorldObjects::Render()
 		(*it)->Render(mCamPos, mCamRot);
 		it++;
 	}
+// #ifdef PSP
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "missiles rendered\n");
+// 	fclose(f);
+// #endif
 	
 	// on dessine les objets
 // 	for(int i=0; i<mNbObjects; i++)
@@ -249,6 +289,11 @@ void CWorldObjects::Render()
 	{
 		obj->Render(mCamPos, mCamRot);
 	}
+// #ifdef PSP
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "objects rendered\n\n");
+// 	fclose(f);
+// #endif
 }
 
 

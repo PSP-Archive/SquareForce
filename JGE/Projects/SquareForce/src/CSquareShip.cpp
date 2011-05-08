@@ -50,7 +50,9 @@ void CSquareShip::Create(int size)
 	mQuad = resMgr->GetSquareTilesQuads();
 
 	mOriginPosition = b2Vec2(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f));
+	mCenterPosition = mOriginPosition;
 	mRotation = 0.0f;
+	mRotationMatrix.Set(mRotation);
 	mLinearVelocity = b2Vec2(0.0f, 0.0f);
 	mAngularVelocity = 0.0f;
 
@@ -68,8 +70,6 @@ void CSquareShip::Create(int size)
 
 	mDashRTimer = 0.0f;
 	mDashLTimer = 0.0f;
-
-	mBody = NULL;
 }
 
 CSquareTile* CSquareShip::SetSquareTile(CSquareTile* squareTile, int slot)

@@ -34,6 +34,9 @@ CPlanet::CPlanet()
 	mLightsTex = resMgr->GetLightsTex();
 
 	mPlanetMesh = resMgr->GetPlanetMesh();
+
+	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_HEIGHT*0.5f;
+	mRenderDist *= mRenderDist;
 }
 
 
@@ -52,6 +55,9 @@ void CPlanet::Update(float dt)
 
 void CPlanet::Render(const b2Vec2& camPos, const float32& camRot)
 {
+
+	if((mOriginPosition-camPos).Length2() > mRenderDist)
+		return;
 
 	// get JRenderer instance
 	JRenderer* renderer = JRenderer::GetInstance();	
