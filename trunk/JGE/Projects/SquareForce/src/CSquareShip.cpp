@@ -377,7 +377,7 @@ void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot)
 			quad->SetColor(ARGB(255, 255, 255, 255));
 #else
 			quad->mBlend=GU_TFX_ADD;
-			quad->SetColor(ARGB(0, 0, 0, 0));
+			quad->SetColor(ARGB(255, 0, 0, 0));
 #endif
 		}
 		renderer->RenderQuad(quad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation);
