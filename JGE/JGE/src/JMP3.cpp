@@ -23,30 +23,37 @@ bool JMP3::init_done = false;
 
 #define JLOG(s)
 
-void JMP3::init() {
-	if (!init_done) {
+void JMP3::init() 
+{
+	if (!init_done) 
+	{
 		init_done = loadModules();
 	}
 }
 
 JMP3::JMP3() :
-m_volume(PSP_AUDIO_VOLUME_MAX), m_samplesPlayed(0), m_paused(true) {
+m_volume(PSP_AUDIO_VOLUME_MAX), m_samplesPlayed(0), m_paused(true) 
+{
 }
 
-JMP3::~JMP3() {
+JMP3::~JMP3() 
+{
 	unload();
 }
 
-bool JMP3::loadModules() {
+bool JMP3::loadModules() 
+{
 	JLOG("loading Audio modules");
 #ifdef MP3_SUPPORT    
 	int loadAvCodec = sceUtilityLoadModule(PSP_MODULE_AV_AVCODEC);
-	if (loadAvCodec < 0) {
+	if (loadAvCodec < 0) 
+	{
 		return false;
 	}
 
 	int loadMp3 = sceUtilityLoadModule(PSP_MODULE_AV_MP3);
-	if (loadMp3 < 0) {
+	if (loadMp3 < 0) 
+	{
 		return false;
 	}
 	JLOG("Audio modules loaded");
@@ -54,9 +61,11 @@ bool JMP3::loadModules() {
 	return true;
 }
 
-bool JMP3::fillBuffers() {
+bool JMP3::fillBuffers() 
+{
 	JLOG("Start JMP3::fillBuffers");
-	if (!init_done) {
+	if (!init_done) 
+	{
 		JLOG("JMP3::fillBuffers called but init_done is false!");
 		return false;
 	}
@@ -69,14 +78,16 @@ bool JMP3::fillBuffers() {
 	if (ret < 0)
 		return false;
 
-	if (sceIoLseek32(m_fileHandle, pos, SEEK_SET) < 0) {
+	if (sceIoLseek32(m_fileHandle, pos, SEEK_SET) < 0) 
+	{
 		// Re-open the file because file handel can be invalidated by suspend/resume.
 		sceIoClose(m_fileHandle);
 		m_fileHandle = sceIoOpen(m_fileName, PSP_O_RDONLY, 0777);
 		if (m_fileHandle < 0)
 			return false;
 		if (sceIoLseek32(m_fileHandle, 0, SEEK_END) != m_fileSize
-			|| sceIoLseek32(m_fileHandle, pos, SEEK_SET) < 0) {
+			|| sceIoLseek32(m_fileHandle, pos, SEEK_SET) < 0) 
+		{
 				sceIoClose(m_fileHandle);
 				m_fileHandle = -1;
 				return false;
@@ -125,9 +136,11 @@ int JMP3::GetID3TagSize(char *fname)
 	return 0; 
 }
 
-bool JMP3::load(const std::string& filename, int inBufferSize, int outBufferSize) {
+bool JMP3::load(const std::string& filename, int inBufferSize, int outBufferSize) 
+{
 	JLOG("Start JMP3::load");
-	if (!init_done) {
+	if (!init_done) 
+	{
 		JLOG("JMP3::load called but init_done is false!");
 		return false;
 	}
@@ -147,12 +160,16 @@ bool JMP3::load(const std::string& filename, int inBufferSize, int outBufferSize
 		return false;
 
 	// Memorise the full path for reloading with decode thread.
-	if ( getcwd(m_fileName, sizeof(m_fileName)) ){
+	if ( getcwd(m_fileName, sizeof(m_fileName)) )
+	{
 		int len = strnlen(m_fileName, sizeof(m_fileName));
-		if (len + filename.size() <= sizeof(m_fileName) - 2){
+		if (len + filename.size() <= sizeof(m_fileName) - 2)
+		{
 			m_fileName[len++] = '/';
 			strcpy(m_fileName + len, filename.c_str());
-		}else{
+		}
+		else
+		{
 			m_fileName[0] = NULL;
 		}
 	}
@@ -198,9 +215,11 @@ bool JMP3::load(const std::string& filename, int inBufferSize, int outBufferSize
 	return true;
 }
 
-bool JMP3::unload() {
+bool JMP3::unload() 
+{
 	JLOG("Start JMP3::unload");
-	if (!init_done) {
+	if (!init_done) 
+	{
 		JLOG("JMP3::unload called but init_done is false!");
 		return false;
 	}
@@ -222,23 +241,28 @@ bool JMP3::unload() {
 	return true;
 }
 
-bool JMP3::update() {
-	if (!init_done) {
+bool JMP3::update() 
+{
+	if (!init_done) 
+	{
 		return false;
 	}
 #ifdef MP3_SUPPORT   
 	int retry = 8;//FIXME:magic number
 JMP3_update_start:
 
-	if (!m_paused) {
-		if (sceMp3CheckStreamDataNeeded(m_mp3Handle) > 0) {
+	if (!m_paused) 
+	{
+		if (sceMp3CheckStreamDataNeeded(m_mp3Handle) > 0) 
+		{
 			fillBuffers();
 		}
 
 		short* tempBuffer;
 		int numDecoded = 0;
 
-		while (true) {
+		while (true) 
+		{
 			numDecoded = sceMp3Decode(m_mp3Handle, &tempBuffer);
 			if (numDecoded > 0)
 				break;
@@ -251,8 +275,10 @@ JMP3_update_start:
 		}
 
 		// Okay, let's see if we can't get something outputted :/
-		if (numDecoded == 0 || ((unsigned)numDecoded == 0x80671402)) {
-			if (retry-- > 0){
+		if (numDecoded == 0 || ((unsigned)numDecoded == 0x80671402)) 
+		{
+			if (retry-- > 0)
+			{
 				//give me a recovery chance after suspend/resume...
 				sceKernelDelayThread(1);
 				goto JMP3_update_start;
@@ -263,8 +289,11 @@ JMP3_update_start:
 				m_paused = true;
 
 			m_samplesPlayed = 0;
-		} else {
-			if (m_channel < 0 || m_lastDecoded != numDecoded) {
+		} 
+		else 
+		{
+			if (m_channel < 0 || m_lastDecoded != numDecoded) 
+			{
 				if (m_channel >= 0)
 					sceAudioSRCChRelease();
 
@@ -282,15 +311,18 @@ JMP3_update_start:
 	return true;
 }
 
-bool JMP3::play() {
+bool JMP3::play() 
+{
 	return (m_paused = false);
 }
 
-bool JMP3::pause() {
+bool JMP3::pause() 
+{
 	return (m_paused = true);
 }
 
-bool JMP3::setLoop(bool loop) {
+bool JMP3::setLoop(bool loop) 
+{
 	JLOG("Start JMP3::setLoop");
 	if (!init_done) {
 		JLOG("JMP3::setLoop called but init_done is false!");
@@ -303,18 +335,22 @@ bool JMP3::setLoop(bool loop) {
 	JLOG("End JMP3::setLoop");   
 }
 
-int JMP3::setVolume(int volume) {
+int JMP3::setVolume(int volume) 
+{
 	return (m_volume = volume);
 }
 
-int JMP3::playTime() const {
+int JMP3::playTime() const 
+{
 	return m_playTime;
 }
 
-int JMP3::playTimeMinutes() {
+int JMP3::playTimeMinutes() 
+{
 	return (m_playTime / 1000) / 60;
 }
 
-int JMP3::playTimeSeconds() {
+int JMP3::playTimeSeconds() 
+{
 	return (m_playTime/1000) % 60;
 }

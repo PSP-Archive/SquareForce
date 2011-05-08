@@ -49,6 +49,7 @@ CWorldObjects::~CWorldObjects()
 	}
 	SAFE_DELETE_ARRAY(mPlanets);
 
+	mWorld->CleanBodyList();
 	SAFE_DELETE(mWorld);
 
 	while(!mListMissiles.empty())
@@ -57,9 +58,14 @@ CWorldObjects::~CWorldObjects()
 		mListMissiles.pop_front();
 	}
 
-
 	SAFE_DELETE(mGPE1);
 	SAFE_DELETE(mGPE2);
+
+// #ifdef PSP
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "exit CWorldObjects delete\n");
+// 	fclose(f);
+// #endif
 }
 
 
@@ -74,16 +80,16 @@ void CWorldObjects::Create()
 	bool doSleep = true;				// Do we want to let bodies sleep?
 
 	// Construct a world object, which will hold and simulate the rigid bodies.
-#ifdef PSP
-	int size = ramAvailable();
-#endif
+// #ifdef PSP
+// 	int size = ramAvailable();
+// #endif
 	mWorld = new b2World(worldAABB, gravity, doSleep);
-#ifdef PSP
-	int size2 = ramAvailable();
-	FILE *f = fopen("debug.txt", "w");
-	fprintf(f, "ram free : %d o\nCreating b2World.\nram free : %d o\n", size, size2);
-	fclose(f);
-#endif
+// #ifdef PSP
+// 	int size2 = ramAvailable();
+// 	FILE *f = fopen("debug.txt", "w");
+// 	fprintf(f, "ram free : %d o\nCreating b2World.\nram free : %d o\n", size, size2);
+// 	fclose(f);
+// #endif
 
 	mNbObjects = NB_OBJECTS;
 	mObjects = new CObject*[mNbObjects];
@@ -104,29 +110,27 @@ void CWorldObjects::Create()
 		mObjects[i] = ship;
 		mSpawnMgr->AddObject(ship);
 	}
-#ifdef PSP
-	size = ramAvailable();
-	f = fopen("debug.txt", "a");
-	fprintf(f, "Creating objects.\nram free : %d o\n", size);
-	fclose(f);
-#endif
+// #ifdef PSP
+// 	size = ramAvailable();
+// 	f = fopen("debug.txt", "a");
+// 	fprintf(f, "Creating objects.\nram free : %d o\n", size);
+// 	fclose(f);
+// #endif
 	
 	mCamPos = mHero->GetCenterPosition();
 	mCamRot = M_PI_4;
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	int num = 10;
-	mGPE1 = new CGlobalParticleEmitter(150, resMgr->GetParticlesQuad(10), 1.0f);
-	//mGPE->mStartColor = hgeColor(0.3f, 1.0f, 1.0f, 0.5f);
-	//mGPE->mDeltaColor = hgeColor(-0.3f, -0.7f, -0.2f, 0);
-	mGPE1->mStartColor = hgeColor(0.3f, 0.7f, 1.0f, 1.0f);
-	mGPE1->mDeltaColor = hgeColor(-0.3f, -0.7f, -0.7f, -0.2f);
-
+	mGPE1 = new CGlobalParticleEmitter(150, resMgr->GetParticlesQuad(10), 1.0f, 
+		hgeColor(0.6f, 0.9f, 0.9f, 0.9f), hgeColor(-0.2f, -0.3f, -0.2f, 0.0f));
+	mGPE1->SpawnAt(mCamPos.x, mCamPos.y);
+	
 	num = 1;
-	mGPE2 = new CGlobalParticleEmitter(50, resMgr->GetParticlesQuad(1), 60.0f);
-	mGPE2->mStartColor = hgeColor(0.6f, 0.0f, 0.9f, 0.2f);
-	mGPE2->mDeltaColor = hgeColor(-0.6f, 0.3f, -0.3f, 0.0f);
-
+	mGPE2 = new CGlobalParticleEmitter(70, resMgr->GetParticlesQuad(1), 70.0f, 
+		hgeColor(0.6f, 0.0f, 0.9f, 0.2f), hgeColor(-0.6f, 0.3f, -0.3f, 0.0f));
+	mGPE2->SpawnAt(mCamPos.x, mCamPos.y);
+	
 	mNbPlanets = NB_PLANETS;
 	mPlanets = new CPlanet*[mNbPlanets];
 	for(int i=0; i<mNbPlanets; ++i)
@@ -231,38 +235,18 @@ void CWorldObjects::Update(float dt)
 
 void CWorldObjects::Render()
 {
-// #ifdef PSP
-// 	FILE *f = fopen("debug.txt", "a");
-// 	fprintf(f, "starting render\n");
-// 	fclose(f);
-// #endif
 	JRenderer* renderer = JRenderer::GetInstance();	
 
 	// on dessine le fond
 	//renderer->RenderQuad(mBGQuad, 0, 0);
 
 	mGPE2->Render(mCamPos, mCamRot);
-// #ifdef PSP
-// 	f = fopen("debug.txt", "a");
-// 	fprintf(f, "mGPE2 rendered\n");
-// 	fclose(f);
-// #endif
 
 	// on dessine l'émetteur de particules global
-	mGPE1->Render(mCamPos, mCamRot);
-// #ifdef PSP
-// 	f = fopen("debug.txt", "a");
-// 	fprintf(f, "mGPE1 rendered\n");
-// 	fclose(f);
-// #endif
+	mGPE1->Render(mCamPos, mCamRot, 0.0f, 0.7f);
 
 	for(int i=0; i<mNbPlanets; i++)
 		mPlanets[i]->Render(mCamPos, mCamRot);
-// #ifdef PSP
-// 	f = fopen("debug.txt", "a");
-// 	fprintf(f, "planets rendered\n");
-// 	fclose(f);
-// #endif
 
 	// on dessine les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
@@ -272,28 +256,17 @@ void CWorldObjects::Render()
 		(*it)->Render(mCamPos, mCamRot);
 		it++;
 	}
-// #ifdef PSP
-// 	f = fopen("debug.txt", "a");
-// 	fprintf(f, "missiles rendered\n");
-// 	fclose(f);
-// #endif
 	
 	// on dessine les objets
-// 	for(int i=0; i<mNbObjects; i++)
-// 	{
-// 		mObjects[i]->Render(mCamPos, mCamRot);
-// 	}
 	int i = 0;
 	CObject* obj = NULL;
 	while((obj = mSpawnMgr->GetObject(i++)))
 	{
 		obj->Render(mCamPos, mCamRot);
 	}
-// #ifdef PSP
-// 	f = fopen("debug.txt", "a");
-// 	fprintf(f, "objects rendered\n\n");
-// 	fclose(f);
-// #endif
+
+	// on dessine l'émetteur de particules global
+	mGPE1->Render(mCamPos, mCamRot, 0.7f, 1.0f);
 }
 
 

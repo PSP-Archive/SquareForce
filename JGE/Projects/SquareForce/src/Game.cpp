@@ -28,6 +28,7 @@ Game::Game(): IGame()
 	mGameLevel = NULL;
 
 	mTutoPanel = NULL;
+	mPanel = NULL;
 }
 
 
@@ -37,6 +38,7 @@ Game::Game(): IGame()
 //-------------------------------------------------------------------------------------
 Game::~Game()
 {
+	
 }
 
 
@@ -77,18 +79,21 @@ void Game::Create()
 //-------------------------------------------------------------------------------------
 void Game::Destroy()
 {
-	SAFE_DELETE(mFont);
-
 	if(mGameLevel)
 		mGameLevel->Destroy();
-	SAFE_DELETE(mGameLevel);
 
 	if(mPanel)
 		mPanel->Destroy();
-	SAFE_DELETE(mPanel);
 
 	if(mTutoPanel)
 		mTutoPanel->Destroy();
+
+	SAFE_DELETE(mFont);
+
+	SAFE_DELETE(mGameLevel);
+
+	SAFE_DELETE(mPanel);
+
 	SAFE_DELETE(mTutoPanel);
 }
 

@@ -48,7 +48,7 @@ GameLevel::GameLevel()
 //-------------------------------------------------------------------------------------
 GameLevel::~GameLevel()
 {
-	SAFE_DELETE(mSpawnMgr);
+
 }
 
 
@@ -81,7 +81,7 @@ void GameLevel::Create()
 		mMusic = sound->LoadMusic("2-11 bLiNd - JENOVA Celestial (J-E-N-O-V-A).mp3");	// Load a background music.
 
 	if (mMusic)
-		JSoundSystem::GetInstance()->PlayMusic(mMusic, true);
+		sound->PlayMusic(mMusic, true);
 	sound->SetMusicVolume(50);
 
 	mSpawnMgr = new CSpawnManager;
@@ -131,6 +131,8 @@ void GameLevel::Destroy()
 {
 	SAFE_DELETE(mWorldObjects);
 
+	SAFE_DELETE(mSpawnMgr);
+
 	SAFE_DELETE(mFont);
 
 	SAFE_DELETE(mMinimapQuad);
@@ -139,10 +141,13 @@ void GameLevel::Destroy()
 	SAFE_DELETE(mTargetReticleQuad);
 	SAFE_DELETE(mTargetReticleTex);
 
+	JSoundSystem* sound = JSoundSystem::GetInstance();
+	sound->StopMusic(mMusic);
  	SAFE_DELETE(mMusic);
 
 	for(int i=0; i<SQUARETILE_INVENTORY_SIZE; i++)
 		SAFE_DELETE(mInventory[i]);
+
 }
 
 
@@ -259,7 +264,7 @@ void GameLevel::UpdateControler()
 
 	if (engine->GetButtonClick(PSP_CTRL_SELECT))	
 	{
-		mMinimapScale *= 5.0f;
+		mMinimapScale *= 5;
 		if(mMinimapScale > MINIMAP_SCALE_MAX)
 			mMinimapScale = MINIMAP_SCALE_MIN;
 	}
@@ -456,12 +461,14 @@ void GameLevel::DrawGui()
 // 	renderer->DrawLine(centerX-MINIMAP_RADIUS, centerY, centerX+MINIMAP_RADIUS, centerY, ARGB(128,0,0,255));
 // 	renderer->DrawLine(centerX, centerY-MINIMAP_RADIUS, centerX, centerY+MINIMAP_RADIUS, ARGB(128,0,0,255));
 
-	b2Vec2 dir = b2Vec2(0, MINIMAP_RADIUS).Rotate(-mWorldObjects->mCamRot);
+	b2Mat22 camMat(mWorldObjects->mCamRot);
+	b2Vec2 dir = b2MulT(camMat, b2Vec2(0, MINIMAP_RADIUS));
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
 
 	//renderer->DrawCircle(SCREEN_SIZE_X2, SCREEN_SIZE_Y2, RETICLE_DEAD_ZONE, ARGB(128,255,200,0));
 
+	float minimapDistMax2 = minimapDistMax*minimapDistMax;
 	for(int i=0; i<mWorldObjects->mNbObjects; i++)
 	{
 		if(mWorldObjects->mObjects[i] == (CObject*)mWorldObjects->mHero)
@@ -469,10 +476,10 @@ void GameLevel::DrawGui()
 
 		b2Vec2 shipPos = mWorldObjects->mObjects[i]->GetOriginPosition();
 		b2Vec2 shipDir = shipPos - mWorldObjects->mCamPos;
-		if(shipDir.Length() <= minimapDistMax)
+		if(shipDir.Length2() <= minimapDistMax2)
 		{
-			shipDir = (minimapRatio * shipDir).Rotate(-mWorldObjects->mCamRot);
-			renderer->DrawCircle(centerX+shipDir.x, centerY-shipDir.y, 1, ARGB(255,255,0,0));
+			shipDir = b2MulT(camMat, (minimapRatio * shipDir));
+			renderer->Plot(centerX+shipDir.x, centerY-shipDir.y, ARGB(255,255,0,0));
 		}
 // 		shipDir = shipPos - mWorldObjects->mCamPos;
 // 		if(shipDir.Length() <= MINIMAP_SCALE_MAX)
@@ -528,7 +535,7 @@ void GameLevel::Pause()
 {
 	mPaused = true;
 
-	JSoundSystem* sound = JSoundSystem::GetInstance();
+	//JSoundSystem* sound = JSoundSystem::GetInstance();
 	//sound->PauseMusic(mMusic);
 }
 
@@ -541,6 +548,6 @@ void GameLevel::Resume()
 {
 	mPaused = false;
 
-	JSoundSystem* sound = JSoundSystem::GetInstance();
+	//JSoundSystem* sound = JSoundSystem::GetInstance();
 	//sound->ResumeMusic(mMusic);
 }

@@ -431,7 +431,8 @@ void StopMP3()
 	printf("stop 1\n");
 	JMP3 * mp3 = JMP3::mInstance;
 	printf("stop 2\n");
-	if (mp3){
+	if (mp3)
+	{
 		printf("stop 3\n");
 		mp3->pause();
 		printf("stop 4\n");
@@ -451,25 +452,38 @@ void StopMP3()
 //////////////////////////////////////////////////////////////////////////
 void ResumeMP3(JMP3 * mp3)
 {
-	mp3->play();
+	if (mp3)
+	{
+		mp3->play();
 
-	mp3thread = sceKernelCreateThread("decodeThread2", decodeThread2, 0x12, 0xFA0, 0, 0);
-	printf("thread id : %i\n", mp3thread);
-	sceKernelStartThread(mp3thread, 0, NULL);
+		mp3thread = sceKernelCreateThread("decodeThread2", decodeThread2, 0x12, 0xFA0, 0, 0);
+		printf("thread id : %i\n", mp3thread);
+		sceKernelStartThread(mp3thread, 0, NULL);
+	}
 }
 
 void PauseMP3(JMP3 * mp3)
 {
-	mp3->pause();
+	if (mp3)
+	{
+		mp3->pause();
+
+		sceKernelWaitThreadEnd(mp3thread, NULL);
+		sceKernelDeleteThread(mp3thread);
+		mp3thread = 0;
+	}
+
 }
 
 
-int decodeThread2(SceSize args, void *argp){
+int decodeThread2(SceSize args, void *argp)
+{
 	JMP3 * mp3 = NULL;
-	while((mp3 = JMP3::mInstance) && !mp3->m_paused){
+	while((mp3 = JMP3::mInstance) && !mp3->m_paused)
+	{
 		mp3->update();
 
-		//sceKernelDelayThread(10000);
+		sceKernelDelayThread(1);
 	}
 	return 0;
 }

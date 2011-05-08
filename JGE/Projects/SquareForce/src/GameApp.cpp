@@ -42,8 +42,6 @@ GameApp::GameApp()
 //-------------------------------------------------------------------------------------
 GameApp::~GameApp()
 {
-	SAFE_DELETE(mGame);
-
 	CLocalization::DestroyInstance();
 	CResourceManager::DestroyInstance();
 }
@@ -86,10 +84,10 @@ void GameApp::Create()
 //-------------------------------------------------------------------------------------
 void GameApp::Destroy()
 {
-	if(!mGame)
-		return;
+	if(mGame)
+		mGame->Destroy();
 
-	mGame->Destroy();
+	SAFE_DELETE(mGame);
 }
 
 
@@ -185,8 +183,6 @@ void GameApp::Update()
 			break;
 		default:
 			{
-				mGame->Destroy();
-				delete mGame;
 				engine->End();
 			}
 			break;
@@ -196,6 +192,11 @@ void GameApp::Update()
 
 
 	mGame->Update();
+
+	if (engine->GetButtonState(PSP_CTRL_LTRIGGER) && 
+		engine->GetButtonState(PSP_CTRL_RTRIGGER) && 
+		engine->GetButtonState(PSP_CTRL_SELECT) )
+		engine->End();
 }
 
 
