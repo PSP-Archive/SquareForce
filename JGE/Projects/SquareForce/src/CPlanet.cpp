@@ -53,7 +53,7 @@ void CPlanet::Update(float dt)
 	mCloudsRotation = fmod(mTimer*0.04f, (float)M_PI*2.0f);
 }
 
-void CPlanet::Render(const b2Vec2& camPos, const float32& camRot)
+void CPlanet::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat)
 {
 
 	if((mOriginPosition-camPos).Length2() > mRenderDist)
@@ -62,7 +62,7 @@ void CPlanet::Render(const b2Vec2& camPos, const float32& camRot)
 	// get JRenderer instance
 	JRenderer* renderer = JRenderer::GetInstance();	
 
-	b2Vec2 position = b2MulT(b2Mat22(camRot), mOriginPosition - camPos);
+	b2Vec2 position = b2MulT(camMat, mOriginPosition - camPos);
 	float rotation = mRotation-camRot;
 
 	mPlanetMesh->SetTexture(mPlanetTex);

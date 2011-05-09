@@ -13,7 +13,7 @@ public:
 	CPlanet();
 	~CPlanet();
 
-	void Render(const b2Vec2& camPos, const float32& camRot);
+	void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat);
 	void Update(float dt);
 
 	inline const b2Vec2& GetOriginPosition() const {return mOriginPosition;}

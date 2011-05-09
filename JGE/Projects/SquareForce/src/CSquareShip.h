@@ -47,7 +47,7 @@ public:
 	virtual void UnloadPhysic();
 
 	void Create(int size);
-	void Render(const b2Vec2& camPos, const float32& camRot);
+	void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat);
 	void Update(float dt, bool updatePhysic = true);
 
 	void FireAt(const b2Vec2& target, float ratioError);

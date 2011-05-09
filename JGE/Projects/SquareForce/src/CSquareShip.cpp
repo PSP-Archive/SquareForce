@@ -299,7 +299,7 @@ void CSquareShip::UnloadPhysic()
 	}
 }
 
-void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot)
+void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat)
 {
 	// si ce n'est pas affiché à l'écran on skip
 	if((camPos-mOriginPosition).Length() > 300.0f)
@@ -310,8 +310,8 @@ void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot)
 	mEnginePS->info.fDirection = mRotation+M_PI_4;
 
 	// engines + trails
-	list<CSquareTileEngine*>::iterator itEngine = mlistSTEngine.begin();
-	list<CSquareTileEngine*>::iterator itEngineEnd = mlistSTEngine.end();
+	list<CSquareTileEngine*>::const_iterator itEngine = mlistSTEngine.begin();
+	const list<CSquareTileEngine*>::const_iterator itEngineEnd = mlistSTEngine.end();
 	while(itEngine != itEngineEnd)
 	{
 		list<b2Vec2>& listPos = (*itEngine)->mListPos;
@@ -324,78 +324,83 @@ void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot)
 				mEnginePS->RenderLocal(hgeVector(camPos.x, camPos.y), camRot);
 			}
 
-			list<b2Vec2>::iterator itPt = listPos.begin();
-			list<b2Vec2>::iterator itPtNext = listPos.begin();
-			itPtNext++;
+			list<b2Vec2>::const_iterator itPt = listPos.begin();
+			list<b2Vec2>::const_iterator itPtNext = itPt;
+			++itPtNext;
+			const list<b2Vec2>::const_iterator itPtEnd = listPos.end();
 			int size = listPos.size();
 			int a = 32;
 			int da = (size>1)?(a/(size-1)):a;
-			b2Mat22 rot(camRot);
-			while(itPtNext!=listPos.end())
+			while(itPtNext != itPtEnd)
 			{
-				b2Vec2 pos1 = b2MulT(rot, *itPt-camPos);
-				b2Vec2 pos2 = b2MulT(rot, *itPtNext-camPos);
+				b2Vec2 pos1 = b2MulT(camMat, *itPt-camPos);
+				b2Vec2 pos2 = b2MulT(camMat, *itPtNext-camPos);
 				renderer->DrawLine(SCREEN_SIZE_X2+pos1.x, SCREEN_SIZE_Y2-pos1.y, 
 					SCREEN_SIZE_X2+pos2.x, SCREEN_SIZE_Y2-pos2.y, 2, ARGB(a, 255, 255, 255));
 				a -= da;
-				itPt++;
-				itPtNext++;
+				++itPt;
+				++itPtNext;
 			}
 		}
-		itEngine++;
+		++itEngine;
 	}
 
 	
 	//renderer->EnableTextureFilter(false);
-	for(int i=0; i<mSize*mSize; i++)
+	CSquareTile** tiles = mSquareTiles;
+	int i = mSize*mSize+1;
+	while(--i)
 	{
-		if(!mSquareTiles[i])
-			continue;
-			
-		b2Vec2 trans = b2Mul(mRotationMatrix, mSquareTiles[i]->GetPosition());
-		b2Vec2 position = b2MulT(b2Mat22(camRot), 
-			mOriginPosition + trans - camPos);
-		float32 rotation = mRotation-camRot;
-
-		// tile
-		JQuad* quad = NULL;
-		if(mSquareTiles[i]->GetCurrentLife() > 0)
+		CSquareTile* tile = *tiles;
+		if(tile)
 		{
-			quad = mQuad[(int)mSquareTiles[i]->GetType()];
-			float r = mSquareTiles[i]->GetCurrentLife()/mSquareTiles[i]->GetLifePoints();
-#ifdef WIN32
-			quad->SetColor(ARGB((200+(int)(55*r)), 255, ((int)(255*r)), ((int)(255*r))));
-#else
-			quad->mBlend=GU_TFX_ADD;
-			quad->SetColor(ARGB((200+(int)(55*r)), (200-(int)(200*r)), 0, 0));
-#endif
-		}
-		else
-		{
-			quad = mQuad[(int)mSquareTiles[i]->GetType()+NB_SQUARETILES_QUADS];
-#ifdef WIN32
-			quad->SetColor(ARGB(255, 255, 255, 255));
-#else
-			quad->mBlend=GU_TFX_ADD;
-			quad->SetColor(ARGB(255, 0, 0, 0));
-#endif
-		}
-		renderer->RenderQuad(quad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation);
+			b2Vec2 trans = b2Mul(mRotationMatrix, tile->GetPosition());
+			b2Vec2 position = b2MulT(camMat, mOriginPosition + trans - camPos);
+			float32 rotation = mRotation-camRot;
 
-		// éclairs
-		int num = (int)(b2Random(0, 1)*20*NB_LIGHTNING_FRAMES);
-		if(num<NB_LIGHTNING_FRAMES)
-			renderer->RenderQuad(mLightningQuads[num], 
+			// tile
+			JQuad* quad = NULL;
+			float life = tile->GetCurrentLife();
+			if(life > 0)
+			{
+				quad = mQuad[(int)tile->GetType()];
+				float r = life/tile->GetLifePoints();
+#ifdef WIN32
+				quad->SetColor(ARGB((200+(int)(55*r)), 255, ((int)(255*r)), ((int)(255*r))));
+#else
+				quad->mBlend=GU_TFX_ADD;
+				quad->SetColor(ARGB((200+(int)(55*r)), (200-(int)(200*r)), 0, 0));
+#endif
+			}
+			else
+			{
+				quad = mQuad[(int)tile->GetType()+NB_SQUARETILES_QUADS];
+#ifdef WIN32
+				quad->SetColor(ARGB(255, 255, 255, 255));
+#else
+				quad->mBlend=GU_TFX_ADD;
+				quad->SetColor(ARGB(255, 0, 0, 0));
+#endif
+			}
+			renderer->RenderQuad(quad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation);
+
+			// éclairs
+			int num = (int)(b2Random(0, 1)*20*NB_LIGHTNING_FRAMES);
+			if(num<NB_LIGHTNING_FRAMES)
+				renderer->RenderQuad(mLightningQuads[num], 
 				SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation);
 
-		// explosion
-		hgeParticleSystem *explosionPS = mSquareTiles[i]->GetExplosionPS();
-		if(explosionPS)
-		{
-			b2Vec2 pos = (mOriginPosition + trans);
- 			explosionPS->Transpose(pos.x, pos.y);
- 			explosionPS->RenderLocal(hgeVector(camPos.x, camPos.y), camRot);
+			// explosion
+			hgeParticleSystem *explosionPS = tile->GetExplosionPS();
+			if(explosionPS)
+			{
+				b2Vec2 pos = (mOriginPosition + trans);
+				explosionPS->Transpose(pos.x, pos.y);
+				explosionPS->RenderLocal(hgeVector(camPos.x, camPos.y), camRot);
+			}
 		}
+
+		++tiles;
 	}	
 	//renderer->EnableTextureFilter(true);
 }
@@ -433,8 +438,8 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 		if(!mStopEngine)
 		{
 			mBody->m_linearDamping = 0.7f;
-			list<CSquareTileEngine*>::iterator itEngine = mlistSTEngine.begin();
-			list<CSquareTileEngine*>::iterator itEngineEnd = mlistSTEngine.end();
+			list<CSquareTileEngine*>::const_iterator itEngine = mlistSTEngine.begin();
+			const list<CSquareTileEngine*>::const_iterator itEngineEnd = mlistSTEngine.end();
 			while(itEngine != itEngineEnd)
 			{
 				if((*itEngine)->GetCurrentLife() > 0)
@@ -447,7 +452,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 					f *= /*(*itEngine)->GetEnginePower()*/mEnginePower * (*itEngine)->GetEngineAcceleration();
 					mBody->ApplyForce(f, p);
 				}
-				itEngine++;
+				++itEngine;
 			}
 
 			// frottements
@@ -481,12 +486,12 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 // 		mBody->ApplyTorque(v);
 
 		// missiles collisions
-		list<CMissile*>::iterator itMissile = mMissilesPt.begin();
-		list<CMissile*>::iterator itMissileEnd = mMissilesPt.end();
+		list<CMissile*>::const_iterator itMissile = mMissilesPt.begin();
+		const list<CMissile*>::const_iterator itMissileEnd = mMissilesPt.end();
 		while(itMissile != itMissileEnd)
 		{
 			ComputeCollision(*itMissile);
-			itMissile++;
+			++itMissile;
 		}
 	}
 

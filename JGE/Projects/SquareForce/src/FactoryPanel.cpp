@@ -270,7 +270,7 @@ void FactoryPanel::Render()
 	}
 
 	CSquareShip* hero = mGameLevel->mWorldObjects->mHero;
-	hero->Render(hero->GetOriginPosition(), hero->GetRotation());
+	hero->Render(hero->GetOriginPosition(), hero->GetRotation(), hero->GetRotationMatrix());
 
 
 	// tile sélection
