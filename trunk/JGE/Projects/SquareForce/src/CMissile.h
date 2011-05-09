@@ -20,7 +20,7 @@ public:
 	void CreateParticleSystem(const hgeParticleSystem& ps);
 	void AddPS(hgeParticleSystem* ps);
 	void Update(float deltaTime);
-	void Render(const b2Vec2& camPos, const float32& camRot);
+	void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat);
 
 	inline b2Vec2 GetPosition() const {return mPosition;}
 	inline b2Vec2 GetLastPosition() const {return mLastPosition;}

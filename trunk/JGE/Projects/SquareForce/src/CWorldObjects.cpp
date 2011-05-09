@@ -119,6 +119,7 @@ void CWorldObjects::Create()
 	
 	mCamPos = mHero->GetCenterPosition();
 	mCamRot = M_PI_4;
+	mCamMat.Set(mCamRot);
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	int num = 10;
@@ -227,6 +228,8 @@ void CWorldObjects::Update(float dt)
 			if(abs(deltaAngle) < M_PI)
 				deltaAngle *= ratio * 0.15f;
 			mCamRot += deltaAngle;
+
+			mCamMat.Set(mCamRot);
 		}
 	}
 
@@ -240,20 +243,20 @@ void CWorldObjects::Render()
 	// on dessine le fond
 	//renderer->RenderQuad(mBGQuad, 0, 0);
 
-	mGPE2->Render(mCamPos, mCamRot);
+	mGPE2->Render(mCamPos, mCamRot, mCamMat);
 
 	// on dessine l'émetteur de particules global
-	mGPE1->Render(mCamPos, mCamRot, 0.0f, 0.7f);
+	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.0f, 0.7f);
 
 	for(int i=0; i<mNbPlanets; i++)
-		mPlanets[i]->Render(mCamPos, mCamRot);
+		mPlanets[i]->Render(mCamPos, mCamRot, mCamMat);
 
 	// on dessine les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
 	list<CMissile*>::iterator itEnd = mListMissiles.end();
 	while(it != itEnd)
 	{
-		(*it)->Render(mCamPos, mCamRot);
+		(*it)->Render(mCamPos, mCamRot, mCamMat);
 		it++;
 	}
 	
@@ -262,11 +265,11 @@ void CWorldObjects::Render()
 	CObject* obj = NULL;
 	while((obj = mSpawnMgr->GetObject(i++)))
 	{
-		obj->Render(mCamPos, mCamRot);
+		obj->Render(mCamPos, mCamRot, mCamMat);
 	}
 
 	// on dessine l'émetteur de particules global
-	mGPE1->Render(mCamPos, mCamRot, 0.7f, 1.0f);
+	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.7f, 1.0f);
 }
 
 

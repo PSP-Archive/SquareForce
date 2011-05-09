@@ -10,7 +10,7 @@ public:
 	CObject(b2World* world);
 	virtual ~CObject();
 
-	virtual void Render(const b2Vec2& camPos, const float32& camRot) = 0;
+	virtual void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat) = 0;
 	virtual void Update(float dt, bool updatePhysic = true) = 0;
 
 	void RenderWire(const b2Vec2& camPos, const float& camRot, const b2Vec2& pos, PIXEL_TYPE color);

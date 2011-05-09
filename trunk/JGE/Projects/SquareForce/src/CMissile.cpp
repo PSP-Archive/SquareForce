@@ -86,13 +86,13 @@ void CMissile::Update(float deltaTime)
 }
 
 
-void CMissile::Render(const b2Vec2& camPos, const float32& camRot)
+void CMissile::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat)
 {
 	JRenderer* renderer = JRenderer::GetInstance();
 
 	float size = mParticle->fSize;
 
-	b2Vec2 position = b2MulT(b2Mat22(camRot), mPosition-camPos);
+	b2Vec2 position = b2MulT(camMat, mPosition-camPos);
 	float32 rotation = mParticle->fSpin-camRot;
 
 	if(mPS)
@@ -102,6 +102,6 @@ void CMissile::Render(const b2Vec2& camPos, const float32& camRot)
 	}
 
 	mQuad->SetColor(mParticle->colColor.GetHWColor());
-	renderer->RenderQuad(mQuad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, 0, size, size);
+	renderer->RenderQuad(mQuad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation, size, size);
 
 }

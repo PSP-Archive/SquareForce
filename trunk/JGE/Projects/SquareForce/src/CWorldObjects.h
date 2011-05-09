@@ -41,6 +41,7 @@ public:
 
 	b2Vec2 mCamPos;
 	float32 mCamRot;
+	b2Mat22 mCamMat;
 private:
 	CSpawnManager* mSpawnMgr;
 

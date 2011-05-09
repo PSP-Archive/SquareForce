@@ -453,14 +453,6 @@ void GameLevel::DrawGui()
 
 	renderer->RenderQuad(mMinimapQuad, (float)centerX, (float)centerY);
 
-// 	renderer->FillCircle(centerX, centerY, MINIMAP_RADIUS, ARGB(50,0,0,255));
-// 	renderer->DrawCircle(centerX, centerY, MINIMAP_RADIUS/2, ARGB(128,0,0,255));
-// 	renderer->DrawCircle(centerX, centerY, MINIMAP_RADIUS/4, ARGB(128,0,0,255));
-// 	renderer->DrawCircle(centerX, centerY, MINIMAP_RADIUS*3/4, ARGB(128,0,0,255));
-// 
-// 	renderer->DrawLine(centerX-MINIMAP_RADIUS, centerY, centerX+MINIMAP_RADIUS, centerY, ARGB(128,0,0,255));
-// 	renderer->DrawLine(centerX, centerY-MINIMAP_RADIUS, centerX, centerY+MINIMAP_RADIUS, ARGB(128,0,0,255));
-
 	b2Mat22 camMat(mWorldObjects->mCamRot);
 	b2Vec2 dir = b2MulT(camMat, b2Vec2(0, MINIMAP_RADIUS));
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
@@ -479,7 +471,7 @@ void GameLevel::DrawGui()
 		if(shipDir.Length2() <= minimapDistMax2)
 		{
 			shipDir = b2MulT(camMat, (minimapRatio * shipDir));
-			renderer->Plot(centerX+shipDir.x, centerY-shipDir.y, ARGB(255,255,0,0));
+			renderer->DrawCircle(centerX+shipDir.x, centerY-shipDir.y, 0.5f, ARGB(255,255,0,0));
 		}
 // 		shipDir = shipPos - mWorldObjects->mCamPos;
 // 		if(shipDir.Length() <= MINIMAP_SCALE_MAX)

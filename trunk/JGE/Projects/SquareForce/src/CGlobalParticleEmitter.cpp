@@ -57,7 +57,8 @@ void CGlobalParticleEmitter::ChangeColors(hgeColor startColor /*= hgeColor(1, 1,
 	mDeltaColor = deltaColor;
 
 	hgeParticle* par = mParticles;
-	for(int i=0; i<mNbParticles; i++)
+	int i = mNbParticles+1;
+	while(--i)
 	{
 		hgeColor deltaColor = hgeColor(
 			b2Random(0.0f, mDeltaColor.r), 
@@ -66,14 +67,15 @@ void CGlobalParticleEmitter::ChangeColors(hgeColor startColor /*= hgeColor(1, 1,
 			b2Random(0.0f, mDeltaColor.a));
 		par->colColor = mStartColor+deltaColor;
 
-		par++;
+		++par;
 	}
 }
 
 void CGlobalParticleEmitter::SpawnAt(float x, float y)
 {
 	hgeParticle* par = mParticles;
-	for(int i=0; i<mNbParticles; i++)
+	int i = mNbParticles+1;
+	while(--i)
 	{
 		par->fSize = b2Random(0.2f, 1.0f);
 		par->fSpin = b2Random(0.0f, 360.0f);
@@ -84,7 +86,7 @@ void CGlobalParticleEmitter::SpawnAt(float x, float y)
 		par->vecLocation = mPos+hgeVector(_x, _y);
 		par->vecVelocity = hgeVector(0,0);
 
-		par++;
+		++par;
 	}
 }
 
@@ -94,10 +96,11 @@ void CGlobalParticleEmitter::Update(float deltaTime, const b2Vec2& camPos)
 	hgeVector deltaPos = cam - mPos;
 	mPos = cam;
 
-	float popSize = mRadius+mZoom*GLOBAL_PARTICLE_SCALE*23.0f;
+	float popSize = mRadius+mZoom*GLOBAL_PARTICLE_SCALE*22.63f;
 	float popSize2 = popSize*popSize;
 	hgeParticle* par = mParticles;
-	for(int i=0; i<mNbParticles; i++)
+	int i = mNbParticles+1;
+	while(--i)
 	{
 		// on applique un pourcentage de la vitesse de la caméra proportionnel à la petitesse de la particule (effet 3d)
 		par->vecLocation += (0.8f-1.5f*par->fSize)*deltaPos;
@@ -117,6 +120,7 @@ void CGlobalParticleEmitter::Update(float deltaTime, const b2Vec2& camPos)
 
 			hgeVector localPos = deltaPos;
 			localPos.Normalize();
+			// on pop dans le demi plan devant nous
 			localPos = b2Random(0.001f, 1.0f)*localPos + b2Random(-1.0f, 1.0f)*hgeVector(-localPos.y, localPos.x);
 			localPos.Normalize();
 			localPos *= popSize - 1.0f;
@@ -124,18 +128,18 @@ void CGlobalParticleEmitter::Update(float deltaTime, const b2Vec2& camPos)
 			par->vecLocation = mPos+localPos;
 			par->vecVelocity = hgeVector(0,0);
 		}
-		par++;
+		++par;
 	}
 }
 
 
-void CGlobalParticleEmitter::Render(const b2Vec2& camPos, const float32& camRot, float minSize /*= 0.0f*/, float maxSize /*= 1.0f*/)
+void CGlobalParticleEmitter::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat, float minSize /*= 0.0f*/, float maxSize /*= 1.0f*/)
 {
 	JRenderer* renderer = JRenderer::GetInstance();
 
-	b2Mat22 camMat = b2Mat22(camRot);
-	hgeParticle *par=mParticles;
-	for(int i=0; i<mNbParticles; i++)
+	hgeParticle *par = mParticles;
+	int i = mNbParticles+1;
+	while(--i)
 	{
 		float size = par->fSize;
 		if(size > minSize && size <= maxSize)
@@ -148,6 +152,6 @@ void CGlobalParticleEmitter::Render(const b2Vec2& camPos, const float32& camRot,
 			mQuad->SetColor(par->colColor.GetHWColor());
 			renderer->RenderQuad(mQuad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation, size, size);
 		}
-		par++;
+		++par;
 	}
 }
