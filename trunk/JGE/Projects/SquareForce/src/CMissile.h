@@ -20,13 +20,13 @@ public:
 	void CreateParticleSystem(const hgeParticleSystem& ps);
 	void AddPS(hgeParticleSystem* ps);
 	void Update(float deltaTime);
-	void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat);
+	void Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat);
 
-	inline b2Vec2 GetPosition() const {return mPosition;}
-	inline b2Vec2 GetLastPosition() const {return mLastPosition;}
-	void SetPosition(const b2Vec2 &position);
-	inline b2Vec2 GetVelocity() const {return mVelocity;}
-	void SetVelocity(const b2Vec2 &velocity);
+	inline Vector2D GetPosition() const {return mPosition;}
+	inline Vector2D GetLastPosition() const {return mLastPosition;}
+	void SetPosition(const Vector2D &position);
+	inline Vector2D GetVelocity() const {return mVelocity;}
+	void SetVelocity(const Vector2D &velocity);
 	inline const bool IsAlive() const {return (mParticle->fAge<mParticle->fTerminalAge);}
 	inline void Destroy() {mParticle->fAge=mParticle->fTerminalAge;}
 
@@ -35,9 +35,9 @@ public:
 	inline const CSquareShip* GetOwner() const {return mOwner;} 
 
 private:
-	b2Vec2 mPosition;
-	b2Vec2 mLastPosition;
-	b2Vec2 mVelocity;
+	Vector2D mPosition;
+	Vector2D mLastPosition;
+	Vector2D mVelocity;
 
 	float mLifeTime;
 	hgeParticle* mParticle;

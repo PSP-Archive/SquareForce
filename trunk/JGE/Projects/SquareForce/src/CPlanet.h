@@ -13,11 +13,11 @@ public:
 	CPlanet();
 	~CPlanet();
 
-	void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat);
+	void Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat);
 	void Update(float dt);
 
-	inline const b2Vec2& GetOriginPosition() const {return mOriginPosition;}
-	inline void SetOriginPosition(const b2Vec2& position) {mOriginPosition = position;}
+	inline const Vector2D& GetOriginPosition() const {return mOriginPosition;}
+	inline void SetOriginPosition(const Vector2D& position) {mOriginPosition = position;}
 	
 	inline const float& GetRotation() const {return mRotation;}
 	inline const float& GetCloudsRotation() const {return mCloudsRotation;}
@@ -35,7 +35,7 @@ protected:
 	float mDeltaTime;
 	float mTimer;
 
-	b2Vec2 mOriginPosition;
+	Vector2D mOriginPosition;
 	float mRotation;
 	float mCloudsRotation;
 

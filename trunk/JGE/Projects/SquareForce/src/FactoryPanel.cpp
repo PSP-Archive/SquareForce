@@ -207,15 +207,15 @@ void FactoryPanel::Render()
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2+fmod(mTimer*4.0f, 64.0f)+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2+fmod(mTimer*5.0f, 64.0f)+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((12-(int)(8.0f*sinf(M_PI_4 + mTimer*4.0f+(x+y)*ratio))), 0, 255, (128-(int)(128.0f*sinf(mTimer*10.0f+(x+y)*16*ratio))))
 				);
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2+1+fmod(mTimer*4.0f, 64.0f)+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2+1+fmod(mTimer*5.0f, 64.0f)+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((12-(int)(8.0f*sinf(M_PI_4 + mTimer*4.0f+(x+y)*ratio))), 0, 255, (128-(int)(128.0f*sinf(mTimer*10.0f+(x+y)*16*ratio))))
 				);
 		}
@@ -231,15 +231,15 @@ void FactoryPanel::Render()
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2-fmod(mTimer*10.0f, 48.0f)+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2-fmod(1.0f+mTimer*6.0f, 48.0f)+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((20-(int)(12.0f*sinf(mTimer*3.0f+(x+y)*ratio))), 0, 255, (128-(int)(128.0f*sinf(mTimer*10.0f+(x+y)*16*ratio))))
 				);
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2+1-fmod(mTimer*10.0f, 48.0f)+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2+1-fmod(1.0f+mTimer*6.0f, 48.0f)+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((20-(int)(12.0f*sinf(mTimer*3.0f+(x+y)*ratio))), 0, 255, (128-(int)(128.0f*sinf(mTimer*10.0f+(x+y)*16*ratio))))
 				);
 		}
@@ -255,15 +255,15 @@ void FactoryPanel::Render()
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2+fmod(1.0f+mTimer*5.0f, 56.0f)+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2-fmod(mTimer*3.0f, 56.0f)+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((20-(int)(12.0f*sinf(mTimer*3.0f+(x+y)*ratio))), 0, 255, (128-(int)(128.0f*sinf(mTimer*10.0f+(x+y)*16*ratio))))
 				);
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2+1+fmod(1.0f+mTimer*5.0f, 56.0f)+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2+1-fmod(mTimer*3.0f, 56.0f)+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((20-(int)(12.0f*sinf(mTimer*3.0f+(x+y)*ratio))), 0, 255, (128-(int)(128.0f*sinf(mTimer*10.0f+(x+y)*16*ratio))))
 				);
 		}
@@ -282,8 +282,8 @@ void FactoryPanel::Render()
 			renderer->DrawRect(
 				(float)SCREEN_SIZE_X2+(x-0.5f)*width, 
 				(float)SCREEN_SIZE_Y2+(y-0.5f)*width,
-				width, 
-				width,
+				(float)width, 
+				(float)width,
 				ARGB((64-(int)(64.0f*sinf(mTimer*6.0f+(x+y)*ratio))), (100-(int)(100.0f*sinf(mTimer*6.0f+(x+y)*ratio))), 255, 0)
 				);
 
@@ -292,15 +292,15 @@ void FactoryPanel::Render()
 	renderer->DrawRect(
 		(float)SCREEN_SIZE_X2+(x-0.5f)*width, 
 		(float)SCREEN_SIZE_Y2+(y-0.5f)*width,
-		width, 
-		width,
+		(float)width, 
+		(float)width,
 		ARGB(128, 255, 0, 0)
 		);
 	renderer->FillRect(
 		(float)SCREEN_SIZE_X2+(x-0.5f)*width, 
 		(float)SCREEN_SIZE_Y2+(y-0.5f)*width,
-		width, 
-		width,
+		(float)width, 
+		(float)width,
 		ARGB(64, 255, (128-(int)(128.0f*sinf(mTimer*6.0f+(x+y)*ratio))), 0)
 		);
 
@@ -327,8 +327,8 @@ void FactoryPanel::Render()
 			renderer->DrawRect(
 			(float)100+(x-0.5f)*width, 
 			(float)SCREEN_SIZE_Y2+(y-0.5f)*width,
-			width, 
-			width,
+			(float)width, 
+			(float)width,
 			ARGB(255, (100-(int)(100.0f*sinf(mTimer*6.0f+(x+y)*ratio))), 255, 0)
 			);
 
@@ -365,15 +365,15 @@ void FactoryPanel::Render()
 		renderer->DrawRect(
 			(float)100+(x-0.5f)*width, 
 			(float)SCREEN_SIZE_Y2+(y-0.5f)*width,
-			width, 
-			width,
+			(float)width, 
+			(float)width,
 			ARGB(128, 255, 0, 0)
 			);
 		renderer->FillRect(
 			(float)100+(x-0.5f)*width, 
 			(float)SCREEN_SIZE_Y2+(y-0.5f)*width,
-			width, 
-			width,
+			(float)width, 
+			(float)width,
 			ARGB(64, 0, (128-(int)(128.0f*sinf(mTimer*6.0f+(x+y)*ratio))), 0)
 			);
 	}

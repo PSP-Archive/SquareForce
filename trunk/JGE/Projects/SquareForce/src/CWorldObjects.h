@@ -29,7 +29,7 @@ public:
 
 	void Create();
 
-	CObject* GetNearestObject(const b2Vec2& worldPos, CObject* skippedObj = NULL);
+	CObject* GetNearestObject(const Vector2D& worldPos, CObject* skippedObj = NULL);
 
 	int mNbObjects;
 	CObject **mObjects;
@@ -39,9 +39,9 @@ public:
 
 	CSquareShip *mHero;
 
-	b2Vec2 mCamPos;
-	float32 mCamRot;
-	b2Mat22 mCamMat;
+	Vector2D mCamPos;
+	float mCamRot;
+	Matrix22 mCamMat;
 private:
 	CSpawnManager* mSpawnMgr;
 

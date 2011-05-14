@@ -49,11 +49,11 @@ void CSquareShip::Create(int size)
 
 	mQuad = resMgr->GetSquareTilesQuads();
 
-	mOriginPosition = b2Vec2(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f));
+	mOriginPosition = Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f));
 	mCenterPosition = mOriginPosition;
 	mRotation = 0.0f;
 	mRotationMatrix.Set(mRotation);
-	mLinearVelocity = b2Vec2(0.0f, 0.0f);
+	mLinearVelocity = Vector2D(0.0f, 0.0f);
 	mAngularVelocity = 0.0f;
 
 	mEnginePower = 0.0f;
@@ -63,7 +63,7 @@ void CSquareShip::Create(int size)
 
 	mStopEngine = false;
 
-	AddEnginePS(hgeVector(0,0));
+	AddEnginePS(Vector2D(0,0));
 	SetMissileParticleSystem();
 
 	mDestroyed = false;
@@ -112,7 +112,7 @@ CSquareTile* CSquareShip::SetSquareTile(CSquareTile* squareTile, int slot)
 
 	tile->SetEquipped(true);
 	float mid = (float)(mSize>>1);
-	b2Vec2 pos = b2Vec2(((slot%mSize)-mid)*SQUARETILE_SIZE, (mid-(slot/mSize))*SQUARETILE_SIZE);
+	Vector2D pos = Vector2D(((slot%mSize)-mid)*SQUARETILE_SIZE, (mid-(slot/mSize))*SQUARETILE_SIZE);
 	tile->SetPosition(pos);
 
 	switch(tile->GetType())
@@ -154,7 +154,7 @@ void CSquareShip::LoadShape(CSquareShipData* datas, const vector<CSquareTile*>& 
 	float mid = (float)(mSize>>1);
 	for(int i=0;i<size2;i++)
 	{
-		b2Vec2 pos = b2Vec2(((i%mSize)-mid)*SQUARETILE_SIZE, (mid-(i/mSize))*SQUARETILE_SIZE);
+		Vector2D pos = Vector2D(((i%mSize)-mid)*SQUARETILE_SIZE, (mid-(i/mSize))*SQUARETILE_SIZE);
 
 		u32 id = mDatas->mTilesId[i];
 		CSquareTile* tileRef = listTiles[id];
@@ -255,12 +255,12 @@ void CSquareShip::LoadPhysic()
 	{
 		if(*tiles)
 		{
-			float32 halfSide = SQUARETILE_SIZE>>1;
+			float halfSide = SQUARETILE_SIZE>>1;
 			boxDef[i].extents.Set(halfSide, halfSide);
 			boxDef[i].density = 0.5f;						// Set the box density to be non-zero, so it will be dynamic.
 			boxDef[i].friction = 0.3f;						// Override the default friction.
 
-			const b2Vec2& pos = (*tiles)->GetPosition();
+			const Vector2D& pos = (*tiles)->GetPosition();
 			boxDef[i].localPosition.Set(pos.x, pos.y);
 			boxDef[i].localRotation = 0.0f;
 			bodyDef.AddShape(&boxDef[i]);
@@ -268,11 +268,11 @@ void CSquareShip::LoadPhysic()
 		tiles++;
 	}
 
-	bodyDef.position = mOriginPosition;
+	bodyDef.position = popCast(b2Vec2, mOriginPosition);
 	bodyDef.rotation = mRotation;
 	bodyDef.angularDamping = 0.7f;
 	bodyDef.linearDamping = 0.3f;
-	bodyDef.linearVelocity = mLinearVelocity;
+	bodyDef.linearVelocity = popCast(b2Vec2, mLinearVelocity);
 	bodyDef.angularVelocity = mAngularVelocity;
 
 	mBody = mWorld->CreateBody(&bodyDef);
@@ -281,11 +281,11 @@ void CSquareShip::LoadPhysic()
 
 	SAFE_DELETE_ARRAY(boxDef);
 
-	mOriginPosition = mBody->GetOriginPosition();
-	mCenterPosition = mBody->GetCenterPosition();
-	mLinearVelocity = mBody->GetLinearVelocity();
+	mOriginPosition = popCast(Vector2D, mBody->GetOriginPosition());
+	mCenterPosition = popCast(Vector2D, mBody->GetCenterPosition());
+	mLinearVelocity = popCast(Vector2D, mBody->GetLinearVelocity());
 	mRotation = mBody->GetRotation();
-	mRotationMatrix = mBody->GetRotationMatrix();
+	mRotationMatrix = popCast(Matrix22, mBody->GetRotationMatrix());
 	mAngularVelocity = mBody->GetAngularVelocity();
 }
 
@@ -299,7 +299,7 @@ void CSquareShip::UnloadPhysic()
 	}
 }
 
-void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat)
+void CSquareShip::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)
 {
 	// si ce n'est pas affiché à l'écran on skip
 	if((camPos-mOriginPosition).Length() > 300.0f)
@@ -314,27 +314,27 @@ void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot, const b2Ma
 	const list<CSquareTileEngine*>::const_iterator itEngineEnd = mlistSTEngine.end();
 	while(itEngine != itEngineEnd)
 	{
-		list<b2Vec2>& listPos = (*itEngine)->mListPos;
+		list<Vector2D>& listPos = (*itEngine)->mListPos;
 		if((*itEngine)->GetCurrentLife() > 0 && !listPos.empty())
 		{
 			if(!mStopEngine)
 			{
-				b2Vec2 position = listPos.front();//dernière position en date
+				Vector2D position = listPos.front();//dernière position en date
 				mEnginePS->Transpose(position.x, position.y);
-				mEnginePS->RenderLocal(hgeVector(camPos.x, camPos.y), camRot);
+				mEnginePS->RenderLocal(Vector2D(camPos.x, camPos.y), camRot, camMat);
 			}
 
-			list<b2Vec2>::const_iterator itPt = listPos.begin();
-			list<b2Vec2>::const_iterator itPtNext = itPt;
+			list<Vector2D>::const_iterator itPt = listPos.begin();
+			list<Vector2D>::const_iterator itPtNext = itPt;
 			++itPtNext;
-			const list<b2Vec2>::const_iterator itPtEnd = listPos.end();
+			const list<Vector2D>::const_iterator itPtEnd = listPos.end();
 			int size = listPos.size();
 			int a = 32;
 			int da = (size>1)?(a/(size-1)):a;
 			while(itPtNext != itPtEnd)
 			{
-				b2Vec2 pos1 = b2MulT(camMat, *itPt-camPos);
-				b2Vec2 pos2 = b2MulT(camMat, *itPtNext-camPos);
+				Vector2D pos1 = camMat / (*itPt-camPos);
+				Vector2D pos2 = camMat / (*itPtNext-camPos);
 				renderer->DrawLine(SCREEN_SIZE_X2+pos1.x, SCREEN_SIZE_Y2-pos1.y, 
 					SCREEN_SIZE_X2+pos2.x, SCREEN_SIZE_Y2-pos2.y, 2, ARGB(a, 255, 255, 255));
 				a -= da;
@@ -354,9 +354,9 @@ void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot, const b2Ma
 		CSquareTile* tile = *tiles;
 		if(tile)
 		{
-			b2Vec2 trans = b2Mul(mRotationMatrix, tile->GetPosition());
-			b2Vec2 position = b2MulT(camMat, mOriginPosition + trans - camPos);
-			float32 rotation = mRotation-camRot;
+			Vector2D trans = mRotationMatrix * tile->GetPosition();
+			Vector2D position = camMat / (mOriginPosition + trans - camPos);
+			float rotation = mRotation-camRot;
 
 			// tile
 			JQuad* quad = NULL;
@@ -394,9 +394,9 @@ void CSquareShip::Render(const b2Vec2& camPos, const float32& camRot, const b2Ma
 			hgeParticleSystem *explosionPS = tile->GetExplosionPS();
 			if(explosionPS)
 			{
-				b2Vec2 pos = (mOriginPosition + trans);
+				Vector2D pos = (mOriginPosition + trans);
 				explosionPS->Transpose(pos.x, pos.y);
-				explosionPS->RenderLocal(hgeVector(camPos.x, camPos.y), camRot);
+				explosionPS->RenderLocal(Vector2D(camPos.x, camPos.y), camRot, camMat);
 			}
 		}
 
@@ -412,16 +412,16 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 
 	if(updatePhysic)
 	{
-		mOriginPosition = mBody->GetOriginPosition();
-		mCenterPosition = mBody->GetCenterPosition();
-		mLinearVelocity = mBody->GetLinearVelocity();
+		mOriginPosition = popCast(Vector2D, mBody->GetOriginPosition());
+		mCenterPosition = popCast(Vector2D, mBody->GetCenterPosition());
+		mLinearVelocity = popCast(Vector2D, mBody->GetLinearVelocity());
 		mRotation = mBody->GetRotation();
-		mRotationMatrix = mBody->GetRotationMatrix();
+		mRotationMatrix = popCast(Matrix22, mBody->GetRotationMatrix());
 		mAngularVelocity = mBody->GetAngularVelocity();
 	}
 
-	b2Vec2 shipOrigin = mOriginPosition;
-	b2Mat22 shipRotation = mRotationMatrix;
+	Vector2D shipOrigin = mOriginPosition;
+	Matrix22 shipRotation = mRotationMatrix;
 
 
 	// physique
@@ -431,8 +431,8 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 
 		mBody->WakeUp();
 
-		b2Vec2 p;
-		b2Vec2 f;
+		Vector2D p;
+		Vector2D f;
 
 		// force linéaire
 		if(!mStopEngine)
@@ -445,12 +445,11 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 				if((*itEngine)->GetCurrentLife() > 0)
 				{
 					// poussée moteur
-					p = shipOrigin +
-						b2Mul(shipRotation, (*itEngine)->GetPosition());
-					f = b2Mul(shipRotation, b2Vec2(-1.0f, 1.0f));
+					p = shipOrigin + shipRotation * (*itEngine)->GetPosition();
+					f = shipRotation * Vector2D(-1.0f, 1.0f);
 					f.Normalize();
 					f *= /*(*itEngine)->GetEnginePower()*/mEnginePower * (*itEngine)->GetEngineAcceleration();
-					mBody->ApplyForce(f, p);
+					mBody->ApplyForce(popCast(b2Vec2, f), popCast(b2Vec2, p));
 				}
 				++itEngine;
 			}
@@ -476,7 +475,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 
 		// force de rotation
 		// poussée de rotation
-		float32 v;
+		float v;
 		v = mass*mass*mAngularPower*mAngularAcceleration;
 		mBody->ApplyTorque(v);
 
@@ -495,22 +494,21 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 		}
 	}
 
-	mEnginePS->info.fDirection = mRotation + M_PI_4;
-	mEnginePS->info.fSpeedMax = 0.0f+mEnginePower*2.0f;
-	mEnginePS->info.fSpeedMin = 0.0f+mEnginePower*2.5f;
+	mEnginePS->vDirection = mRotationMatrix*Vector2D(1,-1);
+	mEnginePS->info.fSpeedMax = 0.0f+mEnginePower*2.5f;
+	mEnginePS->info.fSpeedMin = 0.0f+mEnginePower*2.0f;
 	mEnginePS->Update(dt);
 
 	mMissilePS->Update(dt);
 
 	// engine trails
-	static b2Vec2 delta = b2Vec2((float)SQUARETILE_SIZE*0.5f, -(float)SQUARETILE_SIZE*0.5f);
+	static Vector2D delta = Vector2D((float)SQUARETILE_SIZE*0.5f, -(float)SQUARETILE_SIZE*0.5f);
 	list<CSquareTileEngine*>::iterator itEngine = mlistSTEngine.begin();
 	list<CSquareTileEngine*>::iterator itEngineEnd = mlistSTEngine.end();
 	while(itEngine != itEngineEnd)
 	{
-		b2Vec2 position = shipOrigin +
-			b2Mul(shipRotation, (*itEngine)->GetPosition() + delta);
-		list<b2Vec2>& listPos = (*itEngine)->mListPos;
+		Vector2D position = shipOrigin + shipRotation * ((*itEngine)->GetPosition() + delta);
+		list<Vector2D>& listPos = (*itEngine)->mListPos;
 		listPos.push_front(position);
 		if(listPos.size() > NB_POINTS_ENGINE_TRAIL)
 			listPos.pop_back();
@@ -531,12 +529,12 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 	}
 }
 
-void CSquareShip::FireAt(const b2Vec2& target, float ratioError)
+void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 {
 	ratioError = max(0.0f, min(1.0f, ratioError));
-	static b2Vec2 delta = b2Vec2(-SQUARETILE_SIZE/2, SQUARETILE_SIZE/2);
+	static Vector2D delta = Vector2D(-SQUARETILE_SIZE/2, SQUARETILE_SIZE/2);
 
-	b2Vec2 shipFront = b2Mul(mBody->GetRotationMatrix(), b2Vec2(-1.0f, 1.0f));
+	Vector2D shipFront = popCast(Matrix22, mBody->GetRotationMatrix()) * Vector2D(-1.0f, 1.0f);
 	shipFront.Normalize();
 
 	list<CSquareTileGun*>::iterator itGun = mlistSTGun.begin();
@@ -547,19 +545,19 @@ void CSquareShip::FireAt(const b2Vec2& target, float ratioError)
 		{
 			if((*itGun)->Fire())
 			{
-				b2Vec2 pos = mBody->GetOriginPosition() +
-					b2Mul(mBody->GetRotationMatrix(), (*itGun)->GetPosition() + delta);
+				Vector2D pos = popCast(Vector2D, mBody->GetOriginPosition()) + 
+					popCast(Matrix22, mBody->GetRotationMatrix()) * ((*itGun)->GetPosition() + delta);
 
-				b2Vec2 dir = target - pos;
+				Vector2D dir = target - pos;
 				dir.Normalize();
 				float ratio = b2Random(-ratioError, ratioError);
-				dir = (1.0f-abs(ratio)) * dir + ratio * b2Vec2(-dir.y, dir.x);
+				dir = (1.0f-abs(ratio)) * dir + ratio * Vector2D(-dir.y, dir.x);
 				dir.Normalize();
 				// on tire seulement si on vise un objet dans le demi cercle face au canon
-				if(b2Dot(dir, shipFront)>=0.0f)
+				if( dir * shipFront >= 0.0f)
 				{
 					dir *= (*itGun)->GetMissileSpeed();
-					dir += mBody->GetLinearVelocity();
+					dir += popCast(Vector2D, mBody->GetLinearVelocity());
 
 					CMissile *missile = new CMissile(1.0f, mQuadPcl, this, (*itGun)->GetHullDammages());
 					missile->SetPosition(pos);
@@ -575,7 +573,7 @@ void CSquareShip::FireAt(const b2Vec2& target, float ratioError)
 	}
 }
 
-void CSquareShip::AddEnginePS(const hgeVector& pos)
+void CSquareShip::AddEnginePS(const Vector2D& pos)
 {
 	SAFE_DELETE(mEnginePS);
 
@@ -710,11 +708,11 @@ void CSquareShip::Straff(float power)
 		return;
 
 	// poussée moteur
-	b2Vec2 p = mBody->GetCenterPosition();
-	b2Vec2 f = b2Mul(mBody->GetRotationMatrix(), b2Vec2(1.0f, 1.0f));
+	Vector2D p = popCast(Vector2D, mBody->GetCenterPosition());
+	Vector2D f = popCast(Matrix22, mBody->GetRotationMatrix()) * Vector2D(1.0f, 1.0f);
 	f.Normalize();
 	f *= power * 1000000.0f;
-	mBody->ApplyForce(f, p);
+	mBody->ApplyForce(popCast(b2Vec2, f), popCast(b2Vec2, p));
 }
 
 void CSquareShip::Dash(float power)
@@ -738,32 +736,32 @@ void CSquareShip::Dash(float power)
 		return;
 
 	// poussée moteur
-	b2Vec2 p = mBody->GetCenterPosition();
-	b2Vec2 f = b2Mul(mBody->GetRotationMatrix(), b2Vec2(1.0f, 1.0f));
+	Vector2D p = popCast(Vector2D, mBody->GetCenterPosition());
+	Vector2D f = popCast(Matrix22, mBody->GetRotationMatrix()) * Vector2D(1.0f, 1.0f);
 	f.Normalize();
 	f *= power * 150.0f * mBody->GetMass();
-	mBody->ApplyImpulse(f, p);
+	mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
 }
 
-b2Vec2 CSquareShip::GetShootPoint(const b2Vec2& pos, const b2Vec2& vel)
+Vector2D CSquareShip::GetShootPoint(const Vector2D& pos, const Vector2D& vel)
 {
-	b2Vec2 P = mBody->GetCenterPosition();//position initiale du projectile (approx)
+	Vector2D P = popCast(Vector2D, mBody->GetCenterPosition());//position initiale du projectile (approx)
 	float spdP = GUN_MISSILES_SPEED;
 
-	b2Vec2 E = pos;//position de la cible
-	b2Vec2 velE = vel;//vitesse de la cible
-	b2Vec2 velE0 = vel - mBody->GetLinearVelocity();//vitesse de la cible dans le référentiel dynamique du tireur
+	Vector2D E = pos;//position de la cible
+	Vector2D velE = vel;//vitesse de la cible
+	Vector2D velE0 = vel - popCast(Vector2D, mBody->GetLinearVelocity());//vitesse de la cible dans le référentiel dynamique du tireur
 
 	//si la cible est à l'arret la position recherchée est E
 	if(velE0.Length() == 0.0f) return  E;
 
-	b2Vec2 PE = E - P;//vecteur PE
+	Vector2D PE = E - P;//vecteur PE
 
 	float T1, T2;//nos temps à trouver (on prendra le plus petit des 2 (si positifs))
 
 	// équation du second degré AT²+BT+C=0
 	float A = velE0.Length2() - spdP*spdP;
-	float B = 2.0f * b2Dot(PE, velE0);
+	float B = 2.0f * (PE * velE0);
 	float C = PE.Length2();
 
 	if(A > 0.0f)// si A>0 le projectile est moins rapide que l'ennemi
@@ -793,12 +791,14 @@ void CSquareShip::ComputeCollision(CMissile* missile)
 	int size2 = mSize*mSize;
 	int squareTileRadius2 = (SQUARETILE_SIZE/2)*(SQUARETILE_SIZE/2);// rayon au carré du cercle passant par les milieux des côtés
 	int radius2 = size2*squareTileRadius2*2;// rayon au carré du cercle passant par les coins diagonaux
-	if((missile->GetPosition()-mBody->GetOriginPosition()).Length2() > radius2)
+	if((missile->GetPosition()-popCast(Vector2D, mBody->GetOriginPosition())).Length2() > radius2)
 		return;
 
-	b2Vec2 localPos = b2MulT(mBody->GetRotationMatrix(), missile->GetLastPosition() - mBody->GetOriginPosition());
+	Vector2D localPos = popCast(Matrix22, mBody->GetRotationMatrix()) / 
+		(missile->GetLastPosition() - popCast(Vector2D, mBody->GetOriginPosition()));
 	
-	b2Vec2 localTraj = b2MulT(mBody->GetRotationMatrix(), missile->GetPosition() - missile->GetLastPosition());
+	Vector2D localTraj = popCast(Matrix22, mBody->GetRotationMatrix()) / 
+		(missile->GetPosition() - missile->GetLastPosition());
 	float minTrajLength = localTraj.Length();
 	localTraj.Normalize();
 
@@ -812,8 +812,8 @@ void CSquareShip::ComputeCollision(CMissile* missile)
 		{
 			if((*squareTile)->GetCurrentLife() > 0)// si la squaretile n'est pas détruite
 			{
-				b2Vec2 tileDist = (*squareTile)->GetPosition() - localPos;
-				float scal = b2Dot(tileDist, localTraj);
+				Vector2D tileDist = (*squareTile)->GetPosition() - localPos;
+				float scal = tileDist * localTraj;
 				float dist2 = tileDist.Length2() - scal*scal;
 				if(dist2 <= squareTileRadius2)// tile traversée par le projectile
 				{

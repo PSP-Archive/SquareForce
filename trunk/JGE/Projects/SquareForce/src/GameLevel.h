@@ -69,8 +69,8 @@ protected:
 	JTexture* mMinimapTex;
 	JQuad* mMinimapQuad;
 
-	b2Vec2 mTargetReticlePos;// position locale % au centre de l'écran du réticule de visée
-	b2Vec2 mTargetReticleWorldPos;// world position
+	Vector2D mTargetReticlePos;// position locale % au centre de l'écran du réticule de visée
+	Vector2D mTargetReticleWorldPos;// world position
 
 	int mMinimapScale;
 

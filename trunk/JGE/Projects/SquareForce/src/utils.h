@@ -12,6 +12,7 @@
 #endif
 
 #include "Box2D.h"
+#include "Vector2D.h"
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
@@ -80,14 +81,16 @@ using namespace std;
 // Inventaire
 #define SQUARETILE_INVENTORY_SIZE		100
 
+#define popCast(type, var) (*((type*)&var))
+
 
 // MATH
 // projection scalaire de u sur v
-inline b2Vec2 ScalarProj(const b2Vec2& u, const b2Vec2& v)
+inline Vector2D ScalarProj(const Vector2D& u, const Vector2D& v)
 {
-	b2Vec2 base = v;
+	Vector2D base = v;
 	base.Normalize();
-	return b2Dot(u, base)*base;
+	return (u*base)*base;
 }
 
 

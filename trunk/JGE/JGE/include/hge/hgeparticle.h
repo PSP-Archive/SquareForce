@@ -13,7 +13,7 @@
 
 //#include "hge.h"
 //#include "hgesprite.h"
-#include "hgevector.h"
+#include "../Vector2D.h"
 #include "hgecolor.h"
 #include "hgerect.h"
 
@@ -24,8 +24,8 @@ class JQuad;
 
 struct hgeParticle
 {
-	hgeVector	vecLocation;
-	hgeVector	vecVelocity;
+	Vector2D	vecLocation;
+	Vector2D	vecVelocity;
 
 	float		fGravity;
 	float		fRadialAccel;
@@ -87,7 +87,7 @@ class hgeParticleSystem
 {
 public:
 	hgeParticleSystemInfo info;
-	
+
 	hgeParticleSystem(const char *filename, JQuad *sprite);
 	hgeParticleSystem(hgeParticleSystemInfo *psi);
 	hgeParticleSystem(const hgeParticleSystem &ps);
@@ -97,7 +97,7 @@ public:
 
 
 	void				Render();
-	void				RenderLocal(const hgeVector& localPos, const float& localAngle);
+	void				RenderLocal(const Vector2D& localPos, const float& localAngle, const Matrix22& localMat);
 	void				FireAt(float x, float y);
 	void				Fire();
 	void				Stop(bool bKillParticles=false);
@@ -112,6 +112,10 @@ public:
 	void				GetTransposition(float *x, float *y) const { *x=fTx; *y=fTy; }
 	hgeRect*			GetBoundingBox(hgeRect *rect) const { memcpy(rect, &rectBoundingBox, sizeof(hgeRect)); return rect; }
 
+	// NEW : vector direction
+	Vector2D			vDirection;
+	float				fSpreadCoeff;// NEW spread coeff conversion : value from -1(360°) to 1(0°)
+
 protected:
 	hgeParticleSystem();
 
@@ -120,8 +124,8 @@ protected:
 	float				fAge;
 	float				fEmissionResidue;
 
-	hgeVector			vecPrevLocation;
-	hgeVector			vecLocation;
+	Vector2D			vecPrevLocation;
+	Vector2D			vecLocation;
 	float				fTx, fTy;
 
 	int					nMaxParticles;
@@ -132,6 +136,7 @@ protected:
 	hgeParticle*		particles;
 
 	float				mTimer;
+
 };
 
 class hgeParticleManager

@@ -79,7 +79,7 @@ void CSpawnManager::Update()
 	list<CObject*>::const_iterator it = mListObjects.begin();
 	++it;
 	const list<CObject*>::const_iterator itEnd = mListObjects.end();
-	const b2Vec2& selfPos = mHero->GetOriginPosition();
+	const Vector2D& selfPos = mHero->GetOriginPosition();
 	while(it != itEnd)
 	{
 		float dist2 = ((*it)->GetOriginPosition() - selfPos).Length2();
@@ -150,7 +150,7 @@ bool CSpawnManager::ReadTilesTxt()
 					if(key != "RecoveryTime")
 						return false;
 					float recovTime = (float)atof(line.c_str());
-					CSquareTileHull *t = new CSquareTileHull(b2Vec2(0,0));
+					CSquareTileHull *t = new CSquareTileHull(Vector2D(0,0));
 					t->SetLifePoints(hull);
 					t->SetRegenSpeed(regenSpd);
 					t->SetTimeBeforeRecovery(recovTime);
@@ -179,7 +179,7 @@ bool CSpawnManager::ReadTilesTxt()
 					if(key != "EngineAcceleration")
 						return false;
 					float accel = (float)atof(line.c_str());
-					CSquareTileEngine *t = new CSquareTileEngine(b2Vec2(0,0));
+					CSquareTileEngine *t = new CSquareTileEngine(Vector2D(0,0));
 					t->SetLifePoints(hull);
 					t->SetRegenSpeed(regenSpd);
 					t->SetTimeBeforeRecovery(recovTime);
@@ -219,7 +219,7 @@ bool CSpawnManager::ReadTilesTxt()
 					if(key != "HullDamages")
 						return false;
 					float missileDmg = (float)atof(line.c_str());
-					CSquareTileGun *t = new CSquareTileGun(b2Vec2(0,0));
+					CSquareTileGun *t = new CSquareTileGun(Vector2D(0,0));
 					t->SetLifePoints(hull);
 					t->SetRegenSpeed(regenSpd);
 					t->SetTimeBeforeRecovery(recovTime);
@@ -261,7 +261,7 @@ bool CSpawnManager::ReadTilesTxt()
 					if(key != "HullDamages")
 						return false;
 					float missileDmg = (float)atof(line.c_str());
-					CSquareTileMissile *t = new CSquareTileMissile(b2Vec2(0,0));
+					CSquareTileMissile *t = new CSquareTileMissile(Vector2D(0,0));
 					t->SetLifePoints(hull);
 					t->SetRegenSpeed(regenSpd);
 					t->SetTimeBeforeRecovery(recovTime);
@@ -303,7 +303,7 @@ bool CSpawnManager::ReadTilesTxt()
 					if(key != "HullDamages")
 						return false;
 					float missileDmg = (float)atof(line.c_str());
-					CSquareTileMine *t = new CSquareTileMine(b2Vec2(0,0));
+					CSquareTileMine *t = new CSquareTileMine(Vector2D(0,0));
 					t->SetLifePoints(hull);
 					t->SetRegenSpeed(regenSpd);
 					t->SetTimeBeforeRecovery(recovTime);
@@ -467,7 +467,7 @@ bool CSpawnManager::ReadTilesRes()
 			case CSquareTile::HULL:
 				{
 					float val;
-					CSquareTileHull *t = new CSquareTileHull(b2Vec2(0,0));
+					CSquareTileHull *t = new CSquareTileHull(Vector2D(0,0));
 					fichier.read((char*)&val, sizeof(float));
 					t->SetLifePoints(val);
 					fichier.read((char*)&val, sizeof(float));
@@ -480,7 +480,7 @@ bool CSpawnManager::ReadTilesRes()
 			case CSquareTile::ENGINE:
 				{
 					float val;
-					CSquareTileEngine *t = new CSquareTileEngine(b2Vec2(0,0));
+					CSquareTileEngine *t = new CSquareTileEngine(Vector2D(0,0));
 					fichier.read((char*)&val, sizeof(float));
 					t->SetLifePoints(val);
 					fichier.read((char*)&val, sizeof(float));
@@ -495,7 +495,7 @@ bool CSpawnManager::ReadTilesRes()
 			case CSquareTile::GUN:
 				{
 					float val;
-					CSquareTileGun *t = new CSquareTileGun(b2Vec2(0,0));
+					CSquareTileGun *t = new CSquareTileGun(Vector2D(0,0));
 					fichier.read((char*)&val, sizeof(float));
 					t->SetLifePoints(val);
 					fichier.read((char*)&val, sizeof(float));
@@ -514,7 +514,7 @@ bool CSpawnManager::ReadTilesRes()
 			case CSquareTile::MISSILE:
 				{
 					float val;
-					CSquareTileMissile *t = new CSquareTileMissile(b2Vec2(0,0));
+					CSquareTileMissile *t = new CSquareTileMissile(Vector2D(0,0));
 					fichier.read((char*)&val, sizeof(float));
 					t->SetLifePoints(val);
 					fichier.read((char*)&val, sizeof(float));
@@ -533,7 +533,7 @@ bool CSpawnManager::ReadTilesRes()
 			case CSquareTile::MINE:
 				{
 					float val;
-					CSquareTileMine *t = new CSquareTileMine(b2Vec2(0,0));
+					CSquareTileMine *t = new CSquareTileMine(Vector2D(0,0));
 					fichier.read((char*)&val, sizeof(float));
 					t->SetLifePoints(val);
 					fichier.read((char*)&val, sizeof(float));

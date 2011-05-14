@@ -50,9 +50,9 @@ public:
 	bool GetLangList();
 	bool LoadStrings();
 	bool LoadSquareTilesStrings();
-	inline string GetLanguages(int i) {return (i>=0 && i<mLanguages.size())?mLanguages[i]:"";}
+	inline string GetLanguages(unsigned int i) {return (i<mLanguages.size())?mLanguages[i]:"";}
 	inline string GetPath() {return mPath;}
-	inline void SetLanguage(int i) {if(i>=0 && i<mLanguages.size()) mPath = mPathList[i];}
+	inline void SetLanguage(unsigned int i) {if(i<mLanguages.size()) mPath = mPathList[i];}
 	inline string GetToken(ELangToken token) {return mTokens[(int)token];}
 	inline string GetSquareTilesToken(ELangTokenTiles token) {return mSquareTilesTokens[(int)token];}
 

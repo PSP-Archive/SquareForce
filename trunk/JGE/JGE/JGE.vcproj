@@ -510,10 +510,6 @@
 					RelativePath=".\src\hge\hgerect.cpp"
 					>
 				</File>
-				<File
-					RelativePath=".\src\hge\hgevector.cpp"
-					>
-				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -665,10 +661,6 @@
 				</File>
 				<File
 					RelativePath=".\include\hge\hgerect.h"
-					>
-				</File>
-				<File
-					RelativePath=".\include\hge\hgevector.h"
 					>
 				</File>
 			</Filter>
