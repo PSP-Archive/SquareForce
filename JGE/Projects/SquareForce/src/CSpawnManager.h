@@ -18,7 +18,7 @@ public:
 	~CSpawnManager();
 
 	inline void AddObject(CObject* obj) {mListObjects.push_back(obj);}
-	inline CObject* GetObject(int i) {return ((i>=0 && i<mVisibleObjects.size())?mVisibleObjects[i]:NULL);}
+	inline CObject* GetObject(unsigned int i) {return ((i<mVisibleObjects.size())?mVisibleObjects[i]:NULL);}
 
 	inline void SetHero(CSquareShip* hero) 
 	{

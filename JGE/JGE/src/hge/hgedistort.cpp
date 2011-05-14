@@ -11,7 +11,7 @@
 #include "..\..\include\JRenderer.h"
 #include "..\..\include\JFileSystem.h"
 
-#include "..\..\include\hge\hgevector.h"
+#include "..\..\include\Vector2D.h"
 #include "..\..\include\hge\hgedistort.h"
 
 
@@ -32,17 +32,22 @@ hgeDistortionMesh::hgeDistortionMesh(int cols, int rows)
 
 	quad = NULL;
 
-	disp_array=new Vertex[rows*cols];
+	int size = rows*cols;
+	disp_array=new Vertex[size];
 
-	for(i=0;i<rows*cols;i++)
+	i = size+1;
+	Vertex* vert = disp_array;
+	while(--i)
 	{
-		disp_array[i].x=0.0f;
-		disp_array[i].y=0.0f;
-		disp_array[i].u=0.0f;
-		disp_array[i].v=0.0f;
+		vert->x=0.0f;
+		vert->y=0.0f;
+		vert->u=0.0f;
+		vert->v=0.0f;
 		
-		disp_array[i].z=0.5f;
-		disp_array[i].color=ARGB(0xFF,0xFF,0xFF,0xFF);
+		vert->z=0.5f;
+		vert->color=ARGB(0xFF,0xFF,0xFF,0xFF);
+
+		++vert;
 	}
 }
 
@@ -85,8 +90,9 @@ hgeDistortionMesh& hgeDistortionMesh::operator= (const hgeDistortionMesh &dm)
 		quad=dm.quad;
 
 		delete[] disp_array;
-		disp_array=new Vertex[nRows*nCols];
-		memcpy(disp_array, dm.disp_array, sizeof(Vertex)*nRows*nCols);
+		int size = nRows*nCols;
+		disp_array=new Vertex[size];
+		memcpy(disp_array, dm.disp_array, sizeof(Vertex)*size);
 	}
 
 	return *this;
@@ -111,15 +117,20 @@ void hgeDistortionMesh::SetTextureRect(float x, float y, float w, float h)
 	cellw=w/(nCols-1);
 	cellh=h/(nRows-1);
 
+	Vertex* vert = disp_array;
 	for(j=0; j<nRows; j++)
+	{
 		for(i=0; i<nCols; i++)
 		{
-			disp_array[j*nCols+i].u=(x+i*cellw);
-			disp_array[j*nCols+i].v=(y+j*cellh);
+			vert->u=(x+i*cellw);
+			vert->v=(y+j*cellh);
 
-// 			disp_array[j*nCols+i].x=i*cellw;
-// 			disp_array[j*nCols+i].y=j*cellh;
+			//disp_array[j*nCols+i].x=i*cellw;
+			//disp_array[j*nCols+i].y=j*cellh;
+
+			++vert;
 		}
+	}
 }
 
 void hgeDistortionMesh::SetBlendMode(int blend)
@@ -127,71 +138,144 @@ void hgeDistortionMesh::SetBlendMode(int blend)
 //	quad.blend=blend;
 }
 
-void hgeDistortionMesh::Clear(PIXEL_TYPE col, float z)
+void hgeDistortionMesh::Clear(PIXEL_TYPE col)
 {
-	int i,j;
-
-	for(j=0; j<nRows; j++)
-		for(i=0; i<nCols; i++)
-		{
-			//disp_array[j*nCols+i].x=i*cellw;
-			//disp_array[j*nCols+i].y=j*cellh;
-			disp_array[j*nCols+i].color=col;
-			//disp_array[j*nCols+i].z=z;
-		}
+	int i = nRows*nCols+1;
+	Vertex* vert = disp_array;
+	while(--i)
+	{
+		vert->color=col;
+		++vert;
+	}
 }
 
 void hgeDistortionMesh::Render(float x, float y, float scaleX, float scaleY, float angle)
 {
-	int i,j,idx;
+	int i,j;
 
 	VertexColor points[4];
 	JRenderer* renderer = JRenderer::GetInstance();
 
+	Vertex* vert = disp_array;
 	for(j=0; j<nRows-1; j++)
+	{
 		for(i=0; i<nCols-1; i++)
 		{
-			idx=j*nCols+i;
+			quad->SetTextureRect(vert->u, vert->v, cellw, cellh);
 
-			quad->SetTextureRect(disp_array[idx].u, disp_array[idx].v, cellw, cellh);
+			VertexColor* quadPt = points;
 
-			hgeVector pt;
+			Vector2D pt;
+			Vertex* vert2;
 
-			pt = hgeVector(disp_array[idx+nCols].x, disp_array[idx+nCols].y);
+			vert2 = vert + nCols;
+			pt = Vector2D(vert2->x, vert2->y);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			points[0].x = x+pt.x*scaleX;
-			points[0].y = y+pt.y*scaleY;
-			points[0].z = disp_array[idx+nCols].z;
-			points[0].color = disp_array[idx+nCols].color;
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+			++quadPt;
 
-			pt = hgeVector(disp_array[idx+nCols+1].x, disp_array[idx+nCols+1].y);
+			vert2 = vert + nCols + 1;
+			pt = Vector2D(vert2->x, vert2->y);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			points[1].x = x+pt.x*scaleX;
-			points[1].y = y+pt.y*scaleY;
-			points[1].z = disp_array[idx+nCols+1].z;
-			points[1].color = disp_array[idx+nCols+1].color;
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+			++quadPt;
 
-			pt = hgeVector(disp_array[idx+1].x, disp_array[idx+1].y);
+			vert2 = vert + 1;
+			pt = Vector2D(vert2->x, vert2->y);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			points[2].x = x+pt.x*scaleX;
-			points[2].y = y+pt.y*scaleY;
-			points[2].z = disp_array[idx+1].z;
-			points[2].color = disp_array[idx+1].color;
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+			++quadPt;
 
-			pt = hgeVector(disp_array[idx].x, disp_array[idx].y);
+			vert2 = vert;
+			pt = Vector2D(vert2->x, vert2->y);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			points[3].x = x+pt.x*scaleX;
-			points[3].y = y+pt.y*scaleY;
-			points[3].z = disp_array[idx].z;
-			points[3].color = disp_array[idx].color;
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+
 
 			renderer->RenderQuad(quad, points);
 
+			++vert;
 		}
+		++vert;
+	}
+}
+
+void hgeDistortionMesh::Render(float x, float y, const Matrix22& rotMat, float scaleX, float scaleY)
+{
+	int i,j;
+
+	VertexColor points[4];
+	JRenderer* renderer = JRenderer::GetInstance();
+
+	Vertex* vert = disp_array;
+	for(j=0; j<nRows-1; j++)
+	{
+		for(i=0; i<nCols-1; i++)
+		{
+			quad->SetTextureRect(vert->u, vert->v, cellw, cellh);
+
+			VertexColor* quadPt = points;
+
+			Vector2D pt;
+			Vertex* vert2;
+
+			vert2 = vert + nCols;
+			pt = rotMat * Vector2D(vert2->x, vert2->y);
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+			++quadPt;
+
+			vert2 = vert + nCols + 1;
+			pt = Vector2D(vert2->x, vert2->y);
+			pt = rotMat * Vector2D(vert2->x, vert2->y);
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+			++quadPt;
+
+			vert2 = vert + 1;
+			pt = Vector2D(vert2->x, vert2->y);
+			pt = rotMat * Vector2D(vert2->x, vert2->y);
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+			++quadPt;
+
+			vert2 = vert;
+			pt = Vector2D(vert2->x, vert2->y);
+			pt = rotMat * Vector2D(vert2->x, vert2->y);
+			quadPt->x = x+pt.x*scaleX;
+			quadPt->y = y+pt.y*scaleY;
+			quadPt->z = vert2->z;
+			quadPt->color = vert2->color;
+
+
+			renderer->RenderQuad(quad, points);
+
+			++vert;
+		}
+		++vert;
+	}
 }
 
 void hgeDistortionMesh::SetZ(int col, int row, float z)
@@ -215,8 +299,9 @@ void hgeDistortionMesh::SetDisplacement(int col, int row, float dx, float dy, in
 			case HGEDISP_TOPLEFT:	break;
 		}
 
-		disp_array[row*nCols+col].x=dx;
-		disp_array[row*nCols+col].y=dy;
+		Vertex* vert = disp_array+row*nCols+col;
+		vert->x=dx;
+		vert->y=dy;
 	}
 }
 
@@ -236,18 +321,19 @@ void hgeDistortionMesh::GetDisplacement(int col, int row, float *dx, float *dy, 
 {
 	if(row<nRows && col<nCols)
 	{
+		Vertex* vert = disp_array+row*nCols+col;
 		switch(ref)
 		{
-			case HGEDISP_NODE:		*dx=disp_array[row*nCols+col].x-col*cellw;
-									*dy=disp_array[row*nCols+col].y-row*cellh;
+			case HGEDISP_NODE:		*dx=vert->x-col*cellw;
+									*dy=vert->y-row*cellh;
 									break;
 
-			case HGEDISP_CENTER:	*dx=disp_array[row*nCols+col].x-cellw*(nCols-1)/2;
-									*dy=disp_array[row*nCols+col].x-cellh*(nRows-1)/2;
+			case HGEDISP_CENTER:	*dx=vert->x-cellw*(nCols-1)/2;
+									*dy=vert->y-cellh*(nRows-1)/2;
 									break;
 
-			case HGEDISP_TOPLEFT:	*dx=disp_array[row*nCols+col].x;
-									*dy=disp_array[row*nCols+col].y;
+			case HGEDISP_TOPLEFT:	*dx=vert->x;
+									*dy=vert->y;
 									break;
 		}
 	}

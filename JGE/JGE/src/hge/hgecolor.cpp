@@ -18,7 +18,7 @@
 	#define max(x, y) ((x>y)?x:y)
 #endif
 
-void hgeColorHSV::SetHWColor(DWORD col)
+void hgeColorHSV::SetHWColor(const DWORD& col)
 {
 	float r, g, b;
 	float minv, maxv, delta;

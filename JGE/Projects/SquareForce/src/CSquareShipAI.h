@@ -18,13 +18,13 @@ protected:
 	CSquareShip *mOwner;
 	CWorldObjects *mWorldObjects;
 
-	b2Vec2 mSpawnPoint;
+	Vector2D mSpawnPoint;
 	float mSpawnPointRadius;
 
-	b2Vec2 mPatrolPoint;
+	Vector2D mPatrolPoint;
 	float mPatrolPointRadius;
 
-	b2Vec2 mCurrentDest;
+	Vector2D mCurrentDest;
 	CSquareShip *mCurrentTarget;
 
 	float mRatioErrorFiring;

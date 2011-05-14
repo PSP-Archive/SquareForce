@@ -63,7 +63,7 @@ void GameLevel::Create()
 	mFont->Load("font.ttf", 12);
 
 	mTargetReticleTex = JRenderer::GetInstance()->LoadTexture("reticle.png", TEX_TYPE_USE_VRAM);
-	mTargetReticleQuad = new JQuad(mTargetReticleTex, 0, 0, mTargetReticleTex->mWidth, mTargetReticleTex->mHeight);
+	mTargetReticleQuad = new JQuad(mTargetReticleTex, 0, 0, (float)mTargetReticleTex->mWidth, (float)mTargetReticleTex->mHeight);
 	mTargetReticleQuad->SetHotSpot((float)mTargetReticleTex->mWidth*0.5f, (float)mTargetReticleTex->mHeight*0.5f);
 
 	mMinimapTex = JRenderer::GetInstance()->LoadTexture("minimap.png", TEX_TYPE_USE_VRAM);
@@ -108,11 +108,10 @@ void GameLevel::Reset()
 	
 	mWorldObjects->Create();
 
-	b2Mat22 camMat = b2Mat22(mWorldObjects->mCamRot);
+	Matrix22 camMat = Matrix22(mWorldObjects->mCamRot);
 
-	mTargetReticlePos = b2Vec2(0, 0);
-	mTargetReticleWorldPos = mWorldObjects->mCamPos 
-		+ b2Mul(camMat, mTargetReticlePos);
+	mTargetReticlePos = Vector2D(0, 0);
+	mTargetReticleWorldPos = mWorldObjects->mCamPos + camMat * mTargetReticlePos;
 
 	JGE* engine = JGE::GetInstance();
 	mDeltaTime = engine->GetDelta();		// Get time elapsed since last update.
@@ -180,21 +179,21 @@ void GameLevel::UpdateControler()
 	mWorldObjects->mHero->mAngularPower = 0.0f;
 
 	// on crée une rotation proportionnelle à la position du réticule % au centre du vaisseau
-// 	b2Vec2 reticleDir = mTargetReticlePos - 
+// 	Vector2D reticleDir = mTargetReticlePos - 
 // 		(mWorldObjects->mHero->GetCenterPosition()-mWorldObjects->mCamPos).Rotate(-mWorldObjects->mCamRot);
 // 	float l = reticleDir.Normalize();
-// 	float dr = b2Dot(b2Vec2(-1, 0), reticleDir);
+// 	float dr = b2Dot(Vector2D(-1, 0), reticleDir);
 // 	dr *= abs(dr);// on utilise une courbe parabole
 // 	if(l < RETICLE_DEAD_ZONE)// on crée une zone morte
 // 		dr = 0.0f;
-// 	else if(b2Dot(b2Vec2(0, 1), reticleDir) < 0)
+// 	else if(b2Dot(Vector2D(0, 1), reticleDir) < 0)
 // 		dr = (dr > 0.0f)?1.0f:-1.0f;
 // 	mWorldObjects->mHero->mAngularPower = dr;
 // 	if(mWorldObjects->mHero->mAngularPower > 1.0f)
 // 		mWorldObjects->mHero->mAngularPower = 1.0f;
 // 	else if(mWorldObjects->mHero->mAngularPower < -1.0f)
 // 		mWorldObjects->mHero->mAngularPower = -1.0f;
-	b2Vec2 reticleDir = mTargetReticlePos;
+	Vector2D reticleDir = mTargetReticlePos;
 		/*-(mWorldObjects->mHero->GetCenterPosition()-mWorldObjects->mCamPos).Rotate(-mWorldObjects->mCamRot);*/
 	float l = reticleDir.Length();
 	float dr;
@@ -292,7 +291,7 @@ void GameLevel::UpdateControler()
 			mWorldObjects->mHero->mAngularPower = 1.0f;
 	}
 	
-	b2Mat22 camMat = b2Mat22(mWorldObjects->mCamRot);
+	Matrix22 camMat = Matrix22(mWorldObjects->mCamRot);
 
 	// lock
 	if(engine->GetButtonClick(PSP_CTRL_LTRIGGER))
@@ -316,12 +315,12 @@ void GameLevel::UpdateControler()
 	if(abs(dvx) < 0.15f) dvx = 0.0f;
 	float dvy = -(float)(engine->GetAnalogY()-0x80)/181.0f;
 	if(abs(dvy) < 0.15f) dvy = 0.0f;
-	b2Vec2 dv = b2Vec2(dvx, dvy);// dv max normalisé (181=sqrt(128²+128²))
+	Vector2D dv = Vector2D(dvx, dvy);// dv max normalisé (181=sqrt(128²+128²))
 	
 	float cursorMaxSpeed;
 	float offset;
 	float ratio;
-	b2Vec2 magneticPoint;
+	Vector2D magneticPoint;
 	if(mTarget)
 	{
 		cursorMaxSpeed = 50.0f;
@@ -338,10 +337,10 @@ void GameLevel::UpdateControler()
 	}
 	//dv *= cursorMaxSpeed;
 	//mTargetReticlePos += 0.016f*dv;
-	b2Vec2 localMagneticPoint = b2MulT(camMat, magneticPoint-mWorldObjects->mCamPos);
+	Vector2D localMagneticPoint = camMat / (magneticPoint-mWorldObjects->mCamPos);
 	if(mTarget)
 		localMagneticPoint += 100.0f*dv;
-	b2Vec2 localDir = mTargetReticlePos - localMagneticPoint;
+	Vector2D localDir = mTargetReticlePos - localMagneticPoint;
 	float f = localDir.Normalize();
 	//mTargetReticlePos -= cursorMaxSpeed*0.016f*f/maxOffset * localDir;
 	if(f < offset)
@@ -372,14 +371,13 @@ void GameLevel::UpdateControler()
 	}
 
 
-	mTargetReticleWorldPos = mWorldObjects->mCamPos 
-		+ b2Mul(camMat, mTargetReticlePos);
+	mTargetReticleWorldPos = mWorldObjects->mCamPos + camMat * mTargetReticlePos;
 
 
 
 	if (engine->GetButtonState(PSP_CTRL_RTRIGGER))
 	{
-		b2Vec2 shootPos = mTargetReticleWorldPos;
+		Vector2D shootPos = mTargetReticleWorldPos;
 		if(mTarget)
 		{
 			shootPos = mWorldObjects->mHero->GetShootPoint(mTarget->GetOriginPosition(), mTarget->GetLinearVelocity());
@@ -453,8 +451,8 @@ void GameLevel::DrawGui()
 
 	renderer->RenderQuad(mMinimapQuad, (float)centerX, (float)centerY);
 
-	b2Mat22 camMat(mWorldObjects->mCamRot);
-	b2Vec2 dir = b2MulT(camMat, b2Vec2(0, MINIMAP_RADIUS));
+	Matrix22 camMat(mWorldObjects->mCamRot);
+	Vector2D dir = camMat / Vector2D(0, MINIMAP_RADIUS);
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
 
@@ -466,11 +464,11 @@ void GameLevel::DrawGui()
 		if(mWorldObjects->mObjects[i] == (CObject*)mWorldObjects->mHero)
 			continue;
 
-		b2Vec2 shipPos = mWorldObjects->mObjects[i]->GetOriginPosition();
-		b2Vec2 shipDir = shipPos - mWorldObjects->mCamPos;
+		Vector2D shipPos = mWorldObjects->mObjects[i]->GetOriginPosition();
+		Vector2D shipDir = shipPos - mWorldObjects->mCamPos;
 		if(shipDir.Length2() <= minimapDistMax2)
 		{
-			shipDir = b2MulT(camMat, (minimapRatio * shipDir));
+			shipDir = camMat / (minimapRatio * shipDir);
 			renderer->DrawCircle(centerX+shipDir.x, centerY-shipDir.y, 0.5f, ARGB(255,255,0,0));
 		}
 // 		shipDir = shipPos - mWorldObjects->mCamPos;
@@ -482,9 +480,9 @@ void GameLevel::DrawGui()
 // 			renderer->DrawCircle(SCREEN_SIZE_X2+shipDir.x, SCREEN_SIZE_Y2-shipDir.y, 1, ARGB(255,255,0,0));
 // 		}
 // 
-// 		b2Vec2 shipVel = mWorldObjects->mObjects[i]->GetLinearVelocity();
-// 		b2Vec2 shootPos = mWorldObjects->mHero->GetShootPoint(shipPos, shipVel);
-// 		b2Vec2 localShootPos = ((shootPos-mWorldObjects->mCamPos).Rotate(-mWorldObjects->mCamRot));
+// 		Vector2D shipVel = mWorldObjects->mObjects[i]->GetLinearVelocity();
+// 		Vector2D shootPos = mWorldObjects->mHero->GetShootPoint(shipPos, shipVel);
+// 		Vector2D localShootPos = ((shootPos-mWorldObjects->mCamPos).Rotate(-mWorldObjects->mCamRot));
 // 		int x = (int)(SCREEN_SIZE_X2+localShootPos.x);
 // 		int y = (int)(SCREEN_SIZE_Y2-localShootPos.y);
 // 		renderer->DrawCircle((float)x, (float)y, 2, ARGB(255,255,0,0));

@@ -11,8 +11,8 @@ CMissile::CMissile(float lifeTime, JQuad* quad, CSquareShip* owner, float damage
 {
 	mPS = NULL;
 
-	mPosition = mLastPosition = b2Vec2(0, 0);
-	mVelocity = b2Vec2(0, 0);
+	mPosition = mLastPosition = Vector2D(0, 0);
+	mVelocity = Vector2D(0, 0);
 
 	mParticle = new hgeParticle;
 
@@ -27,8 +27,8 @@ CMissile::CMissile(float lifeTime, JQuad* quad, CSquareShip* owner, float damage
 	mParticle->fSpinDelta = 0;
 	mParticle->fTangentialAccel = 0;
 	mParticle->fTerminalAge = lifeTime;
-	mParticle->vecLocation = hgeVector(0, 0);
-	mParticle->vecVelocity = hgeVector(0, 0);
+	mParticle->vecLocation = Vector2D(0, 0);
+	mParticle->vecVelocity = Vector2D(0, 0);
 }
 
 CMissile::~CMissile()
@@ -52,14 +52,14 @@ void CMissile::AddPS(hgeParticleSystem* ps)
 	mPS->Fire();
 }
 
-void CMissile::SetPosition(const b2Vec2 &position)
+void CMissile::SetPosition(const Vector2D &position)
 {
 	mPosition = mLastPosition = position;
 	mParticle->vecLocation.x = position.x;
 	mParticle->vecLocation.y = position.y;
 }
 
-void CMissile::SetVelocity(const b2Vec2 &velocity)
+void CMissile::SetVelocity(const Vector2D &velocity)
 {
 	mVelocity = velocity;
 	mParticle->vecVelocity.x = velocity.x;
@@ -70,7 +70,7 @@ void CMissile::Update(float deltaTime)
 {
 	mLastPosition = mPosition;
 	mPosition += deltaTime * mVelocity;
-	mParticle->vecLocation = hgeVector(mPosition.x, mPosition.y);
+	mParticle->vecLocation = Vector2D(mPosition.x, mPosition.y);
 
 	mParticle->fSpin += mParticle->fSpinDelta * deltaTime;
 	mParticle->fSize += mParticle->fSizeDelta * deltaTime;
@@ -86,19 +86,19 @@ void CMissile::Update(float deltaTime)
 }
 
 
-void CMissile::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat)
+void CMissile::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)
 {
 	JRenderer* renderer = JRenderer::GetInstance();
 
 	float size = mParticle->fSize;
 
-	b2Vec2 position = b2MulT(camMat, mPosition-camPos);
-	float32 rotation = mParticle->fSpin-camRot;
+	Vector2D position = camMat / (mPosition-camPos);
+	float rotation = mParticle->fSpin-camRot;
 
 	if(mPS)
 	{
 		mPS->Transpose(mPosition.x, mPosition.y);
-		mPS->RenderLocal(hgeVector(camPos.x, camPos.y), camRot);
+		mPS->RenderLocal(Vector2D(camPos.x, camPos.y), camRot, camMat);
 	}
 
 	mQuad->SetColor(mParticle->colColor.GetHWColor());

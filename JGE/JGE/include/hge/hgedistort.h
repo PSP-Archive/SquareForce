@@ -35,7 +35,8 @@ public:
 	 hgeDistortionMesh&	operator= (const hgeDistortionMesh &dm);
 
      void		Render(float x, float y, float scaleX=1.0f, float scaleY=1.0f, float angle = 0.0f);
-     void		Clear(PIXEL_TYPE col=ARGB(0xFF,0xFF,0xFF,0xFF), float z=0.5f);
+	 void		Render(float x, float y, const Matrix22& rotMat, float scaleX=1.0f, float scaleY=1.0f);
+     void		Clear(PIXEL_TYPE col=ARGB(0xFF,0xFF,0xFF,0xFF));
 
      void		SetTexture(JTexture* tex);
      void		SetTextureRect(float x, float y, float w, float h);

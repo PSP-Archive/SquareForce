@@ -7,6 +7,9 @@
 // Copyright (c) 2007 James Hui (a.k.a. Dr.Watson) <jhkhui@gmail.com>
 // 
 //-------------------------------------------------------------------------------------
+// 14/05/2011 : optimised + Matrix22 structure added by Akabane87
+//-------------------------------------------------------------------------------------
+
 
 #ifndef _VECTOR2D_H
 #define _VECTOR2D_H
@@ -30,11 +33,13 @@ struct Vector2D
 
 	inline Vector2D(void)	{}
 
-	inline Vector2D(float _x,float _y) : x(_x), y(_y)	{}
+	inline Vector2D(const float& _x, const float& _y) : x(_x), y(_y)	{}
 
-	inline Vector2D &operator /=(const float scalar)	{ x /= scalar; y /= scalar;		return *this; }
+	inline void Set(const float& _x, const float& _y) {x = _x; y = _y;}
 
-	inline Vector2D &operator *=(const float scalar)	{ x *= scalar; y *= scalar;		return *this; }
+	inline Vector2D &operator /=(const float& scalar)	{ x /= scalar; y /= scalar;		return *this; }
+
+	inline Vector2D &operator *=(const float& scalar)	{ x *= scalar; y *= scalar;		return *this; }
 	
 	inline Vector2D &operator +=(const Vector2D &v) { x += v.x;	y += v.y;	return *this; }
 
@@ -54,11 +59,11 @@ struct Vector2D
 	inline float Cross(const Vector2D &v) const	{ return (x * v.y) - (y * v.x); } 
 	
 
-	inline Vector2D operator * (float s)			const	{	return Vector2D(x*s, y*s); }
-	inline Vector2D operator / (float s)			const	{	return Vector2D(x/s, y/s); }
+	inline Vector2D operator * (const float& s)			const	{	return Vector2D(x*s, y*s); }
+	inline Vector2D operator / (const float& s)			const	{	return Vector2D(x/s, y/s); }
 	inline Vector2D operator + (const Vector2D &v)	const	{	return Vector2D(x+v.x, y+v.y); }
 	inline Vector2D operator - (const Vector2D &v)	const	{	return Vector2D(x-v.x, y-v.y); }
-	//friend Vector2D operator * (float k, const Vector2D& v) {	return Vector2D(v.x*k, v.y*k); }
+	friend Vector2D operator * (const float& k, const Vector2D& v) {	return Vector2D(v.x*k, v.y*k); }
 	inline Vector2D operator -(void) const { return Vector2D(-x, -y); }
 
 	float Length(void) const 
@@ -69,6 +74,8 @@ struct Vector2D
 		return sqrtf(x*x + y*y); 
 #endif 
 	}
+
+	float Length2(void) const { return x*x+y*y; }
 
 	float Normalize(void) 
 	{	
@@ -92,7 +99,7 @@ struct Vector2D
 		return temp;
 	}
 
-	float Angle(const Vector2D& xE)
+	float Angle(const Vector2D& xE)// slow
 	{
 		float dot = (*this) * xE;
 		float cross = (*this) ^ xE;
@@ -107,8 +114,17 @@ struct Vector2D
 		return angle;
 	}
 
+	float Angle() const // slow
+	{
+#ifdef PSP
+		return vfpu_atan2f(y, x);
+#else
+		return atan2f(y, x);
+#endif
+	}
 
-	Vector2D& Rotate(float angle)
+
+	Vector2D& Rotate(const float& angle)// slow : use this only if you can't rotate from a matrix
 	{
 #ifdef PSP
 		float c, s;
@@ -128,7 +144,7 @@ struct Vector2D
 
 
 
-	Vector2D& Rotate(const Vector2D& xCentre, float fAngle)
+	Vector2D& Rotate(const Vector2D& xCentre, const float& fAngle)
 	{
 		Vector2D D = *this - xCentre;
 		D.Rotate(fAngle);
@@ -157,7 +173,7 @@ struct Matrix22
 		col2 = c2;
 	}
 
-	Matrix22(float angle)
+	Matrix22(const float& angle)
 	{
 #ifdef PSP
 		float c, s;
@@ -175,7 +191,7 @@ struct Matrix22
 		col2 = c2;
 	}
 
-	void Set(float angle)
+	void Set(const float& angle)
 	{
 #ifdef PSP
 		float c, s;
@@ -267,19 +283,6 @@ struct Matrix22
 		return u;
 	}
 
-// 	friend Vector2D operator * (const Matrix22& A, const Vector2D& v)
-// 	{
-// 		Vector2D u(A.col1.x * v.x + A.col2.x * v.y, A.col1.y * v.x + A.col2.y * v.y);
-// 		return u;
-// 	}
-
-	// A * B
-// 	friend Matrix22 operator * (const Matrix22& A, const Matrix22& B)
-// 	{
-// 		Matrix22 C(A*B.col1, A*B.col2);
-// 		return C;
-// 	}
-
 	inline Vector2D MulT (const Vector2D& v) const
 	{
 		Vector2D u(v*col1, v*col2);
@@ -301,32 +304,11 @@ struct Matrix22
 		return u;
 	}
 
-// 	friend Vector2D operator / (const Matrix22& A, const Vector2D& v)
-// 	{
-// 		Vector2D u(v*A.col1, v*A.col2);
-// 		return u;
-// 	}
-
-	// A^T * B
-// 	friend Matrix22 operator / (const Matrix22& A, const Matrix22& B)
-// 	{
-// 		Vector2D c1(A.col1*B.col1, A.col2*B.col1);
-// 		Vector2D c2(A.col1*B.col2, A.col2*B.col2);
-// 		Matrix22 C(c1, c2);
-// 		return C;
-// 	}
-
 	inline Matrix22 operator + (const Matrix22& A) const
 	{
 		Matrix22 C(col1 + A.col1, col2 + A.col2);
 		return C;
 	}
-
-// 	friend Matrix22 operator + (const Matrix22& A, const Matrix22& B)
-// 	{
-// 		Matrix22 C(A.col1 + B.col1, A.col2 + B.col2);
-// 		return C;
-// 	}
 
 	inline bool operator == (const Matrix22& A) const { return col1 == A.col1 && col2 == A.col2; }
 	inline bool operator != (const Matrix22& A) const { return col1 != A.col1 || col2 != A.col2; }

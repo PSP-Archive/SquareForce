@@ -15,7 +15,7 @@ public:
 
 	enum ESquareTileType{HULL, ENGINE, GUN, MISSILE, MINE};
 
-	CSquareTile(ESquareTileType type, const b2Vec2& pos): mType(type), mPos(pos)
+	CSquareTile(ESquareTileType type, const Vector2D& pos): mType(type), mPos(pos)
 	{
 		mId = 0;
 
@@ -81,8 +81,8 @@ public:
 	inline const float& GetTimeBeforeRecovery() const {return mTimeBeforeRecovery;}
 	inline void SetTimeBeforeRecovery(const float& timeBeforeRecovery) {mTimeBeforeRecovery = timeBeforeRecovery;}
 
-	inline const b2Vec2& GetPosition() const {return mPos;}
-	inline void SetPosition(const b2Vec2& pos) {mPos = pos;}
+	inline const Vector2D& GetPosition() const {return mPos;}
+	inline void SetPosition(const Vector2D& pos) {mPos = pos;}
 
 	inline void DeleteExplosionPS() {SAFE_DELETE(mExplosionsPS);}
 	inline void AddExplosionPS(hgeParticleSystem* explosionsPS) {SAFE_DELETE(mExplosionsPS); mExplosionsPS = explosionsPS;}
@@ -132,7 +132,7 @@ protected:
 	float mLifePoints;
 	float mCurrentLife;
 
-	b2Vec2 mPos;// position relative par rapport au centre d'inertie du squareship
+	Vector2D mPos;// position relative par rapport au centre d'inertie du squareship
 
 	hgeParticleSystem* mExplosionsPS;
 
@@ -152,7 +152,7 @@ protected:
 class CSquareTileEngine : public CSquareTile
 {
 public:
-	CSquareTileEngine(const b2Vec2& pos):CSquareTile(ENGINE, pos)
+	CSquareTileEngine(const Vector2D& pos):CSquareTile(ENGINE, pos)
 	{
 		mEngineAcceleration = 200000.0f;
 		
@@ -191,7 +191,7 @@ public:
 		//mStatDesc += "Acceleration angulaire : " + mEngineAcceleration + " rad²/s\n"
 	}
 
-	list<b2Vec2> mListPos;
+	list<Vector2D> mListPos;
 
 protected:
 	float mEngineAcceleration;// accélération fournie par les moteurs
@@ -201,7 +201,7 @@ protected:
 class CSquareTileHull : public CSquareTile
 {
 public:
-	CSquareTileHull(const b2Vec2& pos):CSquareTile(HULL, pos) 
+	CSquareTileHull(const Vector2D& pos):CSquareTile(HULL, pos) 
 	{
 		mName = "Coque standard classe E\n";
 		mDesc = "Matériel d'entraînement de la SquareForce.\n";
@@ -237,7 +237,7 @@ protected:
 class CSquareTileGun : public CSquareTile
 {
 public:
-	CSquareTileGun(const b2Vec2& pos):CSquareTile(GUN, pos) 
+	CSquareTileGun(const Vector2D& pos):CSquareTile(GUN, pos) 
 	{
 		mMissileSpeed = GUN_MISSILES_SPEED;
 		mMissileFrequency = 10.0f;
@@ -327,7 +327,7 @@ protected:
 class CSquareTileMissile : public CSquareTile
 {
 public:
-	CSquareTileMissile(const b2Vec2& pos):CSquareTile(MISSILE, pos)
+	CSquareTileMissile(const Vector2D& pos):CSquareTile(MISSILE, pos)
 	{
 		mMissileSpeed = 200.0f;
 		mMissileFrequency = 0.5f;
@@ -395,7 +395,7 @@ protected:
 class CSquareTileMine : public CSquareTile
 {
 public:
-	CSquareTileMine(const b2Vec2& pos):CSquareTile(MINE, pos) 
+	CSquareTileMine(const Vector2D& pos):CSquareTile(MINE, pos) 
 	{
 		mMissileSpeed = 0.0f;
 		mMissileFrequency = 2.0f;

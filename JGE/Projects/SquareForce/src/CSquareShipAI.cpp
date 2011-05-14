@@ -10,7 +10,7 @@
 CSquareShipAI::CSquareShipAI(CWorldObjects *worldObjects, CSquareShip *owner):
 mWorldObjects(worldObjects), mOwner(owner)
 {
-	b2Vec2 mSpawnPoint;
+	Vector2D mSpawnPoint;
 	float mSpawnPointRadius;
 
 	mPatrolPoint = mOwner->GetOriginPosition();
@@ -32,12 +32,12 @@ CSquareShipAI::~CSquareShipAI()
 void CSquareShipAI::Update(float dt)
 {
 	float rangeMax = 500.0f;
-	b2Vec2 myPos = mOwner->GetOriginPosition();
+	Vector2D myPos = mOwner->GetOriginPosition();
 	bool leavingPatrolArea = false;
 
-	b2Vec2 shipRear = b2Mul(mOwner->GetRotationMatrix(), b2Vec2(1.0f, -1.0f));
+	Vector2D shipRear = mOwner->GetRotationMatrix() * Vector2D(1.0f, -1.0f);
 	shipRear.Normalize();
-	b2Vec2 shipRight = b2Vec2(-shipRear.y, shipRear.x);
+	Vector2D shipRight = Vector2D(-shipRear.y, shipRear.x);
 
 	// perte de la cible courante
 	if((myPos-mPatrolPoint).Length()>=mPatrolPointRadius+rangeMax)
@@ -56,14 +56,14 @@ void CSquareShipAI::Update(float dt)
 		CSquareShip *ship = (CSquareShip*)mWorldObjects->mObjects[i];
 		if(ship != mOwner)
 		{
-			b2Vec2 dir = myPos - ship->GetOriginPosition();
+			Vector2D dir = myPos - ship->GetOriginPosition();
 			float dist = dir.Length();
 			dir.Normalize();
 			float power = 1.0f - dist/((mOwner->mSize+ship->mSize)*SQUARETILE_SIZE*2.0f);
 			// on majore les rayons des vaisseaux et on double
 			if(power > 0.0f)
 			{
-				power *= (b2Dot(dir, shipRight)>=0)?1.0f:-1.0f;
+				power *= (dir * shipRight >= 0)?1.0f:-1.0f;
 				mOwner->Straff(power);
 			}
 			if(dist < distMin && !ship->IsDestroyed())
@@ -79,13 +79,13 @@ void CSquareShipAI::Update(float dt)
 		mCurrentTarget = currentTarget;
 	}
 
-	b2Vec2 dir;
+	Vector2D dir;
 	// si on a pas de cible en vue on continue la patrouille
 	if(!mCurrentTarget)
 	{
 		if((mCurrentDest-myPos).Length2()<100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
 		{
-			mCurrentDest = b2Vec2(b2Random(-1.0f, 1.0f), b2Random(-1.0f, 1.0f));
+			mCurrentDest = Vector2D(b2Random(-1.0f, 1.0f), b2Random(-1.0f, 1.0f));
 			mCurrentDest.Normalize();
 			mCurrentDest = mPatrolPointRadius * mCurrentDest + mPatrolPoint;
 		}
@@ -97,14 +97,14 @@ void CSquareShipAI::Update(float dt)
 	else// si on a une cible
 	{
 		dir = (mCurrentTarget->GetOriginPosition()-myPos);
-		b2Vec2 trans = dir ;//+ b2Vec2(-dir.y, dir.x);
+		Vector2D trans = dir ;//+ Vector2D(-dir.y, dir.x);
 		trans.Normalize();
 		dir += 150.0f*trans;
 		dir.Normalize();
 	}
 
 	// on gère la puissance angulaire de manière à tourner jusqu'à être dans la direction désirée
-	float powerA = b2Dot(dir, shipRear);
+	float powerA = dir * shipRear;
 	float powerL = mOwner->mEnginePower;
 	if(powerA>=0.0f)// si on tourne le dos : on met la puissance à fond
 	{
@@ -132,7 +132,7 @@ void CSquareShipAI::Update(float dt)
 					mCurrentTarget->GetLinearVelocity()), mRatioErrorFiring);
 		}
 	}
-	if(b2Dot(dir, shipRight)>0.0f)// définition du sens
+	if(dir * shipRight > 0.0f)// définition du sens
 		powerA = -powerA;
 	mOwner->mAngularPower = powerA;
 	mOwner->mEnginePower = powerL;

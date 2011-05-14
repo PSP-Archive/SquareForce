@@ -13,7 +13,7 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 	mNbParticles = nbParticles;
 	mParticles = new hgeParticle[nbParticles];
 
-	mPos = hgeVector();
+	mPos = Vector2D();
 
 	mStartColor = startColor;
 	mDeltaColor = deltaColor;
@@ -35,8 +35,8 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 		float x = b2Random(-mRadius, mRadius);
 		float y = b2Random(-mRadius, mRadius);
 
-		par->vecLocation = mPos+hgeVector(x, y);
-		par->vecVelocity = hgeVector(0,0);
+		par->vecLocation = mPos+Vector2D(x, y);
+		par->vecVelocity = Vector2D(0,0);
 
 		par++;
 	}
@@ -83,17 +83,17 @@ void CGlobalParticleEmitter::SpawnAt(float x, float y)
 		float _x = x+b2Random(-mRadius, mRadius);
 		float _y = y+b2Random(-mRadius, mRadius);
 
-		par->vecLocation = mPos+hgeVector(_x, _y);
-		par->vecVelocity = hgeVector(0,0);
+		par->vecLocation = mPos+Vector2D(_x, _y);
+		par->vecVelocity = Vector2D(0,0);
 
 		++par;
 	}
 }
 
-void CGlobalParticleEmitter::Update(float deltaTime, const b2Vec2& camPos)
+void CGlobalParticleEmitter::Update(float deltaTime, const Vector2D& camPos)
 {
-	hgeVector cam = hgeVector(camPos.x, camPos.y);
-	hgeVector deltaPos = cam - mPos;
+	Vector2D cam = Vector2D(camPos.x, camPos.y);
+	Vector2D deltaPos = cam - mPos;
 	mPos = cam;
 
 	float popSize = mRadius+mZoom*GLOBAL_PARTICLE_SCALE*22.63f;
@@ -118,22 +118,22 @@ void CGlobalParticleEmitter::Update(float deltaTime, const b2Vec2& camPos)
 			par->fSize = b2Random(0.2f, 1.0f);
 			par->fSpin = b2Random(0.0f, 360.0f);
 
-			hgeVector localPos = deltaPos;
+			Vector2D localPos = deltaPos;
 			localPos.Normalize();
 			// on pop dans le demi plan devant nous
-			localPos = b2Random(0.001f, 1.0f)*localPos + b2Random(-1.0f, 1.0f)*hgeVector(-localPos.y, localPos.x);
+			localPos = b2Random(0.001f, 1.0f)*localPos + b2Random(-1.0f, 1.0f)*Vector2D(-localPos.y, localPos.x);
 			localPos.Normalize();
 			localPos *= popSize - 1.0f;
 
 			par->vecLocation = mPos+localPos;
-			par->vecVelocity = hgeVector(0,0);
+			par->vecVelocity = Vector2D(0,0);
 		}
 		++par;
 	}
 }
 
 
-void CGlobalParticleEmitter::Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat, float minSize /*= 0.0f*/, float maxSize /*= 1.0f*/)
+void CGlobalParticleEmitter::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat, float minSize /*= 0.0f*/, float maxSize /*= 1.0f*/)
 {
 	JRenderer* renderer = JRenderer::GetInstance();
 
@@ -146,8 +146,8 @@ void CGlobalParticleEmitter::Render(const b2Vec2& camPos, const float32& camRot,
 		{
 			size *= GLOBAL_PARTICLE_SCALE * mZoom;
 
-			b2Vec2 position = b2MulT(camMat, b2Vec2(par->vecLocation.x, par->vecLocation.y)-camPos);
-			float32 rotation = par->fSpin-camRot;
+			Vector2D position = camMat / (par->vecLocation-camPos);
+			float rotation = par->fSpin-camRot;
 
 			mQuad->SetColor(par->colColor.GetHWColor());
 			renderer->RenderQuad(mQuad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation, size, size);

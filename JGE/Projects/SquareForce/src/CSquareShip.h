@@ -14,7 +14,6 @@
 using namespace std;
 
 class hgeParticleSystem;
-class hgeVector;
 
 class CSquareShipData
 {
@@ -47,12 +46,12 @@ public:
 	virtual void UnloadPhysic();
 
 	void Create(int size);
-	void Render(const b2Vec2& camPos, const float32& camRot, const b2Mat22& camMat);
+	void Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat);
 	void Update(float dt, bool updatePhysic = true);
 
-	void FireAt(const b2Vec2& target, float ratioError);
+	void FireAt(const Vector2D& target, float ratioError);
 
-	void AddEnginePS(const hgeVector& pos);
+	void AddEnginePS(const Vector2D& pos);
 	void AddExplosionPS(CSquareTile* squareTile);
 	void SetMissileParticleSystem();
 
@@ -60,7 +59,7 @@ public:
 	inline void DashR() {if(mDashRTimer>0.5f) mDashRTimer = 0.0f;}
 	inline void DashL() {if(mDashLTimer>0.5f) mDashLTimer = 0.0f;}
 
-	b2Vec2 GetShootPoint(const b2Vec2& pos, const b2Vec2& vel);
+	Vector2D GetShootPoint(const Vector2D& pos, const Vector2D& vel);
 
 	void ComputeCollision(CMissile* missile);
 

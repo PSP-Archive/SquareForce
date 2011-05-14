@@ -137,7 +137,7 @@ void CWorldObjects::Create()
 	for(int i=0; i<mNbPlanets; ++i)
 	{
 		mPlanets[i] = new CPlanet;
-		mPlanets[i]->SetOriginPosition(b2Vec2(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
+		mPlanets[i]->SetOriginPosition(Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
 	}
 }
 
@@ -149,7 +149,7 @@ void CWorldObjects::Update(float dt)
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
 	// second (60Hz) and 10 iterations. This provides a high quality simulation
 	// in most game scenarios.
-	static float32 timeStep = 1.0f / 30.0f;
+	static float timeStep = 1.0f / 30.0f;
 	static int32 iterations = 1;
 
 	mTimer += dt;
@@ -199,17 +199,17 @@ void CWorldObjects::Update(float dt)
 	mGPE2->Update(timeStep, mCamPos);
 
 
-	//const b2Vec2 force = mHero->m_force;
+	//const Vector2D force = mHero->m_force;
 
 	// on update la caméra
 	{
 		float ratio = SMOOTH_CAM_COEFF;// facteur smooth
 
-		b2Vec2 v = b2Mul(mHero->GetRotationMatrix(), b2Vec2(-1, 1));
+		Vector2D v = mHero->GetRotationMatrix() * Vector2D(-1, 1);
 		//v.Rotate(mCamRot);
 		v.Normalize();
-		b2Vec2 newCamPos = mHero->GetCenterPosition() + 100.0f*v;// + deltaPos;
-		b2Vec2 deltaPos = 0.2f*(newCamPos-mCamPos);
+		Vector2D newCamPos = mHero->GetCenterPosition() + 100.0f*v;// + deltaPos;
+		Vector2D deltaPos = 0.2f*(newCamPos-mCamPos);
 // 		if(deltaPos.Length()>1000.0f*mTimer)
 // 		{
 // 			deltaPos.Normalize();
@@ -293,9 +293,9 @@ void CWorldObjects::RenderShape()
 			case e_circleShape:
 				{
 					const b2CircleShape* circle = (const b2CircleShape*)shape;
-					b2Vec2 pos(SCREEN_SIZE_X2+(circle->m_position.x-mCamPos.x), 
+					Vector2D pos(SCREEN_SIZE_X2+(circle->m_position.x-mCamPos.x), 
 						SCREEN_SIZE_Y2+(circle->m_position.y-mCamPos.y));
-					float32 r = circle->m_radius-mCamRot;
+					float r = circle->m_radius-mCamRot;
 
 					renderer->DrawCircle(pos.x, pos.y, r, ARGB(255,255,255,255));
 				}
@@ -307,8 +307,9 @@ void CWorldObjects::RenderShape()
 
 					for (int32 i = 0; i < poly->m_vertexCount; ++i)
 					{
-						b2Mat22 camRot(mCamRot);
-						b2Vec2 v = b2MulT(camRot, poly->m_position - mCamPos + b2Mul(poly->m_R, poly->m_vertices[i]));
+						Matrix22 camRot(mCamRot);
+						Vector2D v = camRot / (popCast(Vector2D, poly->m_position) - mCamPos + 
+							popCast(Vector2D, b2Mul(poly->m_R, poly->m_vertices[i])));
 						xx[i] = SCREEN_SIZE_X2+v.x;
 						yy[i] = SCREEN_SIZE_Y2-v.y;
 					}
@@ -324,7 +325,7 @@ void CWorldObjects::RenderShape()
 
 }
 
-CObject* CWorldObjects::GetNearestObject(const b2Vec2& worldPos, CObject* skippedObj /*= NULL*/)
+CObject* CWorldObjects::GetNearestObject(const Vector2D& worldPos, CObject* skippedObj /*= NULL*/)
 {
 	CObject* nearestObj = NULL;
 	CObject** it = mObjects;
