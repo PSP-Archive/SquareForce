@@ -29,7 +29,15 @@ public:
 	inline JQuad** GetLightningQuads() {return mLightningQuads;}
 	inline JQuad** GetParticlesQuads() {return mParticlesQuads;}
 
-	inline hgeDistortionMesh* GetPlanetMesh() {return mPlanetMesh;}
+	inline hgeDistortionMesh* GetPlanetMesh(float zoom) 
+	{
+		if(zoom < 2.0f)
+			return mPlanetMesh12;
+		else if (zoom < 3.0f)
+			return mPlanetMesh16;
+		else
+			return mPlanetMesh20;
+	}
 
 	inline JTexture* GetPlanetTex() {return mPlanetTex;}
 	inline JTexture* GetCloudsTex() {return mCloudsTex;}
@@ -51,7 +59,9 @@ protected:
 	JTexture* mLightningTex;
 	JQuad** mLightningQuads;
 
-	hgeDistortionMesh* mPlanetMesh;
+	hgeDistortionMesh* mPlanetMesh20;
+	hgeDistortionMesh* mPlanetMesh16;
+	hgeDistortionMesh* mPlanetMesh12;
 
 	JTexture* mPlanetTex;
 	JTexture* mCloudsTex;

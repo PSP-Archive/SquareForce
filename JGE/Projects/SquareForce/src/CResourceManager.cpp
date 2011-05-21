@@ -15,6 +15,40 @@
 
 CResourceManager* CResourceManager::mInstance = NULL;
 
+hgeDistortionMesh* CreatePlanetMesh(int rows, int cols)
+{
+	float cellW =(float)(PLANET_TEXTURE_WIDTH/(cols-1));
+	float cellH=(float)(PLANET_TEXTURE_HEIGHT/(rows-1));
+
+	hgeDistortionMesh* mesh = new hgeDistortionMesh(cols, rows);
+
+	float dx = (float)(cellW*(cols-1))*0.5f;
+	float dy = (float)(cellH*(rows-1))*0.5f;
+
+	for(int i=0;i<rows;i++)
+	{
+		for(int j=0;j<cols;j++)
+		{
+			float y = i*cellH-dy;
+			y = sin(y/dy*M_PI_2)*dy;
+			float x = j*cellW -dx;
+			x = sin(x/dx*M_PI_2)*dx;
+			float a = abs(x);
+			float b = dy;
+			if(x < 0.0f)
+				x = -a*sqrt(1.0f-y*y/(b*b));
+			else if (x > 0.0f)
+				x = a*sqrt(1.0f-y*y/(b*b));
+			else
+				x = 0.0f;
+
+			mesh->SetDisplacement(j,i,x,y,HGEDISP_CENTER);
+		}
+	}
+
+	return mesh;
+}
+
 CResourceManager::CResourceManager()
 {
 	JRenderer* renderer = JRenderer::GetInstance();
@@ -50,36 +84,9 @@ CResourceManager::CResourceManager()
 		mParticlesQuads[i] = NULL;
 
 
-	int rows = 32;
-	int cols = 32;
-	float cellW =(float)(PLANET_TEXTURE_WIDTH/(cols-1));
-	float cellH=(float)(PLANET_TEXTURE_HEIGHT/(rows-1));
-
-	mPlanetMesh = new hgeDistortionMesh(cols, rows);
-
-	float dx = (float)(cellW*(cols-1))*0.5f;
-	float dy = (float)(cellH*(rows-1))*0.5f;
-
-	for(int i=0;i<rows;i++)
-	{
-		for(int j=0;j<cols;j++)
-		{
-			float y = i*cellH-dy;
-			y = sin(y/dy*M_PI_2)*dy;
-			float x = j*cellW -dx;
-			x = sin(x/dx*M_PI_2)*dx;
-			float a = abs(x);
-			float b = dy;
-			if(x < 0.0f)
-				x = -a*sqrt(1.0f-y*y/(b*b));
-			else if (x > 0.0f)
-				x = a*sqrt(1.0f-y*y/(b*b));
-			else
-				x = 0.0f;
-
-			mPlanetMesh->SetDisplacement(j,i,x,y,HGEDISP_CENTER);
-		}
-	}
+	mPlanetMesh12 = CreatePlanetMesh(12, 12);
+	mPlanetMesh16 = CreatePlanetMesh(16, 16);
+	mPlanetMesh20 = CreatePlanetMesh(20, 20);
 
 	mPlanetTex = renderer->LoadTexture("planet.png");
 	mCloudsTex = renderer->LoadTexture("clouds.png");
@@ -105,7 +112,9 @@ CResourceManager::~CResourceManager()
 		SAFE_DELETE(mParticlesQuads[i]);
 	SAFE_DELETE_ARRAY(mParticlesQuads);
 
-	SAFE_DELETE(mPlanetMesh);
+	SAFE_DELETE(mPlanetMesh20);
+	SAFE_DELETE(mPlanetMesh16);
+	SAFE_DELETE(mPlanetMesh12);
 
 	SAFE_DELETE(mPlanetTex);
 	SAFE_DELETE(mCloudsTex);
