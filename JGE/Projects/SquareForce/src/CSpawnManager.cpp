@@ -34,6 +34,29 @@ CSpawnManager::CSpawnManager()
 
 CSpawnManager::~CSpawnManager()
 {
+	// ne pas supprimer les tiles sur le hero (elles sont dans l'inventaire)
+	for(int i=0; i<mHero->mSize*mHero->mSize; i++)
+		mHero->SetSquareTile(NULL, i);
+	SAFE_DELETE(mHero->mDatas);
+	
+	vector<CObject*>::iterator itObj = mListObjects.begin();
+	const vector<CObject*>::const_iterator itObjEnd = mListObjects.end();
+	while(itObj != itObjEnd)
+	{
+		SAFE_DELETE(*itObj);
+		++itObj;
+	}
+	mListObjects.clear();
+
+	vector<CPlanet*>::iterator itPlanet = mListPlanets.begin();
+	const vector<CPlanet*>::const_iterator itPlanetEnd = mListPlanets.end();
+	while(itPlanet != itPlanetEnd)
+	{
+		SAFE_DELETE(*itPlanet);
+		++itPlanet;
+	}
+	mListPlanets.clear();
+
 	{
 		vector<CSquareTile*>::iterator it = mListTiles.begin();
 		const vector<CSquareTile*>::const_iterator itEnd = mListTiles.end();
@@ -72,20 +95,20 @@ void CSpawnManager::Update()
 		return;
 
 	// on vide l'ancienne liste d'objets visibles 
-	mVisibleObjects.clear();
-	mVisibleObjects.push_back(mHero);
+	mActiveObjects.clear();
+	mActiveObjects.push_back(mHero);
 
 	// on charge la nouvelle
-	list<CObject*>::const_iterator it = mListObjects.begin();
+	vector<CObject*>::const_iterator it = mListObjects.begin();
 	++it;
-	const list<CObject*>::const_iterator itEnd = mListObjects.end();
+	const vector<CObject*>::const_iterator itEnd = mListObjects.end();
 	const Vector2D& selfPos = mHero->GetOriginPosition();
 	while(it != itEnd)
 	{
 		float dist2 = ((*it)->GetOriginPosition() - selfPos).Length2();
 		if(dist2 < 90000.0f)// dist<300 : on est dans le champ de vision
 		{
-			mVisibleObjects.push_back(*it);
+			mActiveObjects.push_back(*it);
 			(*it)->LoadPhysic();// on charge la physique
 		}
 		else
@@ -740,3 +763,111 @@ bool CSpawnManager::ReadShipsDesc()
 */
 	return true;
 }
+
+/*
+bool CSpawnManager::ReadShipsTxt()
+{
+	ifstream fichier("Res/ships.txt", ios::in);  // on ouvre en lecture
+
+	if(fichier)  // si l'ouverture a fonctionné
+	{
+		if(!mListShipsDatas.empty())
+			return false;
+		
+		string line;
+		while(getline(fichier, line))  // tant que l'on peut mettre la ligne dans "contenu"
+		{
+			if(line == "")
+				continue;
+
+			int size = atoi(line.c_str());
+			CSquareShipData* datas = new CSquareShipData;
+			datas->mSize = size;
+			datas->mTilesId = new u32[size*size];
+			for(int i=0; i<size*size; ++i)
+			{
+				getline(fichier, line);
+				u32 id = atoi(line.c_str());
+				datas->mTilesId[i] = id;				
+			}
+			mListShipsDatas.push_back(datas);
+		}
+		fichier.close();
+	}
+	else
+		return false;
+
+	return true;
+}
+
+bool CSpawnManager::WriteShipsRes()
+{
+	if(mListShipsDatas.empty())
+		return false;
+
+	fstream fichier("Res/ships.res", ios::out | ios::binary);  // on ouvre ecriture binaire
+
+	if(fichier)  // si l'ouverture a fonctionné
+	{
+		vector<CSquareShipData*>::const_iterator it = mListShipsDatas.begin();
+		const vector<CSquareShipData*>::const_iterator itEnd = mListShipsDatas.end();
+
+		while(it != itEnd)  // tant que l'on peut mettre la ligne dans "contenu"
+		{
+			if(!(*it))
+				continue;
+
+			int size = (*it)->mSize;
+			fichier.write((char*)&size, sizeof(char));
+			
+			for(int i=0; i<size*size; ++i)
+			{
+				u32 id = (*it)->mTilesId[i];
+				fichier.write((char*)&id, sizeof(u32));
+			}
+			++it;
+		}
+		fichier.close();
+	}
+	else
+		return false;
+
+	return true;
+}
+
+bool CSpawnManager::ReadSectorRes(unsigned int num)
+{
+	char name[30];
+	sprintf(name, "Res/sector%03d.res", num);
+	fstream fichier(name, ios::in | ios::binary);  // on ouvre en lecture binaire
+
+	if(fichier)  // si l'ouverture a fonctionné
+	{
+		if(!mListShipsDatas.empty())
+			return false;
+		
+		int size = 0;
+		while(fichier.read((char*)&size, sizeof(char)))// tant qu'il y a des vaisseaux
+		{
+			CSquareShipData* datas = new CSquareShipData;
+			datas->mSize = size;
+			datas->mTilesId = new u32[size*size];
+			for(int i=0; i<size*size; ++i)
+			{
+				u32 id = 0;
+				fichier.read((char*)&id, sizeof(u32));
+				datas->mTilesId[i] = id;
+			}
+			if(datas)
+			{
+				mListShipsDatas.push_back(datas);
+			}
+		}
+		fichier.close();
+	}
+	else
+		return false;
+
+	return true;
+}
+*/

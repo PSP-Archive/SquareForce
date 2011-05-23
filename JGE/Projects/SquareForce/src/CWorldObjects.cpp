@@ -20,8 +20,6 @@ CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 
 	mSpawnMgr = spawnMgr;
 
-	mObjects = NULL;
-	mPlanets = NULL;
 	mHero = NULL;
 
 	mGPE1 = NULL;
@@ -31,24 +29,6 @@ CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 
 CWorldObjects::~CWorldObjects()
 {
-	// ne pas supprimer les tiles sur le hero (elles sont dans l'inventaire)
-	for(int i=0; i<mHero->mSize*mHero->mSize; i++)
-		mHero->SetSquareTile(NULL, i);
-	SAFE_DELETE(mHero->mDatas);
-	SAFE_DELETE(mHero);
-
-	for(int i=1; i<mNbObjects; i++)
-	{
-		SAFE_DELETE(mObjects[i]);
-	}
-	SAFE_DELETE_ARRAY(mObjects);
-
-	for(int i=1; i<mNbPlanets; i++)
-	{
-		SAFE_DELETE(mPlanets[i]);
-	}
-	SAFE_DELETE_ARRAY(mPlanets);
-
 	mWorld->CleanBodyList();
 	SAFE_DELETE(mWorld);
 
@@ -91,23 +71,18 @@ void CWorldObjects::Create()
 // 	fclose(f);
 // #endif
 
-	mNbObjects = NB_OBJECTS;
-	mObjects = new CObject*[mNbObjects];
-
 	mHero = new CSquareShip(mWorld, mListMissiles);
 	mHero->Create(3);
 	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), mSpawnMgr->mListTiles);// vaisseau sans tiles
 	mHero->LoadPhysic();
-	mObjects[0] = mHero;
 	mSpawnMgr->SetHero(mHero);
 
-	for(int i=1; i<mNbObjects; i++)
+	for(int i=1; i<NB_OBJECTS; i++)
 	{
 		CSquareShip *ship = new CSquareShip(mWorld, mListMissiles);
 		ship->Create(3);
 		ship->LoadShape(mSpawnMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], mSpawnMgr->mListTiles);
 		ship->SetAI(new CSquareShipAI(this, ship));
-		mObjects[i] = ship;
 		mSpawnMgr->AddObject(ship);
 	}
 // #ifdef PSP
@@ -123,21 +98,20 @@ void CWorldObjects::Create()
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	int num = 10;
-	mGPE1 = new CGlobalParticleEmitter(80, resMgr->GetParticlesQuad(10), 1.0f, 
+	mGPE1 = new CGlobalParticleEmitter(80, resMgr->GetParticlesQuad(num), 1.0f, 
 		hgeColor(0.6f, 0.9f, 0.9f, 0.9f), hgeColor(-0.3f, -0.4f, -0.3f, 0.0f));
 	mGPE1->SpawnAt(mCamPos.x, mCamPos.y);
 	
 	num = 1;
-	mGPE2 = new CGlobalParticleEmitter(70, resMgr->GetParticlesQuad(1), 70.0f, 
+	mGPE2 = new CGlobalParticleEmitter(70, resMgr->GetParticlesQuad(num), 90.0f, 
 		hgeColor(0.6f, 0.0f, 0.9f, 0.2f), hgeColor(-0.6f, 0.3f, -0.3f, 0.0f));
 	mGPE2->SpawnAt(mCamPos.x, mCamPos.y);
 	
-	mNbPlanets = NB_PLANETS;
-	mPlanets = new CPlanet*[mNbPlanets];
-	for(int i=0; i<mNbPlanets; ++i)
+	for(int i=0; i<NB_PLANETS; ++i)
 	{
-		mPlanets[i] = new CPlanet;
-		mPlanets[i]->SetOriginPosition(Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
+		CPlanet* planet = new CPlanet;
+		planet->SetOriginPosition(Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
+		mSpawnMgr->AddPlanet(planet);
 	}
 }
 
@@ -155,7 +129,7 @@ void CWorldObjects::Update(float dt)
 	mTimer += dt;
   	if (mTimer < timeStep)
   		return;
-	mTimer -= timeStep;
+	mTimer = 0.0f;
 	// on update le world
 	{		
 		// Instruct the world to perform a single step of simulation. It is
@@ -184,15 +158,19 @@ void CWorldObjects::Update(float dt)
 // 			mObjects[i]->Update(timeStep);
 		int i = 0;
 		CObject* obj = NULL;
-		while((obj = mSpawnMgr->GetObject(i++)))
+		while((obj = mSpawnMgr->GetActiveObject(i++)))
 		{
 			obj->Update(timeStep);
 		}
 	}
 
 	{
-		for(int i=0; i<mNbPlanets; i++)
-			mPlanets[i]->Update(timeStep);
+		int i = 0;
+		CPlanet* planet = NULL;
+		while((planet = mSpawnMgr->GetPlanet(i++)))
+		{
+			planet->Update(timeStep);
+		}
 	}
 
 	mGPE1->Update(timeStep, mCamPos);
@@ -238,6 +216,8 @@ void CWorldObjects::Update(float dt)
 
 void CWorldObjects::Render()
 {
+	int i = 0;
+
 	JRenderer* renderer = JRenderer::GetInstance();	
 
 	// on dessine le fond
@@ -248,9 +228,14 @@ void CWorldObjects::Render()
 	// on dessine l'émetteur de particules global
 	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.0f, 0.7f);
 
-	for(int i=0; i<mNbPlanets; i++)
-		mPlanets[i]->Render(mCamPos, mCamRot, mCamMat);
-
+	// on dessine les planetes
+	i = 0;
+	CPlanet* planet = NULL;
+	while((planet = mSpawnMgr->GetPlanet(i++)))
+	{
+		planet->Render(mCamPos, mCamRot, mCamMat);
+	}
+	
 	// on dessine les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
 	list<CMissile*>::iterator itEnd = mListMissiles.end();
@@ -261,9 +246,9 @@ void CWorldObjects::Render()
 	}
 	
 	// on dessine les objets
-	int i = 0;
+	i = 0;
 	CObject* obj = NULL;
-	while((obj = mSpawnMgr->GetObject(i++)))
+	while((obj = mSpawnMgr->GetActiveObject(i++)))
 	{
 		obj->Render(mCamPos, mCamRot, mCamMat);
 	}
@@ -328,20 +313,20 @@ void CWorldObjects::RenderShape()
 CObject* CWorldObjects::GetNearestObject(const Vector2D& worldPos, CObject* skippedObj /*= NULL*/)
 {
 	CObject* nearestObj = NULL;
-	CObject** it = mObjects;
 	float minDist = 500.0f*500.0f;
-	for(int i=0; i<mNbObjects; i++)
+	CObject* obj = NULL;
+	int i = 0;
+	while((obj = mSpawnMgr->GetActiveObject(i++)))
 	{
-		if(*it != skippedObj && !(*it)->IsDestroyed())
+		if(obj != skippedObj && !obj->IsDestroyed())
 		{
-			float dist = (worldPos - (*it)->GetOriginPosition()).Length2();
+			float dist = (worldPos - obj->GetOriginPosition()).Length2();
 			if(dist < minDist)
 			{
 				minDist = dist;
-				nearestObj = *it;
+				nearestObj = obj;
 			}
 		}
-		it++;
 	}
 	return nearestObj;
 }

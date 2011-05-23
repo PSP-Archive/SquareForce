@@ -25,13 +25,11 @@ bool CLocalization::GetLangList()
 	if(fichier)  // si l'ouverture a fonctionné
 	{
 		string line;
-		while(getline(fichier, line))  // tant que l'on peut mettre la ligne dans "contenu"
+		while(getline(fichier, line))
 		{
-			int pos = line.find('=');
-			if(pos == -1)
-				continue;
-			mLanguages.push_back(line.substr(0, pos));
-			mPathList.push_back(line.substr(pos+1, line.size()));
+			string key = SplitString(line, "=", true);
+			mLanguages.push_back(key);
+			mPathList.push_back(line);
 		}
 		fichier.close();
 	}
