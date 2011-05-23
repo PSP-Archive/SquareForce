@@ -8,6 +8,7 @@
 
 #include "Box2D.h"
 #include "CSquareShip.h"
+#include "CPlanet.h"
 
 using namespace std;
 
@@ -18,11 +19,14 @@ public:
 	~CSpawnManager();
 
 	inline void AddObject(CObject* obj) {mListObjects.push_back(obj);}
-	inline CObject* GetObject(unsigned int i) {return ((i<mVisibleObjects.size())?mVisibleObjects[i]:NULL);}
+	inline void AddPlanet(CPlanet* planet) {mListPlanets.push_back(planet);}
+	inline CObject* GetActiveObject(unsigned int i) {return ((i<mActiveObjects.size())?mActiveObjects[i]:NULL);}
+	inline CObject* GetObject(unsigned int i) {return ((i<mListObjects.size())?mListObjects[i]:NULL);}
+	inline CPlanet* GetPlanet(unsigned int i) {return ((i<mListPlanets.size())?mListPlanets[i]:NULL);}
 
 	inline void SetHero(CSquareShip* hero) 
 	{
-		mListObjects.push_front(hero);
+		mListObjects.insert(mListObjects.begin(), hero);
 		mHero = hero;
 	}
 	inline CSquareShip* GetHero() {return mHero;}
@@ -47,8 +51,10 @@ protected:
 	bool ReadShipsDesc();
 
 	CSquareShip* mHero;
-	list<CObject*> mListObjects;
-	vector<CObject*> mVisibleObjects;
+	vector<CObject*> mListObjects;
+	vector<CObject*> mActiveObjects;
+
+	vector<CPlanet*> mListPlanets;
 
 };
 

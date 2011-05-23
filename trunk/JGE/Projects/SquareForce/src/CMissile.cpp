@@ -88,6 +88,9 @@ void CMissile::Update(float deltaTime)
 
 void CMissile::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)
 {
+	if( (camPos - mPosition).Length2() > 90000.0f ) 
+		return;
+
 	JRenderer* renderer = JRenderer::GetInstance();
 
 	float size = mParticle->fSize;

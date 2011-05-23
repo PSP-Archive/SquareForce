@@ -51,6 +51,14 @@ protected:
 	PIXEL_TYPE mShadowsColor;
 
 	float mRenderDist;
+
+	string mName;
+
+	unsigned int mIdTexPlanet;
+	unsigned int mIdTexClouds;
+
+	unsigned int mAlignment;// todo : mettre les types ds un enum
+
 };
 
 #endif

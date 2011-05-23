@@ -10,8 +10,8 @@
 CSquareShipAI::CSquareShipAI(CWorldObjects *worldObjects, CSquareShip *owner):
 mWorldObjects(worldObjects), mOwner(owner)
 {
-	Vector2D mSpawnPoint;
-	float mSpawnPointRadius;
+	mSpawnPoint = Vector2D(0,0);
+	mSpawnPointRadius = 0;
 
 	mPatrolPoint = mOwner->GetOriginPosition();
 	mPatrolPointRadius = 1000.0f;
@@ -51,9 +51,12 @@ void CSquareShipAI::Update(float dt)
 
 	float distMin = rangeMax;
 	CSquareShip *currentTarget = NULL;
-	for(int i=0; i<mWorldObjects->mNbObjects; i++)
+	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
+	int i = 0;
+	CObject* obj = NULL;
+	while((obj = mgr->GetActiveObject(i++)))
 	{
-		CSquareShip *ship = (CSquareShip*)mWorldObjects->mObjects[i];
+		CSquareShip *ship = (CSquareShip*)obj;
 		if(ship != mOwner)
 		{
 			Vector2D dir = myPos - ship->GetOriginPosition();

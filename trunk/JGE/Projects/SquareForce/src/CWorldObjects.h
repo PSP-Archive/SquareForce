@@ -30,12 +30,8 @@ public:
 	void Create();
 
 	CObject* GetNearestObject(const Vector2D& worldPos, CObject* skippedObj = NULL);
-
-	int mNbObjects;
-	CObject **mObjects;
-
-	int mNbPlanets;
-	CPlanet **mPlanets;
+	
+	CSpawnManager* mSpawnMgr;
 
 	CSquareShip *mHero;
 
@@ -43,8 +39,6 @@ public:
 	float mCamRot;
 	Matrix22 mCamMat;
 private:
-	CSpawnManager* mSpawnMgr;
-
 	float mTimer;
 
 	JQuad* mEnginePclQuad;

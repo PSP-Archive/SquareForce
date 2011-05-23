@@ -456,37 +456,19 @@ void GameLevel::DrawGui()
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
 
-	//renderer->DrawCircle(SCREEN_SIZE_X2, SCREEN_SIZE_Y2, RETICLE_DEAD_ZONE, ARGB(128,255,200,0));
-
 	float minimapDistMax2 = minimapDistMax*minimapDistMax;
-	for(int i=0; i<mWorldObjects->mNbObjects; i++)
+	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
+	CObject* obj = NULL;
+	int i = 1;
+	while((obj = mgr->GetObject(i++)))
 	{
-		if(mWorldObjects->mObjects[i] == (CObject*)mWorldObjects->mHero)
-			continue;
-
-		Vector2D shipPos = mWorldObjects->mObjects[i]->GetOriginPosition();
+		Vector2D shipPos = obj->GetOriginPosition();
 		Vector2D shipDir = shipPos - mWorldObjects->mCamPos;
 		if(shipDir.Length2() <= minimapDistMax2)
 		{
 			shipDir = camMat / (minimapRatio * shipDir);
 			renderer->DrawCircle(centerX+shipDir.x, centerY-shipDir.y, 0.5f, ARGB(255,255,0,0));
 		}
-// 		shipDir = shipPos - mWorldObjects->mCamPos;
-// 		if(shipDir.Length() <= MINIMAP_SCALE_MAX)
-// 		{
-// 			shipDir.Rotate(-mWorldObjects->mCamRot);
-// 			shipDir.Normalize();
-// 			shipDir *= RETICLE_DEAD_ZONE;
-// 			renderer->DrawCircle(SCREEN_SIZE_X2+shipDir.x, SCREEN_SIZE_Y2-shipDir.y, 1, ARGB(255,255,0,0));
-// 		}
-// 
-// 		Vector2D shipVel = mWorldObjects->mObjects[i]->GetLinearVelocity();
-// 		Vector2D shootPos = mWorldObjects->mHero->GetShootPoint(shipPos, shipVel);
-// 		Vector2D localShootPos = ((shootPos-mWorldObjects->mCamPos).Rotate(-mWorldObjects->mCamRot));
-// 		int x = (int)(SCREEN_SIZE_X2+localShootPos.x);
-// 		int y = (int)(SCREEN_SIZE_Y2-localShootPos.y);
-// 		renderer->DrawCircle((float)x, (float)y, 2, ARGB(255,255,0,0));
-		//mWorldObjects->mObjects[i]->RenderWire(mWorldObjects->mCamPos, mWorldObjects->mCamRot, shootPos, ARGB(128,255,255,0));
 	}
 
 	char txt[50] = "";

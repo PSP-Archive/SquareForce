@@ -58,7 +58,7 @@ void CSquareShip::Create(int size)
 
 	mEnginePower = 0.0f;
 
-	mAngularAcceleration = 80000.0f/32.0f/32.0f;
+	mAngularAcceleration = 100.0f;
 	mAngularPower = 0.0f;
 
 	mStopEngine = false;
