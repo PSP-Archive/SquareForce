@@ -764,33 +764,98 @@ bool CSpawnManager::ReadShipsDesc()
 	return true;
 }
 
-/*
-bool CSpawnManager::ReadShipsTxt()
+
+bool CSpawnManager::ReadSectorTxt(unsigned int num)
 {
-	ifstream fichier("Res/ships.txt", ios::in);  // on ouvre en lecture
+	if(!mListPlanets.empty())
+		return false;
+
+	char name[30];
+	sprintf(name, "Res/sector%03d.res", num);
+	ifstream fichier(name, ios::in);  // on ouvre en lecture
 
 	if(fichier)  // si l'ouverture a fonctionné
 	{
-		if(!mListShipsDatas.empty())
-			return false;
-		
 		string line;
-		while(getline(fichier, line))  // tant que l'on peut mettre la ligne dans "contenu"
-		{
-			if(line == "")
-				continue;
+		string key;
 
-			int size = atoi(line.c_str());
-			CSquareShipData* datas = new CSquareShipData;
-			datas->mSize = size;
-			datas->mTilesId = new u32[size*size];
-			for(int i=0; i<size*size; ++i)
-			{
-				getline(fichier, line);
-				u32 id = atoi(line.c_str());
-				datas->mTilesId[i] = id;				
-			}
-			mListShipsDatas.push_back(datas);
+		// planetes
+		getline(fichier, line);
+		key = SplitString(line, "=", true);
+		if(key != "NbPlanets")
+			return false;
+		int nbPlanets = (int)atoi(line.c_str());
+
+		for(int i=0; i<nbPlanets; i++)
+		{
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "Name")
+				return false;
+			string name = line;
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "Size")
+				return false;
+			float size = (float)atof(line.c_str());
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "IdTexturePlanet")
+				return false;
+			int idTexPlanet = (int)atoi(line.c_str());
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "IdTextureClouds")
+				return false;
+			int idTexClouds = (int)atoi(line.c_str());
+
+			CPlanet* planet = new CPlanet(name, size, idTexPlanet, idTexClouds);
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "Alignment")
+				return false;
+			planet->SetAlignment((int)atoi(line.c_str()));
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "PositionX")
+				return false;
+			float X = (float)atof(line.c_str());
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "PositionY")
+				return false;
+			float Y = (float)atof(line.c_str());
+			planet->SetOriginPosition(Vector2D(X,Y));
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "ColorTexturePlanet")
+				return false;
+			planet->SetPlanetColor((int)atoi(line.c_str()));
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "ColorTextureClouds")
+				return false;
+			planet->SetCloudsColor((int)atoi(line.c_str()));
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "ColorTextureShadows")
+				return false;
+			planet->SetShadowsColor((int)atoi(line.c_str()));
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "ColorTextureLights")
+				return false;
+			planet->SetLightsColor((int)atoi(line.c_str()));
+
 		}
 		fichier.close();
 	}
@@ -800,31 +865,59 @@ bool CSpawnManager::ReadShipsTxt()
 	return true;
 }
 
-bool CSpawnManager::WriteShipsRes()
+bool CSpawnManager::WriteSectorRes(unsigned int num)
 {
 	if(mListShipsDatas.empty())
 		return false;
 
-	fstream fichier("Res/ships.res", ios::out | ios::binary);  // on ouvre ecriture binaire
+	char name[30];
+	sprintf(name, "Res/sector%03d.res", num);
+	fstream fichier(name, ios::out | ios::binary);  // on ouvre ecriture binaire
 
 	if(fichier)  // si l'ouverture a fonctionné
 	{
-		vector<CSquareShipData*>::const_iterator it = mListShipsDatas.begin();
-		const vector<CSquareShipData*>::const_iterator itEnd = mListShipsDatas.end();
+		// planetes
+		vector<CPlanet*>::const_iterator it = mListPlanets.begin();
+		const vector<CPlanet*>::const_iterator itEnd = mListPlanets.end();
 
 		while(it != itEnd)  // tant que l'on peut mettre la ligne dans "contenu"
 		{
 			if(!(*it))
 				continue;
 
-			int size = (*it)->mSize;
-			fichier.write((char*)&size, sizeof(char));
+			int idName = 0;// TODO : récupérer l'id du nom
+			fichier.write((char*)&idName, sizeof(int));
 			
-			for(int i=0; i<size*size; ++i)
-			{
-				u32 id = (*it)->mTilesId[i];
-				fichier.write((char*)&id, sizeof(u32));
-			}
+			float size = (*it)->GetSize();
+			fichier.write((char*)&size, sizeof(float));
+
+			int idTexPlanet = (*it)->GetIdTexPlanet();
+			fichier.write((char*)&idTexPlanet, sizeof(char));
+
+			int idTexClouds = (*it)->GetIdTexClouds();
+			fichier.write((char*)&idTexClouds, sizeof(char));
+
+			int alignment = (*it)->GetAlignment();
+			fichier.write((char*)&alignment, sizeof(char));
+			
+			Vector2D pos = (*it)->GetOriginPosition();
+			fichier.write((char*)&(pos.x), sizeof(float));
+			fichier.write((char*)&(pos.y), sizeof(float));
+			
+			PIXEL_TYPE color;
+
+			color = (*it)->GetPlanetColor();
+			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
+			
+			color = (*it)->GetCloudsColor();
+			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
+			
+			color = (*it)->GetShadowsColor();
+			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
+			
+			color = (*it)->GetLightsColor();
+			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
+			
 			++it;
 		}
 		fichier.close();
@@ -843,25 +936,53 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 
 	if(fichier)  // si l'ouverture a fonctionné
 	{
-		if(!mListShipsDatas.empty())
+		if(!mListPlanets.empty())
 			return false;
 		
-		int size = 0;
-		while(fichier.read((char*)&size, sizeof(char)))// tant qu'il y a des vaisseaux
+		// planetes
+		int nbPlanets = 0;
+		fichier.read((char*)&nbPlanets, sizeof(char));
+		for(int i=0; i<nbPlanets; i++)
 		{
-			CSquareShipData* datas = new CSquareShipData;
-			datas->mSize = size;
-			datas->mTilesId = new u32[size*size];
-			for(int i=0; i<size*size; ++i)
-			{
-				u32 id = 0;
-				fichier.read((char*)&id, sizeof(u32));
-				datas->mTilesId[i] = id;
-			}
-			if(datas)
-			{
-				mListShipsDatas.push_back(datas);
-			}
+			int idName = 0;
+			fichier.read((char*)&idName, sizeof(int));
+			string name = "";// TODO : récupérer le nom depuis une liste de noms grace à l'id
+
+			float size = 0.0f;
+			fichier.read((char*)&idName, sizeof(float));
+
+			int idTexPlanet = 0;
+			fichier.read((char*)&idTexPlanet, sizeof(char));
+
+			int idTexClouds = 0;
+			fichier.read((char*)&idTexClouds, sizeof(char));
+
+			CPlanet* planet = new CPlanet(name, size, idTexPlanet, idTexClouds);
+
+			int alignment = 0;
+			fichier.read((char*)&alignment, sizeof(char));
+			planet->SetAlignment(alignment);
+
+			float X = 0.0f;
+			fichier.read((char*)&X, sizeof(float));
+			float Y = 0.0f;
+			fichier.read((char*)&Y, sizeof(float));
+			planet->SetOriginPosition(Vector2D(X,Y));
+
+			PIXEL_TYPE color;
+
+			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
+			planet->SetPlanetColor(color);
+
+			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
+			planet->SetCloudsColor(color);
+
+			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
+			planet->SetShadowsColor(color);
+
+			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
+			planet->SetLightsColor(color);
+
 		}
 		fichier.close();
 	}
@@ -870,4 +991,4 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 
 	return true;
 }
-*/
+

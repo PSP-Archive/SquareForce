@@ -39,8 +39,8 @@ public:
 			return mPlanetMesh20;
 	}
 
-	inline JTexture* GetPlanetTex() {return mPlanetTex;}
-	inline JTexture* GetCloudsTex() {return mCloudsTex;}
+	inline JTexture* GetPlanetTex(unsigned int id) {return mPlanetTex;}
+	inline JTexture* GetCloudsTex(unsigned int id) {return mCloudsTex;}
 	inline JTexture* GetShadowsTex() {return mShadowsTex;}
 	inline JTexture* GetLightsTex() {return mLightsTex;}
 	

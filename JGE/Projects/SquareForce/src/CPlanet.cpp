@@ -27,9 +27,12 @@ CPlanet::CPlanet()
 	mLightsColor = ARGB(255,0,150,255);
 	mShadowsColor = ARGB(220,255,255,255);
 
+	mIdTexPlanet = 0;
+	mIdTexClouds = 0;
+
 	CResourceManager* resMgr = CResourceManager::GetInstance();
-	mPlanetTex = resMgr->GetPlanetTex();
-	mCloudsTex = resMgr->GetCloudsTex();
+	mPlanetTex = resMgr->GetPlanetTex(mIdTexPlanet);
+	mCloudsTex = resMgr->GetCloudsTex(mIdTexClouds);
 	mShadowsTex = resMgr->GetShadowsTex();
 	mLightsTex = resMgr->GetLightsTex();
 
@@ -37,6 +40,50 @@ CPlanet::CPlanet()
 
 	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_HEIGHT*0.5f;
 	mRenderDist *= mRenderDist;
+
+	mName = "Planet";
+
+	
+	mAlignment = 0;// todo : mettre les types ds un enum
+}
+
+CPlanet::CPlanet(string name, float size, unsigned int idTexPlanet, unsigned int idTexClouds)
+{
+	mOriginPosition = Vector2D(0,0);
+	mRotation = 0.1f;
+	mCloudsRotation = 0.0f;
+
+	mDeltaTime = 0.0f;
+	mTimer = 0.0f;
+
+	mPlanetAngularVelocity = 2.0f;
+	mCloudsAngularVelocity = 3.0f;
+
+	mSizeX = size;
+	mSizeY = size;
+
+	mPlanetColor = ARGB(255,255,255,255);
+	mCloudsColor = ARGB(255,255,255,255);
+	mLightsColor = ARGB(255,0,150,255);
+	mShadowsColor = ARGB(220,255,255,255);
+
+	mIdTexPlanet = idTexPlanet;
+	mIdTexClouds = idTexClouds;
+
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+	mPlanetTex = resMgr->GetPlanetTex(mIdTexPlanet);
+	mCloudsTex = resMgr->GetCloudsTex(mIdTexClouds);
+	mShadowsTex = resMgr->GetShadowsTex();
+	mLightsTex = resMgr->GetLightsTex();
+
+	mPlanetMesh = resMgr->GetPlanetMesh(size);
+
+	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_HEIGHT*0.5f;
+	mRenderDist *= mRenderDist;
+
+	mName = name;
+
+	mAlignment = 0;// todo : mettre les types ds un enum
 }
 
 
