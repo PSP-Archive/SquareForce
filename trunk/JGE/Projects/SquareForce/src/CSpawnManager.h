@@ -50,6 +50,10 @@ protected:
 	bool ReadShipsRes();
 	bool ReadShipsDesc();
 
+	bool ReadSectorTxt(unsigned int num);
+	bool WriteSectorRes(unsigned int num);
+	bool ReadSectorRes(unsigned int num);
+
 	CSquareShip* mHero;
 	vector<CObject*> mListObjects;
 	vector<CObject*> mActiveObjects;
