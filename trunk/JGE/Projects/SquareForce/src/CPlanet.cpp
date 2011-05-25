@@ -11,6 +11,7 @@ CPlanet::CPlanet()
 {
 	mOriginPosition = Vector2D(0,0);
 	mRotation = 0.1f;
+	mMatrixRot.Set(mRotation);
 	mCloudsRotation = 0.0f;
 
 	mDeltaTime = 0.0f;
@@ -51,6 +52,7 @@ CPlanet::CPlanet(string name, float size, unsigned int idTexPlanet, unsigned int
 {
 	mOriginPosition = Vector2D(0,0);
 	mRotation = 0.1f;
+	mMatrixRot.Set(mRotation);
 	mCloudsRotation = 0.0f;
 
 	mDeltaTime = 0.0f;
@@ -110,12 +112,14 @@ void CPlanet::Render(const Vector2D& camPos, const float& camRot, const Matrix22
 	JRenderer* renderer = JRenderer::GetInstance();	
 
 	Vector2D position = camMat / (mOriginPosition - camPos);
-	float rotation = mRotation-camRot;
+	float rotation = mRotation-camRot;// a inverser pour le rendu
+	Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
+
 
 	mPlanetMesh->SetTexture(mPlanetTex);
 	mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
 	mPlanetMesh->Clear(mPlanetColor);
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, 1.0f*mSizeX, 1.0f*mSizeY, -rotation);
+	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, 1.0f*mSizeX, 1.0f*mSizeY);
 	mPlanetMesh->SetTexture(mCloudsTex);
 	mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
 	mPlanetMesh->Clear(mCloudsColor);
@@ -123,9 +127,9 @@ void CPlanet::Render(const Vector2D& camPos, const float& camRot, const Matrix22
 	mPlanetMesh->SetTexture(mLightsTex);
 	mPlanetMesh->SetTextureRect(0,0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
 	mPlanetMesh->Clear(mLightsColor);
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.07f*mSizeX, 1.07f*mSizeY, -rotation);
+	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, mat, 1.07f*mSizeX, 1.07f*mSizeY);
 	mPlanetMesh->SetTexture(mShadowsTex);
 	//mPlanetMesh->SetTextureRect(0,0,TEXTURE_WIDTH,TEXTURE_HEIGHT);
 	mPlanetMesh->Clear(mShadowsColor);
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.03f*mSizeX, 1.03f*mSizeY, -rotation);
+	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, mat, 1.03f*mSizeX, 1.03f*mSizeY);
 }

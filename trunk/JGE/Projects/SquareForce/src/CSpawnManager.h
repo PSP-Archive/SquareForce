@@ -35,21 +35,7 @@ public:
 
 	void Update();
 
-	vector<CSquareTile*> mListTiles;
-
-	vector<CSquareShipData*> mListShipsDatas;
-
 protected:
-	bool ReadTilesTxt();
-	bool WriteTilesRes();
-	bool ReadTilesRes();
-	bool ReadTilesDesc();
-
-	bool ReadShipsTxt();
-	bool WriteShipsRes();
-	bool ReadShipsRes();
-	bool ReadShipsDesc();
-
 	bool ReadSectorTxt(unsigned int num);
 	bool WriteSectorRes(unsigned int num);
 	bool ReadSectorRes(unsigned int num);

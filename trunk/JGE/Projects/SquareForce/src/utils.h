@@ -84,6 +84,41 @@ using namespace std;
 #define popCast(type, var) (*((type*)&var))
 
 
+template<typename T> inline void Swap(T& a, T& b)
+{
+	T tmp = a;
+	a = b;
+	b = tmp;
+}
+
+// Random number in range [-1,1]
+inline float Random()
+{
+#ifdef PSP
+	return vfpu_randf(-1.0f, 1.0f);
+#else
+	float r = (float)rand();
+	r /= RAND_MAX;
+	r = 2.0f * r - 1.0f;
+	return r;
+#endif
+}
+
+inline float Random(float lo, float hi)
+{
+	if(lo > hi)
+		Swap(lo, hi);
+#ifdef PSP
+	return vfpu_randf(lo, hi);
+#else
+	float r = (float32)rand();
+	r /= RAND_MAX;
+	r = (hi - lo) * r + lo;
+	return r;
+#endif
+}
+
+
 // MATH
 // projection scalaire de u sur v
 inline Vector2D ScalarProj(const Vector2D& u, const Vector2D& v)

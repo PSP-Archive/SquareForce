@@ -283,6 +283,13 @@ struct Matrix22
 		return u;
 	}
 
+	// A * B
+	inline Matrix22 operator * (const Matrix22& A) const
+	{
+		Matrix22 C(this->Mul(A.col1), this->Mul(A.col2));
+		return C;
+	}
+
 	inline Vector2D MulT (const Vector2D& v) const
 	{
 		Vector2D u(v*col1, v*col2);
@@ -302,6 +309,15 @@ struct Matrix22
 	{
 		Vector2D u(v*col1, v*col2);
 		return u;
+	}
+
+	// A^T * B
+	inline Matrix22 operator / (const Matrix22& A) const
+	{
+		Vector2D c1(col1*A.col1, col2*A.col1);
+		Vector2D c2(col1*A.col2, col2*A.col2);
+		Matrix22 C(c1, c2);
+		return C;
 	}
 
 	inline Matrix22 operator + (const Matrix22& A) const

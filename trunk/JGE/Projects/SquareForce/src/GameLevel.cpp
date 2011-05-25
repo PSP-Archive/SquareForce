@@ -15,6 +15,7 @@
 #include <string>
 
 #include "CLocalization.h"
+#include "CResourceManager.h"
 
 #include "GameLevel.h"
 #include "utils.h"
@@ -86,14 +87,16 @@ void GameLevel::Create()
 
 	mSpawnMgr = new CSpawnManager;
 
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+
 	for(int i=0; i<SQUARETILE_INVENTORY_SIZE; i++)
 		mInventory[i] = NULL;
 	for(int i=0; i<9; i++)
-		mInventory[i] = new CSquareTileHull((CSquareTileHull*)(mSpawnMgr->mListTiles[1]));
+		mInventory[i] = new CSquareTileHull((CSquareTileHull*)(resMgr->mListTiles[1]));
 	for(int i=9; i<15; i++)
-		mInventory[i] = new CSquareTileEngine((CSquareTileEngine*)(mSpawnMgr->mListTiles[2]));
+		mInventory[i] = new CSquareTileEngine((CSquareTileEngine*)(resMgr->mListTiles[2]));
 	for(int i=15; i<21; i++)
-		mInventory[i] = new CSquareTileGun((CSquareTileGun*)(mSpawnMgr->mListTiles[3]));
+		mInventory[i] = new CSquareTileGun((CSquareTileGun*)(resMgr->mListTiles[3]));
 
 	Reset();
 
@@ -470,6 +473,15 @@ void GameLevel::DrawGui()
 			renderer->DrawCircle(centerX+shipDir.x, centerY-shipDir.y, 0.5f, ARGB(255,255,0,0));
 		}
 	}
+
+	Vector2D planetPos = mgr->GetPlanet(0)->GetOriginPosition();
+	Vector2D planetDir = planetPos - mWorldObjects->mCamPos;
+	if(planetDir.Length2() <= minimapDistMax2)
+	{
+		planetDir = camMat / (minimapRatio * planetDir);
+		renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, 5.0f, ARGB(255,255,255,255));
+	}
+
 
 	char txt[50] = "";
 	sprintf(txt, "1/%d", (int)(mMinimapScale+0.5f));

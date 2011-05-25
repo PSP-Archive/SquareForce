@@ -55,8 +55,6 @@ GameApp::~GameApp()
 void GameApp::Create()
 {
 	JRenderer* renderer = JRenderer::GetInstance();
-
-	CResourceManager* resMgr = CResourceManager::GetInstance();
 	
 #ifdef HACK_SKIP_LOGO
 	mTypeGame = TYPE_GAME;
