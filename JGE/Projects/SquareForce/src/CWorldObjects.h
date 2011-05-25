@@ -10,6 +10,7 @@
 #include "CPlanet.h"
 #include "CGlobalParticleEmitter.h"
 #include "CMissile.h"
+#include "CSpeedWay.h"
 
 #include <list>
 using namespace std;
@@ -50,6 +51,9 @@ private:
 	CGlobalParticleEmitter* mGPE2;
 
 	list<CMissile*> mListMissiles;
+
+	// test
+	CSpeedWay* mSpeedWay;
 };
 
 #endif

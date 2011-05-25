@@ -24,6 +24,8 @@ CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 
 	mGPE1 = NULL;
 	mGPE2 = NULL;
+
+	mSpeedWay = NULL;
 }
 
 
@@ -46,6 +48,8 @@ CWorldObjects::~CWorldObjects()
 // 	fprintf(f, "exit CWorldObjects delete\n");
 // 	fclose(f);
 // #endif
+
+	SAFE_DELETE(mSpeedWay);
 }
 
 
@@ -71,9 +75,11 @@ void CWorldObjects::Create()
 // 	fclose(f);
 // #endif
 
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+
 	mHero = new CSquareShip(mWorld, mListMissiles);
 	mHero->Create(3);
-	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), mSpawnMgr->mListTiles);// vaisseau sans tiles
+	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), resMgr->mListTiles);// vaisseau sans tiles
 	mHero->LoadPhysic();
 	mSpawnMgr->SetHero(mHero);
 
@@ -81,7 +87,7 @@ void CWorldObjects::Create()
 	{
 		CSquareShip *ship = new CSquareShip(mWorld, mListMissiles);
 		ship->Create(3);
-		ship->LoadShape(mSpawnMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], mSpawnMgr->mListTiles);
+		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
 		ship->SetAI(new CSquareShipAI(this, ship));
 		mSpawnMgr->AddObject(ship);
 	}
@@ -96,7 +102,7 @@ void CWorldObjects::Create()
 	mCamRot = M_PI_4;
 	mCamMat.Set(mCamRot);
 
-	CResourceManager* resMgr = CResourceManager::GetInstance();
+
 	int num = 10;
 	mGPE1 = new CGlobalParticleEmitter(80, resMgr->GetParticlesQuad(num), 1.0f, 
 		hgeColor(0.6f, 0.9f, 0.9f, 0.9f), hgeColor(-0.3f, -0.4f, -0.3f, 0.0f));
@@ -113,6 +119,8 @@ void CWorldObjects::Create()
 		planet->SetOriginPosition(Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
 		mSpawnMgr->AddPlanet(planet);
 	}
+
+	mSpeedWay = new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3));
 }
 
 
@@ -252,6 +260,9 @@ void CWorldObjects::Render()
 	{
 		obj->Render(mCamPos, mCamRot, mCamMat);
 	}
+
+	// test 
+	mSpeedWay->Render(mCamPos, mCamRot, mCamMat);
 
 	// on dessine l'émetteur de particules global
 	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.7f, 1.0f);

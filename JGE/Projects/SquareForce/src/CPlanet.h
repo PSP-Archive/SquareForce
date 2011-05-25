@@ -60,6 +60,7 @@ protected:
 
 	Vector2D mOriginPosition;
 	float mRotation;
+	Matrix22 mMatrixRot;
 	float mCloudsRotation;
 
 	float mPlanetAngularVelocity;

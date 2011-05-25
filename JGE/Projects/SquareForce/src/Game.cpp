@@ -13,6 +13,8 @@
 #include "Game.h"
 #include "utils.h"
 
+#include "CResourceManager.h"
+
 #include "MainPanel.h"
 #include "FactoryPanel.h"
 
@@ -49,6 +51,9 @@ Game::~Game()
 //-------------------------------------------------------------------------------------
 void Game::Create()
 {
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+
+
 	mFont = new JTTFont();
 	mFont->Load("font.ttf", 22);
 

@@ -3,6 +3,7 @@
 
 #include "utils.h"
 
+#include "CSquareShip.h"
 
 #define PLANET_TEXTURE_WIDTH 128
 #define PLANET_TEXTURE_HEIGHT 128
@@ -44,9 +45,22 @@ public:
 	inline JTexture* GetShadowsTex() {return mShadowsTex;}
 	inline JTexture* GetLightsTex() {return mLightsTex;}
 	
+	vector<CSquareTile*> mListTiles;
+	vector<CSquareShipData*> mListShipsDatas;
+
 protected:
 	CResourceManager();
 	~CResourceManager();
+
+	bool ReadTilesTxt();
+	bool WriteTilesRes();
+	bool ReadTilesRes();
+	bool ReadTilesDesc();
+
+	bool ReadShipsTxt();
+	bool WriteShipsRes();
+	bool ReadShipsRes();
+	bool ReadShipsDesc();
 
 	static CResourceManager* mInstance;
 

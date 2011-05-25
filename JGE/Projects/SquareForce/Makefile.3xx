@@ -6,6 +6,7 @@ OBJS = src/CLocalization.o \
 	src/CObject.o \
 	src/CSquareShip.o  \
 	src/CPlanet.o \
+	src/CSpeedWay.o \
 	src/CSpawnManager.o  \
 	src/CWorldObjects.o  \
 	src/CSquareShipAI.o \
