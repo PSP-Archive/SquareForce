@@ -77,21 +77,25 @@ void CSpeedGate::Render(const Vector2D& camPos, const float& camRot, const Matri
 
 CSpeedWay::CSpeedWay(CPlanet* planet1, CPlanet* planet2): mPlanet1(planet1), mPlanet2(planet2)
 {
-	Vector2D dir = mPlanet2->GetOriginPosition() - mPlanet1->GetOriginPosition();
-	float dist = dir.Normalize();
+	mDir = mPlanet2->GetOriginPosition() - mPlanet1->GetOriginPosition();
+	float dist = mDir.Normalize();
 	dist -= (mPlanet1->GetSize() + mPlanet2->GetSize()) * 64.0f;
 	int nbGates = (int)(dist/SPEEDGATES_DISTANCE) - 1;
 
-	float rot = dir.Angle() + M_PI_2;
-	Matrix22 mat(rot);
+	mRotation = mDir.Angle() - M_PI_2;
+	mMatrixRot.Set(mRotation);
 
-	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * 64.0f + SPEEDGATES_DISTANCE)*dir;
+	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * 64.0f + SPEEDGATES_DISTANCE)*mDir;
 	for(int i = 0; i<nbGates; i++)
 	{
-		CSpeedGate* gate = new CSpeedGate(pos, rot, mat);
+		CSpeedGate* gate = new CSpeedGate(pos, mRotation, mMatrixRot);
 		mListGates.push_back(gate);
-		pos +=  SPEEDGATES_DISTANCE*dir;
+		pos +=  SPEEDGATES_DISTANCE*mDir;
 	}
+
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+	mPlasmaSizeX = SPEEDGATE_WIDTH / resMgr->GetPlasmaTex()->mWidth;
+	mPlasmaSizeY = SPEEDGATES_DISTANCE / resMgr->GetPlasmaTex()->mHeight;
 
 }
 
@@ -114,11 +118,27 @@ void CSpeedWay::Update(float dt)
 
 void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)
 {
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+	hgeDistortionMesh* mesh = resMgr->GetPlasmaMesh();
+
 	vector<CSpeedGate*>::iterator it = mListGates.begin();
+	vector<CSpeedGate*>::iterator itNext = it;
+	++itNext;
 	const vector<CSpeedGate*>::const_iterator itEnd = mListGates.end();
-	while(it != itEnd)
+	while(itNext != itEnd)
 	{
+		Vector2D center = 0.5f*((*it)->GetOriginPosition()+(*itNext)->GetOriginPosition());
+		Vector2D position = camMat / (center - camPos);
+		float rotation = mRotation - camRot;// a inverser pour le rendu
+		Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
+
+
+		mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mPlasmaSizeX, mPlasmaSizeY, -rotation);
+		
 		(*it)->Render(camPos, camRot, camMat);
+
 		++it;
+		++itNext;
 	}
+	(*it)->Render(camPos, camRot, camMat);
 }

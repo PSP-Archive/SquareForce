@@ -21,6 +21,7 @@ hgeDistortionMesh* CreatePlanetMesh(int rows, int cols)
 	float cellH=(float)(PLANET_TEXTURE_HEIGHT/(rows-1));
 
 	hgeDistortionMesh* mesh = new hgeDistortionMesh(cols, rows);
+	mesh->SetTextureRect(0,0, PLANET_TEXTURE_WIDTH, PLANET_TEXTURE_HEIGHT);
 
 	float dx = (float)(cellW*(cols-1))*0.5f;
 	float dy = (float)(cellH*(rows-1))*0.5f;
@@ -56,6 +57,7 @@ CResourceManager::CResourceManager()
 	mSquareTilesTex = renderer->LoadTexture("SquareTiles.png", TEX_TYPE_USE_VRAM);
 	mParticlesTex = renderer->LoadTexture("Particles.png", TEX_TYPE_USE_VRAM);
 	mLightningTex = renderer->LoadTexture("nrj10anims18x16.png", TEX_TYPE_USE_VRAM);
+	mPlasmaTex = renderer->LoadTexture("plasma.png", TEX_TYPE_USE_VRAM);
 
 	int tileSize = SQUARETILE_SIZE*3;
 	mSquareTilesQuads = new JQuad*[2*NB_SQUARETILES_QUADS];
@@ -93,6 +95,13 @@ CResourceManager::CResourceManager()
 	mShadowsTex = renderer->LoadTexture("shadows.png");
 	mLightsTex = renderer->LoadTexture("lights.png");
 
+	
+	mPlasmaMesh = new hgeDistortionMesh(8, 8);
+	mPlasmaMesh->SetTexture(mPlasmaTex);
+	mPlasmaMesh->SetTextureRect(0,0,(float)mPlasmaTex->mWidth,(float)mPlasmaTex->mHeight);
+	mPlasmaMesh->Reset();
+	mPlasmaMesh->Clear(ARGB(0xFF,0xFF,0xFF,0xFF));
+
 
 	if(!ReadTilesRes())
 	{
@@ -111,6 +120,7 @@ CResourceManager::CResourceManager()
 
 CResourceManager::~CResourceManager()
 {
+	SAFE_DELETE(mPlasmaTex);
 	SAFE_DELETE(mLightningTex);
 	SAFE_DELETE(mParticlesTex);
 	SAFE_DELETE(mSquareTilesTex);
@@ -174,6 +184,29 @@ JQuad* CResourceManager::GetParticlesQuad(int num)
 	return mParticlesQuads[num];
 }
 
+
+void CResourceManager::UpdatePlasmaMesh(float dt)
+{
+	static float t = 0.0f;
+	t += dt;
+
+	int cols = mPlasmaMesh->GetCols();
+	int rows = mPlasmaMesh->GetRows();
+	for(int i=0;i<rows;i++)
+	{
+		for(int j=0;j<cols;j++)
+		{
+			float r = t*6+(float)(i*j);
+			float rx = cosf(r)*3.0f+5.0f*cosf(t*2);
+			float ry = sinf(r)*2.0f+2.0f*sinf(t*3);
+			if((i>0 && i<rows-1) && (j>0 && j<cols-1))
+				mPlasmaMesh->SetDisplacement(j,i,rx,ry,HGEDISP_NODE);
+
+			// colour doesn't work the same as the original HGE version so the following line is commented out.
+			mPlasmaMesh->SetColor(j,i,ARGB(255, 150-32-(int)(0.7f*(sinf(r)+0.3f*sinf(t*2))*32), 255-32-(int)(sinf(r)*32), 255-24-(int)(sinf(r)*24)));
+		}
+	}
+}
 
 // ressources internes
 

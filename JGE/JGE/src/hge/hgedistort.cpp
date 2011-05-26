@@ -133,6 +133,26 @@ void hgeDistortionMesh::SetTextureRect(float x, float y, float w, float h)
 	}
 }
 
+void hgeDistortionMesh::Reset()
+{
+	int i,j;
+
+	Vertex* vert = disp_array;
+	for(j=0; j<nRows; j++)
+	{
+		for(i=0; i<nCols; i++)
+		{
+			vert->u=i*cellw;
+			vert->v=j*cellh;
+
+			vert->x=i*cellw;
+			vert->y=j*cellh;
+
+			++vert;
+		}
+	}
+}
+
 void hgeDistortionMesh::SetBlendMode(int blend)
 {
 //	quad.blend=blend;
@@ -153,6 +173,9 @@ void hgeDistortionMesh::Render(float x, float y, float scaleX, float scaleY, flo
 {
 	int i,j;
 
+	float dx = cellw*(nCols-1)/2;
+	float dy = cellh*(nRows-1)/2;
+
 	VertexColor points[4];
 	JRenderer* renderer = JRenderer::GetInstance();
 
@@ -169,41 +192,41 @@ void hgeDistortionMesh::Render(float x, float y, float scaleX, float scaleY, flo
 			Vertex* vert2;
 
 			vert2 = vert + nCols;
-			pt = Vector2D(vert2->x, vert2->y);
+			pt = Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 			++quadPt;
 
 			vert2 = vert + nCols + 1;
-			pt = Vector2D(vert2->x, vert2->y);
+			pt = Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 			++quadPt;
 
 			vert2 = vert + 1;
-			pt = Vector2D(vert2->x, vert2->y);
+			pt = Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 			++quadPt;
 
 			vert2 = vert;
-			pt = Vector2D(vert2->x, vert2->y);
+			pt = Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
 			if(angle != 0.0f)
 				pt.Rotate(angle);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 
@@ -220,6 +243,9 @@ void hgeDistortionMesh::Render(float x, float y, const Matrix22& rotMat, float s
 {
 	int i,j;
 
+	float dx = cellw*(nCols-1)/2;
+	float dy = cellh*(nRows-1)/2;
+
 	VertexColor points[4];
 	JRenderer* renderer = JRenderer::GetInstance();
 
@@ -236,36 +262,33 @@ void hgeDistortionMesh::Render(float x, float y, const Matrix22& rotMat, float s
 			Vertex* vert2;
 
 			vert2 = vert + nCols;
-			pt = rotMat * Vector2D(vert2->x, vert2->y);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			pt = rotMat * Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 			++quadPt;
 
 			vert2 = vert + nCols + 1;
-			pt = Vector2D(vert2->x, vert2->y);
-			pt = rotMat * Vector2D(vert2->x, vert2->y);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			pt = rotMat * Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 			++quadPt;
 
 			vert2 = vert + 1;
-			pt = Vector2D(vert2->x, vert2->y);
-			pt = rotMat * Vector2D(vert2->x, vert2->y);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			pt = rotMat * Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 			++quadPt;
 
 			vert2 = vert;
-			pt = Vector2D(vert2->x, vert2->y);
-			pt = rotMat * Vector2D(vert2->x, vert2->y);
-			quadPt->x = x+pt.x*scaleX;
-			quadPt->y = y+pt.y*scaleY;
+			pt = rotMat * Vector2D((vert2->x-dx)*scaleX, (vert2->y-dy)*scaleY);
+			quadPt->x = x+pt.x;
+			quadPt->y = y+pt.y;
 			quadPt->z = vert2->z;
 			quadPt->color = vert2->color;
 

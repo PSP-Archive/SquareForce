@@ -51,6 +51,14 @@ protected:
 	CPlanet* mPlanet1;
 	CPlanet* mPlanet2;
 
+	Vector2D mDir;
+
+	float mPlasmaSizeX;
+	float mPlasmaSizeY;
+
+	float mRotation;
+	Matrix22 mMatrixRot;
+
 	vector<CSpeedGate*> mListGates;
 
 };
