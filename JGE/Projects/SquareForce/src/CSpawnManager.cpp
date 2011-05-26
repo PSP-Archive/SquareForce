@@ -202,8 +202,10 @@ bool CSpawnManager::WriteSectorRes(unsigned int num)
 			if(!(*it))
 				continue;
 
-			int idName = 0;// TODO : récupérer l'id du nom
-			fichier.write((char*)&idName, sizeof(int));
+			string name = (*it)->GetName();
+			int lenName = name.size();
+			fichier.write((char*)&lenName, sizeof(int));
+			fichier.write((char*)(name.c_str()), lenName*sizeof(char));
 			
 			float size = (*it)->GetSize();
 			fichier.write((char*)&size, sizeof(float));
@@ -261,12 +263,15 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 		fichier.read((char*)&nbPlanets, sizeof(char));
 		for(int i=0; i<nbPlanets; i++)
 		{
-			int idName = 0;
-			fichier.read((char*)&idName, sizeof(int));
-			string name = "";// TODO : récupérer le nom depuis une liste de noms grace à l'id
+			int lenName = 0;
+			fichier.read((char*)&lenName, sizeof(int));
+			char *cName = new char[lenName];
+			fichier.read((char*)cName, lenName*sizeof(char));
+			string name = cName;
+			SAFE_DELETE(cName);
 
 			float size = 0.0f;
-			fichier.read((char*)&idName, sizeof(float));
+			fichier.read((char*)&size, sizeof(float));
 
 			int idTexPlanet = 0;
 			fichier.read((char*)&idTexPlanet, sizeof(char));
