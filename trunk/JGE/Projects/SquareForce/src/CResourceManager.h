@@ -21,6 +21,7 @@ public:
 	inline JTexture* GetSquareTilesTex() {return mSquareTilesTex;}
 	inline JTexture* GetParticlesTex() {return mParticlesTex;}
 	inline JTexture* GetLightningTex() {return mLightningTex;}
+	inline JTexture* GetPlasmaTex() {return mPlasmaTex;}
 
 	inline JQuad* GetSquareTilesQuad(int num) {return (num>=0 && num<2*NB_SQUARETILES_QUADS)?mSquareTilesQuads[num]:NULL;}
 	inline JQuad* GetLightningQuad(int num) {return (num>=0 && num<NB_LIGHTNING_FRAMES)?mLightningQuads[num]:NULL;}
@@ -40,10 +41,14 @@ public:
 			return mPlanetMesh20;
 	}
 
+	inline hgeDistortionMesh* GetPlasmaMesh() {return mPlasmaMesh;}
+
 	inline JTexture* GetPlanetTex(unsigned int id) {return mPlanetTex;}
 	inline JTexture* GetCloudsTex(unsigned int id) {return mCloudsTex;}
 	inline JTexture* GetShadowsTex() {return mShadowsTex;}
 	inline JTexture* GetLightsTex() {return mLightsTex;}
+
+	void UpdatePlasmaMesh(float dt);
 	
 	vector<CSquareTile*> mListTiles;
 	vector<CSquareShipData*> mListShipsDatas;
@@ -72,6 +77,10 @@ protected:
 
 	JTexture* mLightningTex;
 	JQuad** mLightningQuads;
+
+	JTexture* mPlasmaTex;
+
+	hgeDistortionMesh* mPlasmaMesh;
 
 	hgeDistortionMesh* mPlanetMesh20;
 	hgeDistortionMesh* mPlanetMesh16;

@@ -40,6 +40,7 @@ public:
 
      void		SetTexture(JTexture* tex);
      void		SetTextureRect(float x, float y, float w, float h);
+	 void		Reset();
      void		SetBlendMode(int blend);
      void		SetZ(int col, int row, float z);
      void		SetColor(int col, int row, PIXEL_TYPE color);
