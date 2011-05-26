@@ -100,7 +100,7 @@ CResourceManager::CResourceManager()
 	mPlasmaMesh->SetTexture(mPlasmaTex);
 	mPlasmaMesh->SetTextureRect(0,0,(float)mPlasmaTex->mWidth,(float)mPlasmaTex->mHeight);
 	mPlasmaMesh->Reset();
-	mPlasmaMesh->Clear(ARGB(0xFF,0xFF,0xFF,0xFF));
+	mPlasmaMesh->Clear(ARGB(128,128,128,128));
 
 
 	if(!ReadTilesRes())
@@ -202,8 +202,7 @@ void CResourceManager::UpdatePlasmaMesh(float dt)
 			if((i>0 && i<rows-1) && (j>0 && j<cols-1))
 				mPlasmaMesh->SetDisplacement(j,i,rx,ry,HGEDISP_NODE);
 
-			// colour doesn't work the same as the original HGE version so the following line is commented out.
-			mPlasmaMesh->SetColor(j,i,ARGB(255, 150-32-(int)(0.7f*(sinf(r)+0.3f*sinf(t*2))*32), 255-32-(int)(sinf(r)*32), 255-24-(int)(sinf(r)*24)));
+			//mPlasmaMesh->SetColor(j,i,ARGB(255, 150-32-(int)(0.7f*(sinf(r)+0.3f*sinf(t*2))*32), 255-32-(int)(sinf(r)*32), 255-24-(int)(sinf(r)*24)));
 		}
 	}
 }

@@ -83,6 +83,7 @@ void GameIntroXTC::Create()
 	mDistortionMesh->SetTexture(mTex);
 	mDistortionMesh->SetTextureRect(0,0,(float)mTex->mWidth,(float)mTex->mHeight);
 	mDistortionMesh->Clear(ARGB(0xFF,0xFF,0xFF,0xFF));
+	mDistortionMesh->Reset();
 
 }
 
@@ -186,6 +187,9 @@ void GameIntroXTC::Render()
 		mCpt = 0.0f;
 	}
 
+	float w = (float)mTex->mWidth;
+	float h = (float)mTex->mHeight;
+
 	//renderer->Enable3D();
 	//renderer->Translate(-240 , -136, -300);//-240 , -136, -177
 
@@ -197,7 +201,7 @@ void GameIntroXTC::Render()
 
 	renderer->EnableTextureFilter(true);
 	// render the mesh
- 	mDistortionMesh->Render(mMeshx, mMeshy+pp, 0.5f, 0.5f);
+ 	mDistortionMesh->Render(mMeshx+w/2*0.5f, mMeshy+pp+h/2*0.5f, 0.5f, 0.5f);
 	renderer->EnableTextureFilter(false);
 	
 	//renderer->Enable2D();

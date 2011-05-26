@@ -133,7 +133,8 @@ void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix
 		Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
 
 
-		mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mPlasmaSizeX, mPlasmaSizeY, -rotation);
+		mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, -mPlasmaSizeX, -mPlasmaSizeY);
+		mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, mPlasmaSizeX, mPlasmaSizeY);
 		
 		(*it)->Render(camPos, camRot, camMat);
 

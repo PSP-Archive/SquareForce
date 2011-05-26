@@ -78,6 +78,7 @@ void GameIntroLogo::Create()
 	mDistortionMesh->SetTexture(mTex);
 	mDistortionMesh->SetTextureRect(0,0,(float)mTex->mWidth,(float)mTex->mHeight);
 	mDistortionMesh->Clear(ARGB(0xFF,0xFF,0xFF,0xFF));
+	mDistortionMesh->Reset();
 }
 
 
@@ -175,7 +176,7 @@ void GameIntroLogo::Render()
 	float h = (float)mTex->mHeight*zoom;
 
 	// render the mesh
- 	mDistortionMesh->Render(mMeshx-w/2, mMeshy-h/2, zoom, zoom);
+ 	mDistortionMesh->Render(mMeshx, mMeshy, zoom, zoom);
 
 	// fader
 	int a = 0;
