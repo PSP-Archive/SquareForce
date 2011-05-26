@@ -53,6 +53,25 @@ public:
 	vector<CSquareTile*> mListTiles;
 	vector<CSquareShipData*> mListShipsDatas;
 
+
+	inline float TCosf(float angle) 
+	{
+		float fAngleDeg = RAD2DEG*fmodf(angle, 2*M_PI);
+		int iAngleDeg = (int)(fAngleDeg+0.5f);
+		if(iAngleDeg < 0)
+			iAngleDeg += 360;
+		return mCosTable[iAngleDeg];
+	}
+
+	inline float TSinf(float angle) 
+	{
+		float fAngleDeg = RAD2DEG*fmodf(M_PI_2-angle, 2*M_PI);
+		int iAngleDeg = (int)(fAngleDeg);
+		if(iAngleDeg < 0)
+			iAngleDeg += 360;
+		return mCosTable[iAngleDeg];
+	}
+
 protected:
 	CResourceManager();
 	~CResourceManager();
@@ -90,6 +109,8 @@ protected:
 	JTexture* mCloudsTex;
 	JTexture* mShadowsTex;
 	JTexture* mLightsTex;
+
+	float mCosTable[361];
 };
 
 #endif

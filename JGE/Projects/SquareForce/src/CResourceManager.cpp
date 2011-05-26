@@ -54,6 +54,9 @@ CResourceManager::CResourceManager()
 {
 	JRenderer* renderer = JRenderer::GetInstance();
 
+	for(int i=0; i<361; ++i)
+		mCosTable[i] = cosf(DEG2RAD*i);
+
 	mSquareTilesTex = renderer->LoadTexture("SquareTiles.png", TEX_TYPE_USE_VRAM);
 	mParticlesTex = renderer->LoadTexture("Particles.png", TEX_TYPE_USE_VRAM);
 	mLightningTex = renderer->LoadTexture("nrj10anims18x16.png", TEX_TYPE_USE_VRAM);
@@ -100,7 +103,7 @@ CResourceManager::CResourceManager()
 	mPlasmaMesh->SetTexture(mPlasmaTex);
 	mPlasmaMesh->SetTextureRect(0,0,(float)mPlasmaTex->mWidth,(float)mPlasmaTex->mHeight);
 	mPlasmaMesh->Reset();
-	mPlasmaMesh->Clear(ARGB(128,128,128,128));
+	mPlasmaMesh->Clear(ARGB(128,255,255,255));
 
 
 	if(!ReadTilesRes())
@@ -192,17 +195,14 @@ void CResourceManager::UpdatePlasmaMesh(float dt)
 
 	int cols = mPlasmaMesh->GetCols();
 	int rows = mPlasmaMesh->GetRows();
-	for(int i=0;i<rows;i++)
+	for(int i=1;i<rows-1;i++)
 	{
-		for(int j=0;j<cols;j++)
+		for(int j=1;j<cols-1;j++)
 		{
 			float r = t*6+(float)(i*j);
-			float rx = cosf(r)*3.0f+5.0f*cosf(t*2);
-			float ry = sinf(r)*2.0f+2.0f*sinf(t*3);
-			if((i>0 && i<rows-1) && (j>0 && j<cols-1))
-				mPlasmaMesh->SetDisplacement(j,i,rx,ry,HGEDISP_NODE);
-
-			//mPlasmaMesh->SetColor(j,i,ARGB(255, 150-32-(int)(0.7f*(sinf(r)+0.3f*sinf(t*2))*32), 255-32-(int)(sinf(r)*32), 255-24-(int)(sinf(r)*24)));
+			float rx = TCosf(r)*3.0f;//+5.0f*cosf(t*2);
+			float ry = TSinf(r)*2.0f;//+2.0f*sinf(t*3);
+			mPlasmaMesh->SetDisplacement(j,i,rx,ry,HGEDISP_NODE);
 		}
 	}
 }
