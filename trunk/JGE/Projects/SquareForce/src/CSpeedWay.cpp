@@ -68,6 +68,7 @@ void CSpeedGate::Render(const Vector2D& camPos, const float& camRot, const Matri
 	// éclairs
 	static float size = SPEEDGATE_WIDTH / 18.0f;
 	int num = (int)(Random(0, 1)*NB_LIGHTNING_FRAMES);
+	mLightningQuads[num]->SetColor(ARGB(255, 0, 255, 128));
 	if(num<NB_LIGHTNING_FRAMES)
 		renderer->RenderQuad(mLightningQuads[num], 
 		SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation, size, 1.0f);
@@ -94,7 +95,7 @@ CSpeedWay::CSpeedWay(CPlanet* planet1, CPlanet* planet2): mPlanet1(planet1), mPl
 	}
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
-	mPlasmaSizeX = SPEEDGATE_WIDTH / resMgr->GetPlasmaTex()->mWidth;
+	mPlasmaSizeX = (SPEEDGATE_WIDTH - 16.0f) / resMgr->GetPlasmaTex()->mWidth;
 	mPlasmaSizeY = SPEEDGATES_DISTANCE / resMgr->GetPlasmaTex()->mHeight;
 
 }
@@ -118,6 +119,9 @@ void CSpeedWay::Update(float dt)
 
 void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)
 {
+	if(mListGates.empty())
+		return;
+
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	hgeDistortionMesh* mesh = resMgr->GetPlasmaMesh();
 
@@ -127,19 +131,26 @@ void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix
 	const vector<CSpeedGate*>::const_iterator itEnd = mListGates.end();
 	while(itNext != itEnd)
 	{
-		Vector2D center = 0.5f*((*it)->GetOriginPosition()+(*itNext)->GetOriginPosition());
-		Vector2D position = camMat / (center - camPos);
-		float rotation = mRotation - camRot;// a inverser pour le rendu
-		Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
+		Vector2D itPos = (*it)->GetOriginPosition();
+		Vector2D itNextPos = (*itNext)->GetOriginPosition();
+		bool itVisible = ((camPos-itPos).Length2() < 90000.0f);
+		if(itVisible || (camPos-itNextPos).Length2() < 90000.0f)
+		{
+			Vector2D center = 0.5f*(itPos+itNextPos);
+			Vector2D position = camMat / (center - camPos);
+			float rotation = mRotation - camRot;// a inverser pour le rendu
+			Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
 
 
-		mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, -mPlasmaSizeX, -mPlasmaSizeY);
-		mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, mPlasmaSizeX, mPlasmaSizeY);
-		
-		(*it)->Render(camPos, camRot, camMat);
+			mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, -mPlasmaSizeX, -mPlasmaSizeY);
+			mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, mPlasmaSizeX, mPlasmaSizeY);
+			if(itVisible)
+				(*it)->Render(camPos, camRot, camMat);
+		}
 
 		++it;
 		++itNext;
 	}
-	(*it)->Render(camPos, camRot, camMat);
+	if((camPos-(*it)->GetOriginPosition()).Length2() < 90000.0f)
+		(*it)->Render(camPos, camRot, camMat);
 }

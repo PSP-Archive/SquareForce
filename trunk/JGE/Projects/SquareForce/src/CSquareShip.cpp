@@ -387,8 +387,11 @@ void CSquareShip::Render(const Vector2D& camPos, const float& camRot, const Matr
 			// éclairs
 			int num = (int)(b2Random(0, 1)*20*NB_LIGHTNING_FRAMES);
 			if(num<NB_LIGHTNING_FRAMES)
+			{
+				mLightningQuads[num]->SetColor(ARGB(255, 255, 255, 255));
 				renderer->RenderQuad(mLightningQuads[num], 
 				SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation);
+			}
 
 			// explosion
 			hgeParticleSystem *explosionPS = tile->GetExplosionPS();

@@ -193,6 +193,8 @@ void CResourceManager::UpdatePlasmaMesh(float dt)
 	static float t = 0.0f;
 	t += dt;
 
+	mPlasmaMesh->SetTextureRect(fmodf(t*10.0f, 128.0f),fmodf(t*20.0f, 128.0f),128.0f,128.0f);
+
 	int cols = mPlasmaMesh->GetCols();
 	int rows = mPlasmaMesh->GetRows();
 	for(int i=1;i<rows-1;i++)
