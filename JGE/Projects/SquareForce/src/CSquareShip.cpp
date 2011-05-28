@@ -49,7 +49,7 @@ void CSquareShip::Create(int size)
 
 	mQuad = resMgr->GetSquareTilesQuads();
 
-	mOriginPosition = Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f));
+	mOriginPosition = Vector2D(10.0f*Random(-200.0f, 200.0f), 10.0f*Random(-200.0f, 200.0f));
 	mCenterPosition = mOriginPosition;
 	mRotation = 0.0f;
 	mRotationMatrix.Set(mRotation);
@@ -385,7 +385,7 @@ void CSquareShip::Render(const Vector2D& camPos, const float& camRot, const Matr
 			renderer->RenderQuad(quad, SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation);
 
 			// éclairs
-			int num = (int)(b2Random(0, 1)*20*NB_LIGHTNING_FRAMES);
+			int num = (int)(Random(0, 1)*20*NB_LIGHTNING_FRAMES);
 			if(num<NB_LIGHTNING_FRAMES)
 			{
 				mLightningQuads[num]->SetColor(ARGB(255, 255, 255, 255));
@@ -553,7 +553,7 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 
 				Vector2D dir = target - pos;
 				dir.Normalize();
-				float ratio = b2Random(-ratioError, ratioError);
+				float ratio = Random(-ratioError, ratioError);
 				dir = (1.0f-abs(ratio)) * dir + ratio * Vector2D(-dir.y, dir.x);
 				dir.Normalize();
 				// on tire seulement si on vise un objet dans le demi cercle face au canon

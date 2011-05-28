@@ -76,6 +76,7 @@ void GameLevel::Create()
 	mPaused = false;
 	mQuit = false;
 
+#ifndef NO_SOUND
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 
 	if (sound)
@@ -84,6 +85,7 @@ void GameLevel::Create()
 	if (mMusic)
 		sound->PlayMusic(mMusic, true);
 	sound->SetMusicVolume(50);
+#endif
 
 	mSpawnMgr = new CSpawnManager;
 
@@ -143,9 +145,11 @@ void GameLevel::Destroy()
 	SAFE_DELETE(mTargetReticleQuad);
 	SAFE_DELETE(mTargetReticleTex);
 
+#ifndef NO_SOUND
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 	sound->StopMusic(mMusic);
  	SAFE_DELETE(mMusic);
+#endif
 
 	for(int i=0; i<SQUARETILE_INVENTORY_SIZE; i++)
 		SAFE_DELETE(mInventory[i]);
@@ -519,8 +523,10 @@ void GameLevel::Pause()
 {
 	mPaused = true;
 
+#ifndef NO_SOUND
 	//JSoundSystem* sound = JSoundSystem::GetInstance();
 	//sound->PauseMusic(mMusic);
+#endif
 }
 
 
@@ -532,6 +538,8 @@ void GameLevel::Resume()
 {
 	mPaused = false;
 
+#ifndef NO_SOUND
 	//JSoundSystem* sound = JSoundSystem::GetInstance();
 	//sound->ResumeMusic(mMusic);
+#endif
 }

@@ -58,9 +58,16 @@ void CSpeedGate::Render(const Vector2D& camPos, const float& camRot, const Matri
 		quad->SetColor(ARGB(255, 255, 255, 255));
 #else
 		quad->mBlend=GU_TFX_ADD;
-		quad->SetColor(ARGB(0, 0, 0, 0));
+		quad->SetColor(ARGB(255, 0, 0, 0));
 #endif
 		renderer->RenderQuad(quad, SCREEN_SIZE_X2+pos.x, SCREEN_SIZE_Y2-pos.y, -rotation - M_PI_4);
+		int num = (int)(Random(0, 1)*NB_LIGHTNING_FRAMES*20.0f);
+		if(num<NB_LIGHTNING_FRAMES)
+		{
+			mLightningQuads[num]->SetColor(ARGB(255, 255, 255, 255));
+			renderer->RenderQuad(mLightningQuads[num], 
+				SCREEN_SIZE_X2+pos.x, SCREEN_SIZE_Y2-pos.y, -rotation, 1.0f, 1.0f);
+		}
 
 		++tile;
 	}
@@ -68,10 +75,12 @@ void CSpeedGate::Render(const Vector2D& camPos, const float& camRot, const Matri
 	// éclairs
 	static float size = SPEEDGATE_WIDTH / 18.0f;
 	int num = (int)(Random(0, 1)*NB_LIGHTNING_FRAMES);
-	mLightningQuads[num]->SetColor(ARGB(255, 0, 255, 128));
 	if(num<NB_LIGHTNING_FRAMES)
+	{	
+		mLightningQuads[num]->SetColor(ARGB(255, 0, 255, 128));
 		renderer->RenderQuad(mLightningQuads[num], 
 		SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, -rotation, size, 1.0f);
+	}
 
 }
 

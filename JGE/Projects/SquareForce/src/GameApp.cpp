@@ -10,6 +10,7 @@
 
 #include "GameApp.h"
 
+#include "utils.h"
 
 #include "Game.h"
 #include "GameMenuLang.h"
@@ -22,8 +23,6 @@
 
 #include "CLocalization.h"
 #include "CResourceManager.h"
-
-#define HACK_SKIP_LOGO
 
 
 //-------------------------------------------------------------------------------------

@@ -67,6 +67,7 @@ void GameIntroProlog::Create()
 		fichier.close();
 	}
 
+#ifndef NO_SOUND
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 
 	if (sound)
@@ -74,6 +75,7 @@ void GameIntroProlog::Create()
 
 	if (mMusic)
 		JSoundSystem::GetInstance()->PlayMusic(mMusic, true);
+#endif
 
 	mTotalTime += 272.0f/mSpeed;
 	mDeltaTime = 0.0f;
@@ -88,10 +90,12 @@ void GameIntroProlog::Destroy()
 
 	SAFE_DELETE(mBGMesh);
 
+#ifndef NO_SOUND
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 	sound->StopMusic(mMusic);
  	SAFE_DELETE(mMusic);
 	SAFE_DELETE(mFont);
+#endif
 
 	GameIntro::Destroy();
 }
