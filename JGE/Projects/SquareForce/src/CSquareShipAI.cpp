@@ -88,7 +88,7 @@ void CSquareShipAI::Update(float dt)
 	{
 		if((mCurrentDest-myPos).Length2()<100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
 		{
-			mCurrentDest = Vector2D(b2Random(-1.0f, 1.0f), b2Random(-1.0f, 1.0f));
+			mCurrentDest = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
 			mCurrentDest.Normalize();
 			mCurrentDest = mPatrolPointRadius * mCurrentDest + mPatrolPoint;
 		}
@@ -139,4 +139,24 @@ void CSquareShipAI::Update(float dt)
 		powerA = -powerA;
 	mOwner->mAngularPower = powerA;
 	mOwner->mEnginePower = powerL;
+}
+
+void CSquareShipAI::LightUpdate(float dt)
+{
+	static float patrolSpdMax = 200.0f;
+
+	Vector2D myPos = mOwner->GetCenterPosition();
+
+	Vector2D dir;
+	if((mCurrentDest-myPos).Length2()<100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
+	{
+		mCurrentDest = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
+		mCurrentDest.Normalize();
+		mCurrentDest = mPatrolPointRadius * mCurrentDest + mPatrolPoint;
+	}
+
+	dir = (mCurrentDest-myPos);
+	dir.Normalize();
+
+	mOwner->SetPosition(myPos+(patrolSpdMax*dt)*dir);
 }

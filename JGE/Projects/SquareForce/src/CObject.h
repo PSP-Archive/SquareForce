@@ -12,6 +12,7 @@ public:
 
 	virtual void Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat) = 0;
 	virtual void Update(float dt, bool updatePhysic = true) = 0;
+	virtual void LightUpdate(float dt, bool fullUpdate = false) = 0;
 
 	void RenderWire(const Vector2D& camPos, const float& camRot, const Vector2D& pos, PIXEL_TYPE color);
 
@@ -22,6 +23,16 @@ public:
 	inline const Matrix22& GetRotationMatrix() const {return mRotationMatrix;}
 	inline const float& GetRotation() const {return mRotation;}
 	inline const float& GetAngularVelocity() const {return mAngularVelocity;}
+
+	// only effective when no physics attached
+	inline void SetPosition(const Vector2D& pos) 
+	{ 
+		if(!mBody) 
+		{
+			mOriginPosition = pos + mOriginPosition-mCenterPosition; 
+			mCenterPosition = pos;
+		} 
+	}
 
 	virtual bool IsDestroyed() = 0;
 
