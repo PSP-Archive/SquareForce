@@ -9,6 +9,9 @@
 
 #define SPEEDGATES_DISTANCE		250.0f
 #define SPEEDGATE_WIDTH			100.0f
+#define SPEEDWAY_TRACTOR_SPEED	50.0f
+#define SPEEDWAY_SPEED			800.0f
+
 
 CSpeedGate::CSpeedGate(const Vector2D& originPosition, const float& rotation, const Matrix22& matrixRot)
 : mOriginPosition(originPosition), mRotation(rotation), mMatrixRot(matrixRot)
@@ -96,12 +99,14 @@ CSpeedWay::CSpeedWay(CPlanet* planet1, CPlanet* planet2): mPlanet1(planet1), mPl
 	mMatrixRot.Set(mRotation);
 
 	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * 64.0f + SPEEDGATES_DISTANCE)*mDir;
+	mStart = pos;
 	for(int i = 0; i<nbGates; i++)
 	{
 		CSpeedGate* gate = new CSpeedGate(pos, mRotation, mMatrixRot);
 		mListGates.push_back(gate);
 		pos +=  SPEEDGATES_DISTANCE*mDir;
 	}
+	mEnd = pos - SPEEDGATES_DISTANCE*mDir;
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	mPlasmaSizeX = (SPEEDGATE_WIDTH - 16.0f) / resMgr->GetPlasmaTex()->mWidth;
@@ -123,7 +128,37 @@ CSpeedWay::~CSpeedWay()
 
 void CSpeedWay::Update(float dt)
 {
+	list<CObject*>::const_iterator it = mDockedObjects.begin();
+	const list<CObject*>::const_iterator itEnd = mDockedObjects.end();
+	while(it != itEnd)
+	{
+		CObject* obj = *it;
+		Vector2D dir = DirectionToSegment(obj->GetCenterPosition(), mStart, mEnd);
+		float dot = dir*mDir;
+		if(dot < -0.001f)// on est sorti du speedway
+		{
+			obj->Dock(false);
+			obj->RequestDock(false);
+			it = mDockedObjects.erase(it);
+			continue;
+		}
 	
+		float dist = dir.Normalize();
+		if(dist > 1.0f)// on tracte l'objet vers le centre du speedway
+		{
+			float t = dist/SPEEDWAY_TRACTOR_SPEED;// temps restant (!=0)
+			obj->SetLinearVelocity(SPEEDWAY_TRACTOR_SPEED*dir);
+			float a = mDir.Angle(obj->GetRotationMatrix() * Vector2D(-1.0f, 1.0f));
+			obj->SetAngularVelocity(-a/t);
+		}
+		else// on speed tout droit
+		{
+			obj->SetLinearVelocity(SPEEDWAY_SPEED*mDir);
+			obj->SetAngularVelocity(0);
+		}
+
+		++it;
+	}
 }
 
 void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)

@@ -51,9 +51,6 @@ private:
 	CGlobalParticleEmitter* mGPE2;
 
 	list<CMissile*> mListMissiles;
-
-	// test
-	CSpeedWay* mSpeedWay;
 };
 
 #endif
