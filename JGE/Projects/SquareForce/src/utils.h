@@ -129,6 +129,38 @@ inline Vector2D ScalarProj(const Vector2D& u, const Vector2D& v)
 	return (u*base)*base;
 }
 
+// distance du point ref au segment ab
+inline float DistanceFromSegment(const Vector2D& ref, const Vector2D& a, const Vector2D& b)
+{
+	Vector2D segment = b-a;
+	Vector2D base = segment;
+	float baseSize = base.Normalize();
+	Vector2D a2ref = ref-a;
+	float flatDist = a2ref*base;
+	if(flatDist <= 0.0f)
+		return a2ref.Length();
+	else if (flatDist >= baseSize)
+		return (ref-b).Length();
+
+	return (a + flatDist*base - ref).Length(); 
+}
+
+// distance² du point ref au segment ab
+inline float Distance2FromSegment(const Vector2D& ref, const Vector2D& a, const Vector2D& b)
+{
+	Vector2D segment = b-a;
+	Vector2D base = segment;
+	float baseSize = base.Normalize();
+	Vector2D a2ref = ref-a;
+	float flatDist = a2ref*base;
+	if(flatDist <= 0.0f)
+		return a2ref.Length2();
+	else if (flatDist >= baseSize)
+		return (ref-b).Length2();
+
+	return (a + flatDist*base - ref).Length2(); 
+}
+
 
 // string parser
 inline void StringExplode(const string& str, const string& separator, vector<string>& results)
