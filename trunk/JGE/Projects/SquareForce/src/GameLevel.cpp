@@ -170,12 +170,11 @@ void GameLevel::Update()
 	if(mPaused)
 		return;
 
-	UpdateControler();
-
-
 	// on update tout
 	if (mWorldObjects)
 		mWorldObjects->Update(mDeltaTime);
+
+	UpdateControler();
 
 }
 

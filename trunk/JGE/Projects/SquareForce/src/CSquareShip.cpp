@@ -413,7 +413,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 	if(mAI)
 		mAI->Update(dt);
 
-	if(updatePhysic)
+	if(updatePhysic && mBody)
 	{
 		mOriginPosition = popCast(Vector2D, mBody->GetOriginPosition());
 		mCenterPosition = popCast(Vector2D, mBody->GetCenterPosition());
@@ -428,7 +428,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 
 
 	// physique
-	if(updatePhysic)
+	if(updatePhysic && mBody)
 	{
 		float mass = mBody->GetMass();
 
@@ -594,7 +594,7 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 	ratioError = max(0.0f, min(1.0f, ratioError));
 	static Vector2D delta = Vector2D(-SQUARETILE_SIZE/2, SQUARETILE_SIZE/2);
 
-	Vector2D shipFront = popCast(Matrix22, mBody->GetRotationMatrix()) * Vector2D(-1.0f, 1.0f);
+	Vector2D shipFront = popCast(Matrix22, mRotationMatrix) * Vector2D(-1.0f, 1.0f);
 	shipFront.Normalize();
 
 	list<CSquareTileGun*>::iterator itGun = mlistSTGun.begin();
@@ -605,8 +605,8 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 		{
 			if((*itGun)->Fire())
 			{
-				Vector2D pos = popCast(Vector2D, mBody->GetOriginPosition()) + 
-					popCast(Matrix22, mBody->GetRotationMatrix()) * ((*itGun)->GetPosition() + delta);
+				Vector2D pos = popCast(Vector2D, mOriginPosition) + 
+					popCast(Matrix22, mRotationMatrix) * ((*itGun)->GetPosition() + delta);
 
 				Vector2D dir = target - pos;
 				dir.Normalize();
@@ -617,7 +617,7 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 				if( dir * shipFront >= 0.0f)
 				{
 					dir *= (*itGun)->GetMissileSpeed();
-					dir += popCast(Vector2D, mBody->GetLinearVelocity());
+					dir += popCast(Vector2D, mLinearVelocity);
 
 					CMissile *missile = new CMissile(1.0f, mQuadPcl, this, (*itGun)->GetHullDammages());
 					missile->SetPosition(pos);
@@ -749,6 +749,9 @@ void CSquareShip::SetMissileParticleSystem()
 
 void CSquareShip::Straff(float power)
 {
+	if(!mBody)
+		return;
+
 	power = max(-1.0f, min(1.0f, power));
 
 	int nbEnginesAlive = 0;
@@ -768,15 +771,18 @@ void CSquareShip::Straff(float power)
 		return;
 
 	// poussée moteur
-	Vector2D p = popCast(Vector2D, mBody->GetCenterPosition());
-	Vector2D f = popCast(Matrix22, mBody->GetRotationMatrix()) * Vector2D(1.0f, 1.0f);
+	Vector2D p = popCast(Vector2D, mCenterPosition);
+	Vector2D f = popCast(Matrix22, mRotationMatrix) * Vector2D(1.0f, 1.0f);
 	f.Normalize();
-	f *= power * 1000000.0f;
-	mBody->ApplyForce(popCast(b2Vec2, f), popCast(b2Vec2, p));
+	f *= power * 15000.0f * nbEnginesAlive;
+	mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
 }
 
 void CSquareShip::Dash(float power)
 {
+	if(!mBody)
+		return;
+
 	power = max(-1.0f, min(1.0f, power));
 
 	int nbEnginesAlive = 0;
@@ -796,21 +802,21 @@ void CSquareShip::Dash(float power)
 		return;
 
 	// poussée moteur
-	Vector2D p = popCast(Vector2D, mBody->GetCenterPosition());
-	Vector2D f = popCast(Matrix22, mBody->GetRotationMatrix()) * Vector2D(1.0f, 1.0f);
+	Vector2D p = popCast(Vector2D, mCenterPosition);
+	Vector2D f = popCast(Matrix22, mRotationMatrix) * Vector2D(1.0f, 1.0f);
 	f.Normalize();
-	f *= power * 150.0f * mBody->GetMass();
+	f *= power * 15000.0f * nbEnginesAlive;
 	mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
 }
 
 Vector2D CSquareShip::GetShootPoint(const Vector2D& pos, const Vector2D& vel)
 {
-	Vector2D P = popCast(Vector2D, mBody->GetCenterPosition());//position initiale du projectile (approx)
+	Vector2D P = popCast(Vector2D, mCenterPosition);//position initiale du projectile (approx)
 	float spdP = GUN_MISSILES_SPEED;
 
 	Vector2D E = pos;//position de la cible
 	Vector2D velE = vel;//vitesse de la cible
-	Vector2D velE0 = vel - popCast(Vector2D, mBody->GetLinearVelocity());//vitesse de la cible dans le référentiel dynamique du tireur
+	Vector2D velE0 = vel - popCast(Vector2D, mLinearVelocity);//vitesse de la cible dans le référentiel dynamique du tireur
 
 	//si la cible est à l'arret la position recherchée est E
 	if(velE0.Length() == 0.0f) return  E;
@@ -851,13 +857,13 @@ void CSquareShip::ComputeCollision(CMissile* missile)
 	int size2 = mSize*mSize;
 	int squareTileRadius2 = (SQUARETILE_SIZE/2)*(SQUARETILE_SIZE/2);// rayon au carré du cercle passant par les milieux des côtés
 	int radius2 = size2*squareTileRadius2*2;// rayon au carré du cercle passant par les coins diagonaux
-	if((missile->GetPosition()-popCast(Vector2D, mBody->GetOriginPosition())).Length2() > radius2)
+	if((missile->GetPosition()-popCast(Vector2D, mOriginPosition)).Length2() > radius2)
 		return;
 
-	Vector2D localPos = popCast(Matrix22, mBody->GetRotationMatrix()) / 
-		(missile->GetLastPosition() - popCast(Vector2D, mBody->GetOriginPosition()));
+	Vector2D localPos = popCast(Matrix22, mRotationMatrix) / 
+		(missile->GetLastPosition() - popCast(Vector2D, mOriginPosition));
 	
-	Vector2D localTraj = popCast(Matrix22, mBody->GetRotationMatrix()) / 
+	Vector2D localTraj = popCast(Matrix22, mRotationMatrix) / 
 		(missile->GetPosition() - missile->GetLastPosition());
 	float minTrajLength = localTraj.Length();
 	localTraj.Normalize();
