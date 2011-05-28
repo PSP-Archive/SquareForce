@@ -192,6 +192,7 @@ void GameMenu::Create()
 	mTiles.push_back(Vector2D(42*8,4*8));
 	mTiles.push_back(Vector2D(6*8,5*8));
 
+#ifndef NO_SOUND
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 
  	if (sound)
@@ -199,6 +200,7 @@ void GameMenu::Create()
  
  	if (mMusic)
  		JSoundSystem::GetInstance()->PlayMusic(mMusic, true);
+#endif
 }
 
 
@@ -227,9 +229,11 @@ void GameMenu::Destroy()
 
 	mTiles.clear();
 
+#ifndef NO_SOUND
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 	sound->StopMusic(mMusic);
  	SAFE_DELETE(mMusic);
+#endif
 }
 
 

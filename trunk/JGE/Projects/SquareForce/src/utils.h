@@ -29,10 +29,11 @@ using namespace std;
 
 - création secteurs avec liste de tous les objets (sans modèle physique) :
 	->position ou zone de pop
-- instanciation du modèle physique lorsque la position de pop est suffisamment proche du hero
 - cam follow sur les missiles si on reste appuyé apres le tir
 */
 
+#define HACK_SKIP_LOGO
+#define NO_SOUND
 
 // screen dimensions
 #define SCREEN_SIZE_X					480

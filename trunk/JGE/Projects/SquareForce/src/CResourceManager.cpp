@@ -193,17 +193,17 @@ void CResourceManager::UpdatePlasmaMesh(float dt)
 	static float t = 0.0f;
 	t += dt;
 
-	mPlasmaMesh->SetTextureRect(fmodf(t*10.0f, 128.0f),fmodf(t*20.0f, 128.0f),128.0f,128.0f);
+	mPlasmaMesh->SetTextureRect(fmodf(t*40.0f, 128.0f),fmodf(t*50.0f, 128.0f),128.0f,128.0f);
 
 	int cols = mPlasmaMesh->GetCols();
 	int rows = mPlasmaMesh->GetRows();
 	for(int i=1;i<rows-1;i++)
 	{
-		for(int j=1;j<cols-1;j++)
+		for(int j=0;j<cols;j++)
 		{
-			float r = t*6+(float)(i*j);
-			float rx = TCosf(r)*3.0f;//+5.0f*cosf(t*2);
-			float ry = TSinf(r)*2.0f;//+2.0f*sinf(t*3);
+			float r = t*4+(float)(i*j);
+			float rx = TCosf(r)*5.0f;//+5.0f*cosf(t*2);
+			float ry = TSinf(r)*4.0f;//+2.0f*sinf(t*3);
 			mPlasmaMesh->SetDisplacement(j,i,rx,ry,HGEDISP_NODE);
 		}
 	}
