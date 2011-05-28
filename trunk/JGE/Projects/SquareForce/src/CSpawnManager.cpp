@@ -56,7 +56,7 @@ CSquareShipData* CSpawnManager::GetEmptyShipDatas(int size)
 	return datas;
 }
 
-void CSpawnManager::Update()
+void CSpawnManager::Update(float dt)
 {
 	if(mListObjects.empty())
 		return;
@@ -79,7 +79,10 @@ void CSpawnManager::Update()
 			(*it)->LoadPhysic();// on charge la physique
 		}
 		else
+		{
 			(*it)->UnloadPhysic();// on décharge la physique
+			(*it)->LightUpdate(dt);// on execute l'update allégé sans physique
+		}
 		++it;
 	}
 }

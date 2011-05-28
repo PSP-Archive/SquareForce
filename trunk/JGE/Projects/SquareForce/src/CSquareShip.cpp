@@ -268,7 +268,7 @@ void CSquareShip::LoadPhysic()
 		tiles++;
 	}
 
-	bodyDef.position = popCast(b2Vec2, mOriginPosition);
+	bodyDef.position = popCast(b2Vec2, mCenterPosition);
 	bodyDef.rotation = mRotation;
 	bodyDef.angularDamping = 0.7f;
 	bodyDef.linearDamping = 0.3f;
@@ -517,6 +517,63 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 			listPos.pop_back();
 		itEngine++;
 	}
+
+	mDestroyed = true;
+	// update des squareTiles
+	for(int i=0; i<mSize*mSize; i++)
+	{
+		CSquareTile *tile = mSquareTiles[i];
+		if(!tile)
+			continue;
+
+		tile->Update(dt);
+		if(mDestroyed && tile->GetCurrentLife()>0.0f)// 1ere tile non detruite
+			mDestroyed = false;
+	}
+}
+
+void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
+{
+	if(mBody)// don't use this update if we have a body
+		return;
+
+	if(mAI)
+		mAI->LightUpdate(dt);
+	else
+		SetPosition(mCenterPosition + dt*mLinearVelocity);
+
+	// engine trails
+	static Vector2D delta = Vector2D((float)SQUARETILE_SIZE*0.5f, -(float)SQUARETILE_SIZE*0.5f);
+	list<CSquareTileEngine*>::iterator itEngine = mlistSTEngine.begin();
+	list<CSquareTileEngine*>::iterator itEngineEnd = mlistSTEngine.end();
+	while(itEngine != itEngineEnd)
+	{
+		Vector2D position = mOriginPosition + mRotationMatrix * ((*itEngine)->GetPosition() + delta);
+		list<Vector2D>& listPos = (*itEngine)->mListPos;
+		listPos.push_front(position);
+		if(listPos.size() > NB_POINTS_ENGINE_TRAIL)
+			listPos.pop_back();
+		itEngine++;
+	}
+
+	if(!fullUpdate)
+		return;
+
+	// missiles collisions
+	list<CMissile*>::const_iterator itMissile = mMissilesPt.begin();
+	const list<CMissile*>::const_iterator itMissileEnd = mMissilesPt.end();
+	while(itMissile != itMissileEnd)
+	{
+		ComputeCollision(*itMissile);
+		++itMissile;
+	}
+
+	mEnginePS->vDirection = mRotationMatrix*Vector2D(1,-1);
+	mEnginePS->info.fSpeedMax = 0.0f+mEnginePower*2.5f;
+	mEnginePS->info.fSpeedMin = 0.0f+mEnginePower*2.0f;
+	mEnginePS->Update(dt);
+
+	mMissilePS->Update(dt);
 
 	mDestroyed = true;
 	// update des squareTiles

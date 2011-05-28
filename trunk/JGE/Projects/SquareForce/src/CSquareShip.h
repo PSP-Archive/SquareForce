@@ -49,6 +49,8 @@ public:
 	void Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat);
 	void Update(float dt, bool updatePhysic = true);
 
+	void LightUpdate(float dt, bool fullUpdate = false);// update without physics (for non rendered displacements)
+
 	void FireAt(const Vector2D& target, float ratioError);
 
 	void AddEnginePS(const Vector2D& pos);

@@ -465,8 +465,24 @@ void GameLevel::DrawGui()
 
 	float minimapDistMax2 = minimapDistMax*minimapDistMax;
 	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
+
+
+	int i = 0;
+	CPlanet* planet = NULL;
+	while((planet = mgr->GetPlanet(i++)))
+	{
+		Vector2D planetPos = planet->GetOriginPosition();
+		float planetRadius = planet->GetSize()*64.0f;
+		Vector2D planetDir = planetPos - mWorldObjects->mCamPos;
+		if(planetDir.Length() <= minimapDistMax - planetRadius)
+		{
+			planetDir = camMat / (minimapRatio * planetDir);
+			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, planetRadius*minimapRatio, ARGB(128,255,255,255));
+		}
+	}
+
 	CObject* obj = NULL;
-	int i = 1;
+	i = 1;
 	while((obj = mgr->GetObject(i++)))
 	{
 		Vector2D shipPos = obj->GetOriginPosition();
@@ -474,18 +490,9 @@ void GameLevel::DrawGui()
 		if(shipDir.Length2() <= minimapDistMax2)
 		{
 			shipDir = camMat / (minimapRatio * shipDir);
-			renderer->DrawCircle(centerX+shipDir.x, centerY-shipDir.y, 0.5f, ARGB(255,255,0,0));
+			renderer->FillCircle(centerX+shipDir.x, centerY-shipDir.y, 1.0f, ARGB(255,255,0,0));
 		}
 	}
-
-	Vector2D planetPos = mgr->GetPlanet(0)->GetOriginPosition();
-	Vector2D planetDir = planetPos - mWorldObjects->mCamPos;
-	if(planetDir.Length2() <= minimapDistMax2)
-	{
-		planetDir = camMat / (minimapRatio * planetDir);
-		renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, 5.0f, ARGB(255,255,255,255));
-	}
-
 
 	char txt[50] = "";
 	sprintf(txt, "1/%d", (int)(mMinimapScale+0.5f));

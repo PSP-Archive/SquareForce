@@ -33,7 +33,7 @@ public:
 	
 	CSquareShipData* GetEmptyShipDatas(int size);// attention les datas sont allouées
 
-	void Update();
+	void Update(float dt);
 
 protected:
 	bool ReadSectorTxt(unsigned int num);

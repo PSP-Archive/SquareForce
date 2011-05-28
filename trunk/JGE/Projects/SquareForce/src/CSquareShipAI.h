@@ -13,6 +13,7 @@ public:
 	~CSquareShipAI();
 
 	void Update(float dt);
+	void LightUpdate(float dt);
 
 protected:
 	CSquareShip *mOwner;

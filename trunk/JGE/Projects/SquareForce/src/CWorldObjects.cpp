@@ -126,7 +126,7 @@ void CWorldObjects::Create()
 
 void CWorldObjects::Update(float dt)
 {
-	mSpawnMgr->Update();
+	mSpawnMgr->Update(dt);
 
 	CResourceManager::GetInstance()->UpdatePlasmaMesh(dt);
 
