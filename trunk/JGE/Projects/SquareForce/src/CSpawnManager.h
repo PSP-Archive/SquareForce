@@ -9,6 +9,7 @@
 #include "Box2D.h"
 #include "CSquareShip.h"
 #include "CPlanet.h"
+#include "CSpeedWay.h"
 
 using namespace std;
 
@@ -20,9 +21,11 @@ public:
 
 	inline void AddObject(CObject* obj) {mListObjects.push_back(obj);}
 	inline void AddPlanet(CPlanet* planet) {mListPlanets.push_back(planet);}
+	inline void AddSpeedWay(CSpeedWay* speedWay) {mListSpeedWays.push_back(speedWay);}
 	inline CObject* GetActiveObject(unsigned int i) {return ((i<mActiveObjects.size())?mActiveObjects[i]:NULL);}
 	inline CObject* GetObject(unsigned int i) {return ((i<mListObjects.size())?mListObjects[i]:NULL);}
 	inline CPlanet* GetPlanet(unsigned int i) {return ((i<mListPlanets.size())?mListPlanets[i]:NULL);}
+	inline CSpeedWay* GetSpeedWay(unsigned int i) {return ((i<mListSpeedWays.size())?mListSpeedWays[i]:NULL);}
 
 	inline void SetHero(CSquareShip* hero) 
 	{
@@ -33,7 +36,7 @@ public:
 	
 	CSquareShipData* GetEmptyShipDatas(int size);// attention les datas sont allouées
 
-	void Update(float dt);
+	void Update(float dt, const Vector2D& camPos);
 
 protected:
 	bool ReadSectorTxt(unsigned int num);
@@ -46,6 +49,7 @@ protected:
 
 	vector<CPlanet*> mListPlanets;
 
+	vector<CSpeedWay*> mListSpeedWays;
 };
 
 #endif

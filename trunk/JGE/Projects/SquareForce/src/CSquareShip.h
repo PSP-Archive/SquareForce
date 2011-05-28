@@ -71,6 +71,12 @@ public:
 
 	inline bool IsDestroyed() {return mDestroyed;}
 
+	inline bool IsDocked() {return mIsDocked;}
+	inline bool WantToDock() {return mWantToDock;}// true quand on veut  se docker/undocker
+	inline void Dock(bool state) {mIsDocked = state;}
+	inline void RequestDock(bool state) {mWantToDock = state;}// mettre à true pour se docker/undocker
+	
+
 	int mSize;// taille du squareship (carré de mSize*mSize)
 
 	float mEnginePower;// puissance actuelle du moteur (de 0 à 1)
@@ -109,6 +115,9 @@ protected:
 
 	float mDashRTimer;
 	float mDashLTimer;
+
+	bool mWantToDock;
+	bool mIsDocked;
 };
 
 #endif

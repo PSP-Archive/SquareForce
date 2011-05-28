@@ -56,32 +56,66 @@ CSquareShipData* CSpawnManager::GetEmptyShipDatas(int size)
 	return datas;
 }
 
-void CSpawnManager::Update(float dt)
+void CSpawnManager::Update(float dt, const Vector2D& camPos)
 {
 	if(mListObjects.empty())
 		return;
 
 	// on vide l'ancienne liste d'objets visibles 
 	mActiveObjects.clear();
-	mActiveObjects.push_back(mHero);
-
+	
 	// on charge la nouvelle
 	vector<CObject*>::const_iterator it = mListObjects.begin();
-	++it;
 	const vector<CObject*>::const_iterator itEnd = mListObjects.end();
-	const Vector2D& selfPos = mHero->GetOriginPosition();
+	const Vector2D& selfPos = camPos;
 	while(it != itEnd)
 	{
-		float dist2 = ((*it)->GetOriginPosition() - selfPos).Length2();
+		CObject* obj = *it;
+		if(!obj->IsDocked() && obj->WantToDock())// docking request : 
+		{
+			vector<CSpeedWay*>::const_iterator itSW = mListSpeedWays.begin();
+			const vector<CSpeedWay*>::const_iterator itSWEnd = mListSpeedWays.end();
+			while(itSW != itSWEnd)
+			{
+				CSpeedWay* sw = *itSW;
+				if(Distance2FromSegment(obj->GetCenterPosition(), sw->GetStart(), sw->GetEnd()) < 2500.0f)
+				{
+					sw->DockShip(obj, true);
+					obj->UnloadPhysic();// on décharge la physique
+					obj->Dock(true);
+					break;
+				}
+				++itSW;
+			}
+			obj->RequestDock(false);
+		}
+		else if(obj->IsDocked() && obj->WantToDock())// undocking request : 
+		{
+			vector<CSpeedWay*>::const_iterator itSW = mListSpeedWays.begin();
+			const vector<CSpeedWay*>::const_iterator itSWEnd = mListSpeedWays.end();
+			while(itSW != itSWEnd)
+			{
+				CSpeedWay* sw = *itSW;
+				sw->DockShip(obj, false);
+				++itSW;
+			}
+			obj->Dock(false);
+			obj->RequestDock(false);
+		}
+
+		float dist2 = (obj->GetOriginPosition() - selfPos).Length2();
 		if(dist2 < 90000.0f)// dist<300 : on est dans le champ de vision
 		{
-			mActiveObjects.push_back(*it);
-			(*it)->LoadPhysic();// on charge la physique
+			mActiveObjects.push_back(obj);
+			if(!obj->IsDocked())
+				obj->LoadPhysic();// on charge la physique
 		}
 		else
 		{
-			(*it)->UnloadPhysic();// on décharge la physique
-			(*it)->LightUpdate(dt);// on execute l'update allégé sans physique
+			if(!obj->IsDocked())
+			{
+				obj->UnloadPhysic();// on décharge la physique
+			}
 		}
 		++it;
 	}

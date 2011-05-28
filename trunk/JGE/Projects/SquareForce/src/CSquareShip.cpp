@@ -410,10 +410,16 @@ void CSquareShip::Render(const Vector2D& camPos, const float& camRot, const Matr
 
 void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 {
+	if(!mBody)// don't use this update if we don't have a body
+	{
+		LightUpdate(dt, true);// do full update since we are visible
+		return;
+	}
+
 	if(mAI)
 		mAI->Update(dt);
 
-	if(updatePhysic && mBody)
+	if(updatePhysic)
 	{
 		mOriginPosition = popCast(Vector2D, mBody->GetOriginPosition());
 		mCenterPosition = popCast(Vector2D, mBody->GetCenterPosition());
@@ -428,7 +434,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 
 
 	// physique
-	if(updatePhysic && mBody)
+	if(updatePhysic)
 	{
 		float mass = mBody->GetMass();
 
@@ -539,8 +545,10 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 
 	if(mAI)
 		mAI->LightUpdate(dt);
-	else
-		SetPosition(mCenterPosition + dt*mLinearVelocity);
+
+	SetPosition(mCenterPosition + dt*mLinearVelocity);
+	mRotation += mAngularVelocity*dt;
+	mRotationMatrix.Set(mRotation);
 
 	// engine trails
 	static Vector2D delta = Vector2D((float)SQUARETILE_SIZE*0.5f, -(float)SQUARETILE_SIZE*0.5f);

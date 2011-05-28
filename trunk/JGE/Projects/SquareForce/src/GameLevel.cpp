@@ -279,8 +279,9 @@ void GameLevel::UpdateControler()
 
 	}
 
-	if (engine->GetButtonState(PSP_CTRL_DOWN))
+	if (engine->GetButtonClick(PSP_CTRL_DOWN))
 	{
+		mWorldObjects->mHero->RequestDock(true);
 	}
 
 	if (engine->GetButtonState(PSP_CTRL_RIGHT))

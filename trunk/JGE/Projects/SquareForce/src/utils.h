@@ -129,8 +129,8 @@ inline Vector2D ScalarProj(const Vector2D& u, const Vector2D& v)
 	return (u*base)*base;
 }
 
-// distance du point ref au segment ab
-inline float DistanceFromSegment(const Vector2D& ref, const Vector2D& a, const Vector2D& b)
+// vecteur direction le plus court d'un point ref à un segment ab
+inline Vector2D DirectionToSegment(const Vector2D& ref, const Vector2D& a, const Vector2D& b)
 {
 	Vector2D segment = b-a;
 	Vector2D base = segment;
@@ -138,27 +138,23 @@ inline float DistanceFromSegment(const Vector2D& ref, const Vector2D& a, const V
 	Vector2D a2ref = ref-a;
 	float flatDist = a2ref*base;
 	if(flatDist <= 0.0f)
-		return a2ref.Length();
+		return -a2ref;
 	else if (flatDist >= baseSize)
-		return (ref-b).Length();
+		return (b-ref);
 
-	return (a + flatDist*base - ref).Length(); 
+	return (a + flatDist*base - ref); 
+}
+
+// distance du point ref au segment ab
+inline float DistanceFromSegment(const Vector2D& ref, const Vector2D& a, const Vector2D& b)
+{
+	return DirectionToSegment(ref, a, b).Length(); 
 }
 
 // distance² du point ref au segment ab
 inline float Distance2FromSegment(const Vector2D& ref, const Vector2D& a, const Vector2D& b)
 {
-	Vector2D segment = b-a;
-	Vector2D base = segment;
-	float baseSize = base.Normalize();
-	Vector2D a2ref = ref-a;
-	float flatDist = a2ref*base;
-	if(flatDist <= 0.0f)
-		return a2ref.Length2();
-	else if (flatDist >= baseSize)
-		return (ref-b).Length2();
-
-	return (a + flatDist*base - ref).Length2(); 
+	return DirectionToSegment(ref, a, b).Length2(); 
 }
 
 

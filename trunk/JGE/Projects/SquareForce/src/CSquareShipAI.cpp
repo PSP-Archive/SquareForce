@@ -158,5 +158,5 @@ void CSquareShipAI::LightUpdate(float dt)
 	dir = (mCurrentDest-myPos);
 	dir.Normalize();
 
-	mOwner->SetPosition(myPos+(patrolSpdMax*dt)*dir);
+	mOwner->SetLinearVelocity(patrolSpdMax*dir);
 }

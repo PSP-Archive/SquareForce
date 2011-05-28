@@ -33,11 +33,20 @@ public:
 			mCenterPosition = pos;
 		} 
 	}
+	inline void SetRotation(const float& rotation) {mRotation = rotation;}// matrix will be updated from rotation when physics is reloaded
+	inline void SetLinearVelocity(const Vector2D& velocity) {mLinearVelocity = velocity;} 
+	inline void SetAngularVelocity(const float& velocity) {mAngularVelocity = velocity;}
+
 
 	virtual bool IsDestroyed() = 0;
 
 	virtual void LoadPhysic() = 0;
 	virtual void UnloadPhysic() = 0;
+
+	virtual bool IsDocked() = 0;
+	virtual bool WantToDock() = 0;// true quand on veut  se docker/undocker
+	virtual void Dock(bool state) = 0;
+	virtual void RequestDock(bool state) = 0;// mettre à true pour se docker/undocker
 
 protected:
 	b2World* mWorld;// pointeur sur le world

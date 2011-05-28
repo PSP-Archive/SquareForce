@@ -24,8 +24,6 @@ CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 
 	mGPE1 = NULL;
 	mGPE2 = NULL;
-
-	mSpeedWay = NULL;
 }
 
 
@@ -48,8 +46,6 @@ CWorldObjects::~CWorldObjects()
 // 	fprintf(f, "exit CWorldObjects delete\n");
 // 	fclose(f);
 // #endif
-
-	SAFE_DELETE(mSpeedWay);
 }
 
 
@@ -120,14 +116,12 @@ void CWorldObjects::Create()
 		mSpawnMgr->AddPlanet(planet);
 	}
 
-	mSpeedWay = new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3));
+	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3)));
 }
 
 
 void CWorldObjects::Update(float dt)
 {
-	mSpawnMgr->Update(dt);
-
 	CResourceManager::GetInstance()->UpdatePlasmaMesh(dt);
 
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
@@ -147,6 +141,8 @@ void CWorldObjects::Update(float dt)
 		mWorld->Step(timeStep, iterations);
 	}
 
+	mSpawnMgr->Update(timeStep, mCamPos);
+
 	// on update les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
 	const list<CMissile*>::const_iterator itEnd = mListMissiles.end();
@@ -164,22 +160,31 @@ void CWorldObjects::Update(float dt)
 
 	// on update les vaisseaux
 	{
-// 		for(int i=0; i<mNbObjects; i++)
-// 			mObjects[i]->Update(timeStep);
 		int i = 0;
 		CObject* obj = NULL;
-		while((obj = mSpawnMgr->GetActiveObject(i++)))
+		while((obj = mSpawnMgr->GetObject(i++)))
 		{
 			obj->Update(timeStep);
 		}
 	}
 
+	// on update les planetes
 	{
 		int i = 0;
 		CPlanet* planet = NULL;
 		while((planet = mSpawnMgr->GetPlanet(i++)))
 		{
 			planet->Update(timeStep);
+		}
+	}
+
+	//on update les speedways
+	{
+		int i = 0;
+		CSpeedWay* speedWay = NULL;
+		while((speedWay = mSpawnMgr->GetSpeedWay(i++)))
+		{
+			speedWay->Update(timeStep);
 		}
 	}
 
@@ -263,8 +268,13 @@ void CWorldObjects::Render()
 		obj->Render(mCamPos, mCamRot, mCamMat);
 	}
 
-	// test 
-	mSpeedWay->Render(mCamPos, mCamRot, mCamMat);
+	// on dessine les speedways
+	i = 0;
+	CSpeedWay* speedWay = NULL;
+	while((speedWay = mSpawnMgr->GetSpeedWay(i++)))
+	{
+		speedWay->Render(mCamPos, mCamRot, mCamMat);
+	}
 
 	// on dessine l'émetteur de particules global
 	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.7f, 1.0f);
