@@ -16,6 +16,12 @@
 CSpawnManager::CSpawnManager()
 {
 	mHero = NULL;
+
+	if(!ReadSectorRes(0))
+	{
+		ReadSectorTxt(0);
+		WriteSectorRes(0);
+	}
 }
 
 CSpawnManager::~CSpawnManager()
@@ -42,6 +48,15 @@ CSpawnManager::~CSpawnManager()
 		++itPlanet;
 	}
 	mListPlanets.clear();
+
+	vector<CSpeedWay*>::iterator itSpeedWay = mListSpeedWays.begin();
+	const vector<CSpeedWay*>::const_iterator itSpeedWayEnd = mListSpeedWays.end();
+	while(itSpeedWay != itSpeedWayEnd)
+	{
+		SAFE_DELETE(*itSpeedWay);
+		++itSpeedWay;
+	}
+	mListSpeedWays.clear();
 
 }
 
@@ -128,7 +143,7 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 		return false;
 
 	char name[30];
-	sprintf(name, "Res/sector%03d.res", num);
+	sprintf(name, "Res/sector%03d.txt", num);
 	ifstream fichier(name, ios::in);  // on ouvre en lecture
 
 	if(fichier)  // si l'ouverture a fonctionné
@@ -146,6 +161,11 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 		for(int i=0; i<nbPlanets; i++)
 		{
 			getline(fichier, line);
+			if(line == "")
+			{
+				--i;
+				continue;
+			}
 			key = SplitString(line, "=", true);
 			if(key != "Name")
 				return false;
@@ -189,29 +209,37 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 			float Y = (float)atof(line.c_str());
 			planet->SetOriginPosition(Vector2D(X,Y));
 
+			PIXEL_TYPE c;
+
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTexturePlanet")
 				return false;
-			planet->SetPlanetColor((int)atoi(line.c_str()));
+			c = strtoul(line.c_str(), NULL, 16);
+			planet->SetPlanetColor(c);
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTextureClouds")
 				return false;
-			planet->SetCloudsColor((int)atoi(line.c_str()));
+			c = strtoul(line.c_str(), NULL, 16);
+			planet->SetCloudsColor(c);
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTextureShadows")
 				return false;
-			planet->SetShadowsColor((int)atoi(line.c_str()));
+			c = strtoul(line.c_str(), NULL, 16);
+			planet->SetShadowsColor(c);
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTextureLights")
 				return false;
-			planet->SetLightsColor((int)atoi(line.c_str()));
+			c = strtoul(line.c_str(), NULL, 16);
+			planet->SetLightsColor(c);
+
+			AddPlanet(planet);
 
 		}
 		fichier.close();
@@ -233,6 +261,9 @@ bool CSpawnManager::WriteSectorRes(unsigned int num)
 		// planetes
 		vector<CPlanet*>::const_iterator it = mListPlanets.begin();
 		const vector<CPlanet*>::const_iterator itEnd = mListPlanets.end();
+
+		char nbPlanets = mListPlanets.size();
+		fichier.write((char*)&nbPlanets, sizeof(char));
 
 		while(it != itEnd)  // tant que l'on peut mettre la ligne dans "contenu"
 		{
@@ -302,7 +333,8 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 		{
 			int lenName = 0;
 			fichier.read((char*)&lenName, sizeof(int));
-			char *cName = new char[lenName];
+			char *cName = new char[lenName+1];
+			cName[lenName] = '\0';
 			fichier.read((char*)cName, lenName*sizeof(char));
 			string name = cName;
 			SAFE_DELETE(cName);
@@ -342,6 +374,7 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
 			planet->SetLightsColor(color);
 
+			AddPlanet(planet);
 		}
 		fichier.close();
 	}

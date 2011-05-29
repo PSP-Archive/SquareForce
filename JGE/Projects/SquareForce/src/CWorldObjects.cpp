@@ -109,14 +109,15 @@ void CWorldObjects::Create()
 		hgeColor(0.6f, 0.0f, 0.9f, 0.2f), hgeColor(-0.6f, 0.3f, -0.3f, 0.0f));
 	mGPE2->SpawnAt(mCamPos.x, mCamPos.y);
 	
-	for(int i=0; i<NB_PLANETS; ++i)
-	{
-		CPlanet* planet = new CPlanet;
-		planet->SetOriginPosition(Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
-		mSpawnMgr->AddPlanet(planet);
-	}
+// 	for(int i=0; i<NB_PLANETS; ++i)
+// 	{
+// 		CPlanet* planet = new CPlanet;
+// 		planet->SetOriginPosition(Vector2D(10.0f*b2Random(-200.0f, 200.0f), 10.0f*b2Random(-200.0f, 200.0f)));
+// 		mSpawnMgr->AddPlanet(planet);
+// 	}
 
 	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3)));
+	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(3), mSpawnMgr->GetPlanet(0)));
 }
 
 

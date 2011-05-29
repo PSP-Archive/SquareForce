@@ -10,7 +10,7 @@
 #define SPEEDGATES_DISTANCE		250.0f
 #define SPEEDGATE_WIDTH			100.0f
 #define SPEEDWAY_TRACTOR_SPEED	50.0f
-#define SPEEDWAY_SPEED			800.0f
+#define SPEEDWAY_SPEED			1200.0f
 
 
 CSpeedGate::CSpeedGate(const Vector2D& originPosition, const float& rotation, const Matrix22& matrixRot)
@@ -93,12 +93,14 @@ CSpeedWay::CSpeedWay(CPlanet* planet1, CPlanet* planet2): mPlanet1(planet1), mPl
 	mDir = mPlanet2->GetOriginPosition() - mPlanet1->GetOriginPosition();
 	float dist = mDir.Normalize();
 	dist -= (mPlanet1->GetSize() + mPlanet2->GetSize()) * 64.0f;
-	int nbGates = (int)(dist/SPEEDGATES_DISTANCE) - 1;
+	float fNbGates = dist/SPEEDGATES_DISTANCE;
+	int nbGates = (int)fNbGates - 1;
 
 	mRotation = mDir.Angle() - M_PI_2;
 	mMatrixRot.Set(mRotation);
 
-	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * 64.0f + SPEEDGATES_DISTANCE)*mDir;
+	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * 64.0f + SPEEDGATES_DISTANCE + (fNbGates - (float)(nbGates+1))/2*SPEEDGATES_DISTANCE)*mDir;
+	pos += (SPEEDGATE_WIDTH/2+10.0f)*Vector2D(mDir.y, -mDir.x);// right shift
 	mStart = pos;
 	for(int i = 0; i<nbGates; i++)
 	{
@@ -128,14 +130,15 @@ CSpeedWay::~CSpeedWay()
 
 void CSpeedWay::Update(float dt)
 {
-	list<CObject*>::const_iterator it = mDockedObjects.begin();
+	list<CObject*>::iterator it = mDockedObjects.begin();
 	const list<CObject*>::const_iterator itEnd = mDockedObjects.end();
 	while(it != itEnd)
 	{
 		CObject* obj = *it;
 		Vector2D dir = DirectionToSegment(obj->GetCenterPosition(), mStart, mEnd);
+		float dist = dir.Normalize();
 		float dot = dir*mDir;
-		if(dot < -0.001f)// on est sorti du speedway
+		if(dot < -0.001f && dist > 50.0f)// on est sorti du speedway
 		{
 			obj->Dock(false);
 			obj->RequestDock(false);
@@ -143,8 +146,7 @@ void CSpeedWay::Update(float dt)
 			continue;
 		}
 	
-		float dist = dir.Normalize();
-		if(dist > 1.0f)// on tracte l'objet vers le centre du speedway
+		if(dist > 1.0f && dot >= -0.001f)// on tracte l'objet vers le centre du speedway
 		{
 			float t = dist/SPEEDWAY_TRACTOR_SPEED;// temps restant (!=0)
 			obj->SetLinearVelocity(SPEEDWAY_TRACTOR_SPEED*dir);
@@ -166,6 +168,8 @@ void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix
 	if(mListGates.empty())
 		return;
 
+	bool activated = !mDockedObjects.empty();
+
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 	hgeDistortionMesh* mesh = resMgr->GetPlasmaMesh();
 
@@ -180,15 +184,17 @@ void CSpeedWay::Render(const Vector2D& camPos, const float& camRot, const Matrix
 		bool itVisible = ((camPos-itPos).Length2() < 90000.0f);
 		if(itVisible || (camPos-itNextPos).Length2() < 90000.0f)
 		{
-			Vector2D center = 0.5f*(itPos+itNextPos);
-			Vector2D position = camMat / (center - camPos);
-			float rotation = mRotation - camRot;// a inverser pour le rendu
-			Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
+			if(activated)// only render the vortex when activated
+			{
+				Vector2D center = 0.5f*(itPos+itNextPos);
+				Vector2D position = camMat / (center - camPos);
+				//float rotation = mRotation - camRot;// a inverser pour le rendu
+				Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
 
-
-			mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, -mPlasmaSizeX, -mPlasmaSizeY);
-			mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, mPlasmaSizeX, mPlasmaSizeY);
-			if(itVisible)
+				mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, -mPlasmaSizeX, -mPlasmaSizeY);
+				mesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, mPlasmaSizeX, mPlasmaSizeY);
+			}
+			if(itVisible)// render the gate if visible
 				(*it)->Render(camPos, camRot, camMat);
 		}
 
