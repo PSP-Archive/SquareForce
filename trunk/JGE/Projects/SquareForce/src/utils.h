@@ -32,6 +32,35 @@ using namespace std;
 - cam follow sur les missiles si on reste appuyé apres le tir
 */
 
+
+inline PIXEL_TYPE DeserializeColor(PIXEL_TYPE c)// from ARGB
+{
+	JColor color;
+	color.a = (u8)(c>>24);
+	color.r = (u8)(c>>16);
+	color.g = (u8)(c>>8);
+	color.b = (u8)c;
+	return ARGB(color.a, color.r, color.g, color.b);
+}
+
+#ifdef PSP
+inline PIXEL_TYPE SerializeColor(PIXEL_TYPE c)// to ARGB
+{
+	JColor color;
+	color.a = (u8)(c>>24);
+	color.b = (u8)(c>>16);
+	color.g = (u8)(c>>8);
+	color.r = (u8)c;
+
+	return ARGB(color.a, color.b, color.g, color.r);// grosse flemme pr réécrire une macro...
+}
+#else
+inline PIXEL_TYPE SerializeColor(PIXEL_TYPE c)// to ARGB
+{
+	return c;
+}
+#endif
+
 #define HACK_SKIP_LOGO
 #define NO_SOUND
 
