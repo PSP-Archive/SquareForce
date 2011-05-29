@@ -10,7 +10,7 @@
 #define SPEEDGATES_DISTANCE		250.0f
 #define SPEEDGATE_WIDTH			100.0f
 #define SPEEDWAY_TRACTOR_SPEED	50.0f
-#define SPEEDWAY_SPEED			1200.0f
+#define SPEEDWAY_SPEED			999.99f
 
 
 CSpeedGate::CSpeedGate(const Vector2D& originPosition, const float& rotation, const Matrix22& matrixRot)
