@@ -488,6 +488,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\PlanetMainPanel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\PlanetMainPanel.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\TutoPanel1.cpp"
 					>
 				</File>

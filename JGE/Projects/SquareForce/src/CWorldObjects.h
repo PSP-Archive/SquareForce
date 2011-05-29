@@ -31,6 +31,7 @@ public:
 	void Create();
 
 	CObject* GetNearestObject(const Vector2D& worldPos, CObject* skippedObj = NULL);
+	float GetNearestPlanet(const Vector2D& worldPos, CPlanet*& planetOut);
 	
 	CSpawnManager* mSpawnMgr;
 

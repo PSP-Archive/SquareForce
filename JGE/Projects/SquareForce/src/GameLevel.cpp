@@ -180,6 +180,9 @@ void GameLevel::Update()
 
 void GameLevel::UpdateControler()
 {
+	if(mWorldObjects->mHero->IsLanded())
+		return;
+
 	JGE* engine = JGE::GetInstance();
 
 	mWorldObjects->mHero->mAngularPower = 0.0f;
@@ -281,6 +284,16 @@ void GameLevel::UpdateControler()
 
 	if (engine->GetButtonClick(PSP_CTRL_DOWN))
 	{
+		CPlanet *planet = NULL;
+		float dist2 = mWorldObjects->GetNearestPlanet(mWorldObjects->mHero->GetOriginPosition(), planet);
+		if(planet)// on atterri sur la planete si on est au dessus
+		{
+			float distTest = planet->GetSize()*64.0f;
+			distTest *= distTest;
+			if(dist2 < distTest)
+				mWorldObjects->mHero->Land(true);
+		}
+		// on fait une requete d'attache au speedway 
 		mWorldObjects->mHero->RequestDock(true);
 	}
 
@@ -477,7 +490,7 @@ void GameLevel::DrawGui()
 		if(planetDir.Length() <= minimapDistMax - planetRadius)
 		{
 			planetDir = camMat / (minimapRatio * planetDir);
-			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, planetRadius*minimapRatio, ARGB(128,255,255,255));
+			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, planetRadius*minimapRatio, ARGB(255,255,255,255));
 		}
 	}
 

@@ -69,7 +69,7 @@ void CSquareShipAI::Update(float dt)
 				power *= (dir * shipRight >= 0)?1.0f:-1.0f;
 				mOwner->Straff(power);
 			}
-			if(dist < distMin && !ship->IsDestroyed())
+			if(dist < distMin && !ship->IsDestroyed() && !ship->IsLanded())
 			{
 				distMin = dist;
 				currentTarget = ship;

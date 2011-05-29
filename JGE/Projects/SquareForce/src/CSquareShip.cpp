@@ -70,6 +70,10 @@ void CSquareShip::Create(int size)
 
 	mDashRTimer = 0.0f;
 	mDashLTimer = 0.0f;
+
+	mWantToDock = false;
+	mIsDocked = false;
+	mIsLanded = false;
 }
 
 CSquareTile* CSquareShip::SetSquareTile(CSquareTile* squareTile, int slot)

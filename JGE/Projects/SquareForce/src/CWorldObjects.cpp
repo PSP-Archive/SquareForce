@@ -76,6 +76,7 @@ void CWorldObjects::Create()
 	mHero = new CSquareShip(mWorld, mListMissiles);
 	mHero->Create(3);
 	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), resMgr->mListTiles);// vaisseau sans tiles
+	mHero->SetPosition(Vector2D(2000.0f, 4000.0f));
 	mHero->LoadPhysic();
 	mSpawnMgr->SetHero(mHero);
 
@@ -354,3 +355,23 @@ CObject* CWorldObjects::GetNearestObject(const Vector2D& worldPos, CObject* skip
 	}
 	return nearestObj;
 }
+
+float CWorldObjects::GetNearestPlanet(const Vector2D& worldPos, CPlanet*& planetOut)
+{
+	CPlanet* nearestPlanet = NULL;
+	float minDist = 50000.0f*50000.0f*2;
+	CPlanet* planet = NULL;
+	int i = 0;
+	while((planet = mSpawnMgr->GetPlanet(i++)))
+	{
+		float dist = (worldPos - planet->GetOriginPosition()).Length2();
+		if(dist < minDist)
+		{
+			minDist = dist;
+			nearestPlanet = planet;
+		}
+	}
+	planetOut = nearestPlanet;
+	return minDist;
+}
+

@@ -8,53 +8,35 @@
 // 
 //-------------------------------------------------------------------------------------
 
-#ifndef _GAME_H_
-#define _GAME_H_
+#ifndef _PLANETMAINPANEL_H_
+#define _PLANETMAINPANEL_H_
 
 #include <JGE.h>
 #include <JRenderer.h>
 #include <JLBFont.h>
 #include <JTTFont.h>
 #include <JTypes.h>
-#include <JSoundSystem.h>
 
-#include "IGame.h"
 #include "IPanel.h"
-
-#include "TutoPanel1.h"
-
 #include "GameLevel.h"
 
-class JTTFont;
-
-class Game: public IGame
+class PlanetMainPanel: public IPanel
 {
 	
 public:
-	Game();
-	virtual ~Game();
+	PlanetMainPanel(GameLevel* gameLevel);
+	virtual ~PlanetMainPanel();
 	virtual void Create();
 	virtual void Destroy();
 	virtual void Update();
 	virtual void Render();
-	virtual void Pause() {}
-	virtual void Resume() {}
 
 protected:
-
-	GameLevel *mGameLevel;
-
-	bool mPaused;
-
 	JTTFont* mFont;
 
-	IPanel* mPanel;
+	GameLevel* mGameLevel;
 
-	bool mPlayTuto;
-	TutoPanel1* mTutoPanel;
-
-	IPanel* mPlanetPanel;
-
+	int mLine;
 };
 
 #endif
