@@ -48,6 +48,9 @@ public:
 	virtual void Dock(bool state) = 0;
 	virtual void RequestDock(bool state) = 0;// mettre à true pour se docker/undocker
 
+	virtual bool IsLanded() = 0;
+	virtual void Land(bool state) = 0;
+
 protected:
 	b2World* mWorld;// pointeur sur le world
 	b2Body* mBody;

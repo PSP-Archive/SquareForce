@@ -75,6 +75,9 @@ public:
 	inline bool WantToDock() {return mWantToDock;}// true quand on veut  se docker/undocker
 	inline void Dock(bool state) {mIsDocked = state;}
 	inline void RequestDock(bool state) {mWantToDock = state;}// mettre à true pour se docker/undocker
+
+	inline bool IsLanded() {return mIsLanded;}
+	inline void Land(bool state) {mIsLanded = state;}
 	
 
 	int mSize;// taille du squareship (carré de mSize*mSize)
@@ -118,6 +121,7 @@ protected:
 
 	bool mWantToDock;
 	bool mIsDocked;
+	bool mIsLanded;
 };
 
 #endif

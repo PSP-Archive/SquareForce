@@ -5,3 +5,5 @@ Crédits
 Continuer
 Carte
 Quitter
+Assemblage
+Décoller

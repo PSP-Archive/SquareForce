@@ -122,7 +122,7 @@ void CSpawnManager::Update(float dt, const Vector2D& camPos)
 		if(dist2 < 90000.0f)// dist<300 : on est dans le champ de vision
 		{
 			mActiveObjects.push_back(obj);
-			if(!obj->IsDocked())
+			if(!obj->IsDocked() && !obj->IsLanded())
 				obj->LoadPhysic();// on charge la physique
 		}
 		else
@@ -268,7 +268,7 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 			key = SplitString(line, "=", true);
 			if(key != "IdPlanet2")
 				return false;
-			int idPlanet2 = (int)atoi(line.c_str());
+			unsigned int idPlanet2 = (int)atoi(line.c_str());
 
 			if(idPlanet1 >= 0 && idPlanet1 < mListPlanets.size() && 
 				idPlanet2 >= 0 && idPlanet2 < mListPlanets.size())

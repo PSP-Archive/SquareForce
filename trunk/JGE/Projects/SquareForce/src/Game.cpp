@@ -16,6 +16,7 @@
 #include "CResourceManager.h"
 
 #include "MainPanel.h"
+#include "PlanetMainPanel.h"
 #include "FactoryPanel.h"
 
 
@@ -31,6 +32,8 @@ Game::Game(): IGame()
 
 	mTutoPanel = NULL;
 	mPanel = NULL;
+
+	mPlanetPanel = NULL;
 }
 
 
@@ -71,10 +74,9 @@ void Game::Create()
 	mTutoPanel->Create();
 
 	// on balance le panel d'assemblage des squareships
-	mPaused = true;
-	mGameLevel->Pause();
-	mPanel = new FactoryPanel(mGameLevel);
-	mPanel->Create();
+	mPlanetPanel = new FactoryPanel(mGameLevel);
+	mPlanetPanel->Create();
+	mGameLevel->mWorldObjects->mHero->Land(true);
 }
 
 //-------------------------------------------------------------------------------------
@@ -100,6 +102,8 @@ void Game::Destroy()
 	SAFE_DELETE(mPanel);
 
 	SAFE_DELETE(mTutoPanel);
+
+	SAFE_DELETE(mPlanetPanel);
 }
 
 
@@ -112,23 +116,8 @@ void Game::Update()
 {
 	JGE* engine = JGE::GetInstance();
 
-	if(mPaused && mPanel)
+	if(mPaused && mPanel)// main panel update and exit
 	{
-		if(mPlayTuto && mTutoPanel)
-		{
-			mPanel->EnableSkipControls(true);
-
-			mTutoPanel->Update();
-			if(mTutoPanel->HasQuit())
-			{
-				mTutoPanel->Destroy();
-				SAFE_DELETE(mTutoPanel);
-				mPlayTuto = false;
-				mPanel->EnableSkipControls(false);
-			}
-
-		}
-
 		mPanel->Update();
 		if(mPanel->HasQuit())
 		{
@@ -144,10 +133,43 @@ void Game::Update()
 		}
 	}
 
+	if(mPlanetPanel)// planet panel update and exit
+	{
+		if(mPlayTuto && mTutoPanel)
+		{
+			mPlanetPanel->EnableSkipControls(true);
+
+			mTutoPanel->Update();
+			if(mTutoPanel->HasQuit())
+			{
+				mTutoPanel->Destroy();
+				SAFE_DELETE(mTutoPanel);
+				mPlayTuto = false;
+				mPlanetPanel->EnableSkipControls(false);
+			}
+
+		}
+
+		mPlanetPanel->Update();
+		if(mPlanetPanel->HasQuit())
+		{
+			IPanel* newPanel = mPlanetPanel->GetNextPanel();
+			if(!newPanel)
+			{
+				mPaused = false;
+				mGameLevel->Resume();
+				mGameLevel->mWorldObjects->mHero->Land(false);
+			}
+			mPlanetPanel->Destroy();
+			SAFE_DELETE(mPlanetPanel);
+			mPlanetPanel = newPanel;
+		}
+	}
+
 	if(mGameLevel->HasQuit())
 		mQuit = true;
 
-	if (engine->GetButtonClick(PSP_CTRL_START) && !mPlayTuto)	
+	if (engine->GetButtonClick(PSP_CTRL_START) && !mPlayTuto /*HACK*/&& !mPlanetPanel/*HACK*/)// main panel launch and exit
 	{
 		if(!mPaused)// launch main panel
 		{
@@ -166,6 +188,12 @@ void Game::Update()
 		}
 	}
 
+	if(mGameLevel->mWorldObjects->mHero->IsLanded() && !mPlanetPanel)// planet panel launch
+	{
+		mPlanetPanel = new PlanetMainPanel(mGameLevel);
+		mPlanetPanel->Create();
+	}
+
 	mGameLevel->Update();
 }
 
@@ -177,6 +205,12 @@ void Game::Update()
 void Game::Render()
 {
 	mGameLevel->Render();
+
+	// en overlay
+	if(mPlanetPanel)
+	{
+		mPlanetPanel->Render();
+	}
 
 	// en overlay
 	if(mPaused && mPanel)

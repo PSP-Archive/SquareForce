@@ -23,6 +23,7 @@ OBJS = src/CLocalization.o \
 	src/MapPanel.o \
 	src/TutoPanel1.o \
 	src/MainPanel.o \
+	src/PlanetMainPanel.o \
 	src/Game.o \
 	src/GameApp.o \
 	src/GameLauncher.o

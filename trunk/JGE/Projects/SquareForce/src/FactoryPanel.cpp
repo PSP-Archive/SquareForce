@@ -11,6 +11,8 @@
 #include <stdio.h>
 
 #include "FactoryPanel.h"
+#include "PlanetMainPanel.h"
+
 #include "utils.h"
 
 #include "CLocalization.h"
@@ -61,6 +63,11 @@ void FactoryPanel::Create()
 		mInv[i] = mGameLevel->mInventory[i];
 
 	mSkipControls = false;
+
+	mGameLevel->mWorldObjects->mHero->UnloadPhysic();
+	mGameLevel->mWorldObjects->mCamPos = mGameLevel->mWorldObjects->mHero->GetCenterPosition();
+	mGameLevel->mWorldObjects->mCamRot = M_PI_4;
+	mGameLevel->mWorldObjects->mHero->mEnginePower = 1.0f;
 }
 
 
@@ -72,6 +79,10 @@ void FactoryPanel::Create()
 void FactoryPanel::Destroy()
 {
 	SAFE_DELETE(mFont);
+	mGameLevel->mWorldObjects->mHero->mEnginePower = 0.0f;
+	mGameLevel->mWorldObjects->mHero->LoadPhysic();
+	mGameLevel->mWorldObjects->mCamPos = mGameLevel->mWorldObjects->mHero->GetCenterPosition();
+	mGameLevel->mWorldObjects->mCamRot = M_PI_4;
 }
 
 
@@ -105,10 +116,10 @@ void FactoryPanel::Update()
 				if(newTile && !newTile->IsEquipped())
 				{
 					CSquareTile* lastTile = hero->SetSquareTile(newTile, slot);
-					hero->UnloadPhysic();
-					hero->LoadPhysic();
-					mGameLevel->mWorldObjects->mCamPos = hero->GetCenterPosition();
-					mGameLevel->mWorldObjects->mCamRot = M_PI_4;
+//  				hero->UnloadPhysic();
+//  				hero->LoadPhysic();
+// 					mGameLevel->mWorldObjects->mCamPos = hero->GetCenterPosition();
+// 					mGameLevel->mWorldObjects->mCamRot = M_PI_4;
 
 					mIsChoosingTile = true;
 				}
@@ -123,10 +134,10 @@ void FactoryPanel::Update()
 				CSquareTile* lastTile = hero->SetSquareTile(NULL, slot);
 				if(lastTile)
 					lastTile->SetEquipped(false);
-				hero->UnloadPhysic();
-				hero->LoadPhysic();
-				mGameLevel->mWorldObjects->mCamPos = hero->GetCenterPosition();
-				mGameLevel->mWorldObjects->mCamRot = M_PI_4;
+// 				hero->UnloadPhysic();
+// 				hero->LoadPhysic();
+// 				mGameLevel->mWorldObjects->mCamPos = hero->GetCenterPosition();
+// 				mGameLevel->mWorldObjects->mCamRot = M_PI_4;
 			}
 			else
 			{
@@ -173,10 +184,17 @@ void FactoryPanel::Update()
 			if((*pTilePosX)<-size)
 				(*pTilePosX) = size;
 		}
+
+
+		if (engine->GetButtonClick(PSP_CTRL_START))
+		{
+			mNextPanel = new PlanetMainPanel(mGameLevel);
+			mNextPanel->Create();
+			mQuit = true;
+		}
 	}
 	
-	hero->mEnginePower = 1.0f;
-	hero->Update(mDeltaTime, false);
+	hero->LightUpdate(mDeltaTime, true);
 
 	mTimer += mDeltaTime;
 }
