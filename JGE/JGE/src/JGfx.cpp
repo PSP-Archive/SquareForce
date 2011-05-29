@@ -1885,6 +1885,9 @@ void JRenderer::DrawLine(float x1, float y1, float x2, float y2, float lineWidth
 
 void JRenderer::DrawCircle(float x, float y, float radius, PIXEL_TYPE color)
 {
+	if(radius < 1.0f)
+		radius = 1.0f;
+
 	int nbVertices = (int)(4.0f*radius);
 	if(nbVertices > 360)
 		nbVertices = 360;
@@ -1919,6 +1922,9 @@ void JRenderer::DrawCircle(float x, float y, float radius, PIXEL_TYPE color)
 
 void JRenderer::FillCircle(float x, float y, float radius, PIXEL_TYPE color)
 {
+	if(radius < 1.0f)
+		radius = 1.0f;
+
 	int nbVertices = (int)(4.0f*radius);
 	if(nbVertices > 360)
 		nbVertices = 360;

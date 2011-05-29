@@ -215,28 +215,28 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 			key = SplitString(line, "=", true);
 			if(key != "ColorTexturePlanet")
 				return false;
-			c = strtoul(line.c_str(), NULL, 16);
+			c = DeserializeColor(strtoul(line.c_str(), NULL, 16));
 			planet->SetPlanetColor(c);
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTextureClouds")
 				return false;
-			c = strtoul(line.c_str(), NULL, 16);
+			c = DeserializeColor(strtoul(line.c_str(), NULL, 16));
 			planet->SetCloudsColor(c);
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTextureShadows")
 				return false;
-			c = strtoul(line.c_str(), NULL, 16);
+			c = DeserializeColor(strtoul(line.c_str(), NULL, 16));
 			planet->SetShadowsColor(c);
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "ColorTextureLights")
 				return false;
-			c = strtoul(line.c_str(), NULL, 16);
+			c = DeserializeColor(strtoul(line.c_str(), NULL, 16));
 			planet->SetLightsColor(c);
 
 			AddPlanet(planet);
@@ -328,16 +328,16 @@ bool CSpawnManager::WriteSectorRes(unsigned int num)
 			
 			PIXEL_TYPE color;
 
-			color = (*it)->GetPlanetColor();
+			color = SerializeColor((*it)->GetPlanetColor());
 			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
 			
-			color = (*it)->GetCloudsColor();
+			color = SerializeColor((*it)->GetCloudsColor());
 			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
 			
-			color = (*it)->GetShadowsColor();
+			color = SerializeColor((*it)->GetShadowsColor());
 			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
 			
-			color = (*it)->GetLightsColor();
+			color = SerializeColor((*it)->GetLightsColor());
 			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
 			
 			++it;
@@ -430,16 +430,16 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 			PIXEL_TYPE color;
 
 			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
-			planet->SetPlanetColor(color);
+			planet->SetPlanetColor(DeserializeColor(color));
 
 			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
-			planet->SetCloudsColor(color);
+			planet->SetCloudsColor(DeserializeColor(color));
 
 			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
-			planet->SetShadowsColor(color);
+			planet->SetShadowsColor(DeserializeColor(color));
 
 			fichier.read((char*)&color, sizeof(PIXEL_TYPE));
-			planet->SetLightsColor(color);
+			planet->SetLightsColor(DeserializeColor(color));
 
 			AddPlanet(planet);
 		}
