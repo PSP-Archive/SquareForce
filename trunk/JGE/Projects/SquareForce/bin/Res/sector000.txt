@@ -8,9 +8,9 @@ Alignment = 0
 PositionX = 13000
 PositionY = 21000
 ColorTexturePlanet = 0xffffffff
-ColorTextureClouds = 0xffffffff
+ColorTextureClouds = 0xffaaffff
 ColorTextureShadows = 0xdcffffff
-ColorTextureLights = 0xff0096ff
+ColorTextureLights = 0xff00ffff
 
 Name = Lulis Makerre
 Size = 1.7
@@ -20,9 +20,9 @@ Alignment = 0
 PositionX = -15000
 PositionY = 9000
 ColorTexturePlanet = 0xffffffff
-ColorTextureClouds = 0xffffffff
+ColorTextureClouds = 0xffffaaff
 ColorTextureShadows = 0xdcffffff
-ColorTextureLights = 0xff0096ff
+ColorTextureLights = 0xffa096ff
 
 Name = Nabka Tunhrn
 Size = 3.6
@@ -44,9 +44,9 @@ Alignment = 0
 PositionX = -15000
 PositionY = -17000
 ColorTexturePlanet = 0xffffffff
-ColorTextureClouds = 0xffffffff
+ColorTextureClouds = 0xffffffaa
 ColorTextureShadows = 0xdcffffff
-ColorTextureLights = 0xff0096ff
+ColorTextureLights = 0xffff96ff
 
 Name = Werax Darkwol
 Size = 1.8
@@ -56,9 +56,9 @@ Alignment = 0
 PositionX = 4000
 PositionY = -20000
 ColorTexturePlanet = 0xffffffff
-ColorTextureClouds = 0xffffffff
+ColorTextureClouds = 0xffff3cff
 ColorTextureShadows = 0xdcffffff
-ColorTextureLights = 0xff0096ff
+ColorTextureLights = 0xff96ffaa
 
 Name = Cedan Helria
 Size = 3.3
@@ -68,9 +68,9 @@ Alignment = 0
 PositionX = 16000
 PositionY = -4000
 ColorTexturePlanet = 0xffffffff
-ColorTextureClouds = 0xffffffff
+ColorTextureClouds = 0xff3cff88
 ColorTextureShadows = 0xdcffffff
-ColorTextureLights = 0xff0096ff
+ColorTextureLights = 0xffff1000
 
 NbSpeedWays = 14
 

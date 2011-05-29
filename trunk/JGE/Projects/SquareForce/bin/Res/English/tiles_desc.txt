@@ -1,0 +1,14 @@
+Standard hull class E
+Training equipment for the SquareForce.
+
+Standard engine class E
+Training equipment for the SquareForce.
+
+Photons pulsed gun class E
+Training equipment for the SquareForce.
+
+Standard missiles launcher class E
+Training equipment for the SquareForce.
+
+Standard mines launcher class E
+Training equipment for the SquareForce.

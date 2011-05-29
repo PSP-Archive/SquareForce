@@ -1,0 +1,7 @@
+Resistance
+Regeneration speed
+Recovery Time
+Linear acceleration
+Missile's speed
+Fire rate
+Damage per shot
