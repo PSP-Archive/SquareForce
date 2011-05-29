@@ -1,0 +1,74 @@
+NbPlanets = 6
+
+Name = Legent Toron
+Size = 2.3
+IdTexturePlanet = 5
+IdTextureClouds = 1
+Alignment = 0
+PositionX = 13000
+PositionY = 21000
+ColorTexturePlanet = 0xffffffff
+ColorTextureClouds = 0xffffffff
+ColorTextureShadows = 0xdcffffff
+ColorTextureLights = 0xff0096ff
+
+Name = Lulis Makerre
+Size = 1.7
+IdTexturePlanet = 2
+IdTextureClouds = 1
+Alignment = 0
+PositionX = -15000
+PositionY = 9000
+ColorTexturePlanet = 0xffffffff
+ColorTextureClouds = 0xffffffff
+ColorTextureShadows = 0xdcffffff
+ColorTextureLights = 0xff0096ff
+
+Name = Nabka Tunhrn
+Size = 3.6
+IdTexturePlanet = 8
+IdTextureClouds = 1
+Alignment = 0
+PositionX = 2000
+PositionY = 4000
+ColorTexturePlanet = 0xffffffff
+ColorTextureClouds = 0xffffffff
+ColorTextureShadows = 0xdcffffff
+ColorTextureLights = 0xff0096ff
+
+Name = Ardkin Talran
+Size = 2.5
+IdTexturePlanet = 13
+IdTextureClouds = 1
+Alignment = 0
+PositionX = -15000
+PositionY = -17000
+ColorTexturePlanet = 0xffffffff
+ColorTextureClouds = 0xffffffff
+ColorTextureShadows = 0xdcffffff
+ColorTextureLights = 0xff0096ff
+
+Name = Werax Darkwol
+Size = 1.8
+IdTexturePlanet = 17
+IdTextureClouds = 1
+Alignment = 0
+PositionX = 4000
+PositionY = -20000
+ColorTexturePlanet = 0xffffffff
+ColorTextureClouds = 0xffffffff
+ColorTextureShadows = 0xdcffffff
+ColorTextureLights = 0xff0096ff
+
+Name = Cedan Helria
+Size = 3.3
+IdTexturePlanet = 19
+IdTextureClouds = 1
+Alignment = 0
+PositionX = 16000
+PositionY = -4000
+ColorTexturePlanet = 0xffffffff
+ColorTextureClouds = 0xffffffff
+ColorTextureShadows = 0xdcffffff
+ColorTextureLights = 0xff0096ff
+

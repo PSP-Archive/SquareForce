@@ -287,6 +287,9 @@ void CSquareShip::LoadPhysic()
 	mRotation = mBody->GetRotation();
 	mRotationMatrix = popCast(Matrix22, mBody->GetRotationMatrix());
 	mAngularVelocity = mBody->GetAngularVelocity();
+
+	mWantToDock = false;
+	mIsDocked = false;
 }
 
 void CSquareShip::UnloadPhysic()
