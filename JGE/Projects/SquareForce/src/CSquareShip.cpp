@@ -49,7 +49,7 @@ void CSquareShip::Create(int size)
 
 	mQuad = resMgr->GetSquareTilesQuads();
 
-	mOriginPosition = Vector2D(10.0f*Random(-200.0f, 200.0f), 10.0f*Random(-200.0f, 200.0f));
+	mOriginPosition = Vector2D(100.0f*Random(-240.0f, 240.0f), 100.0f*Random(-240.0f, 240.0f));
 	mCenterPosition = mOriginPosition;
 	mRotation = 0.0f;
 	mRotationMatrix.Set(mRotation);

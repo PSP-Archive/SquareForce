@@ -1,7 +1,7 @@
-The Prolog
+Chapter 1
 New Game
 Options
 Credits
-Reinitialize
-Factory
-Disconnect
+Continue
+Map
+Exit
