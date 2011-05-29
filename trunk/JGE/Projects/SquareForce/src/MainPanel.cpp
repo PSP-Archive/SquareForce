@@ -12,6 +12,7 @@
 
 #include "MainPanel.h"
 #include "FactoryPanel.h"
+#include "MapPanel.h"
 #include "utils.h"
 
 #include "CLocalization.h"
@@ -77,12 +78,16 @@ void MainPanel::Update()
 		{
 		case 0:
 			{
-				mGameLevel->Reset();
+				//mGameLevel->Reset();
+				mQuit = true;// continue
 			}
 			break;
 		case 1:
 			{
-				mNextPanel = new FactoryPanel(mGameLevel);
+				//mNextPanel = new FactoryPanel(mGameLevel);
+				//mNextPanel->Create();
+				// map
+				mNextPanel = new MapPanel(mGameLevel);
 				mNextPanel->Create();
 			}
 			break;

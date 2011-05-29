@@ -10,27 +10,24 @@
 
 #include <stdio.h>
 
-#include "Game.h"
+#include "MapPanel.h"
 #include "utils.h"
 
+#include "CLocalization.h"
 #include "CResourceManager.h"
 
-#include "MainPanel.h"
-#include "FactoryPanel.h"
-
+#include "CObject.h"
+#include "CPlanet.h"
+#include "CSpeedWay.h"
 
 
 //-------------------------------------------------------------------------------------
 // Constructor. Variables can be initialized here.
 //
 //-------------------------------------------------------------------------------------
-Game::Game(): IGame()
+MapPanel::MapPanel(GameLevel* gameLevel): IPanel(), mGameLevel(gameLevel)
 {
 	mFont = NULL;
-	mGameLevel = NULL;
-
-	mTutoPanel = NULL;
-	mPanel = NULL;
 }
 
 
@@ -38,9 +35,8 @@ Game::Game(): IGame()
 // Destructor.
 //
 //-------------------------------------------------------------------------------------
-Game::~Game()
+MapPanel::~MapPanel()
 {
-	
 }
 
 
@@ -49,57 +45,23 @@ Game::~Game()
 // resources here.
 // 
 //-------------------------------------------------------------------------------------
-void Game::Create()
+void MapPanel::Create()
 {
-	CResourceManager* resMgr = CResourceManager::GetInstance();
-
-
 	mFont = new JTTFont();
-	mFont->Load("font.ttf", 22);
+	mFont->Load("font.ttf", 16);
 
-	mPaused = false;
-
-	mPanel = NULL;
-
-	mPlayTuto = false;
-
-	mGameLevel = new GameLevel();
-	mGameLevel->Create();
-
-	mPlayTuto = true;
-	mTutoPanel = new TutoPanel1(mGameLevel);
-	mTutoPanel->Create();
-
-	// on balance le panel d'assemblage des squareships
-	mPaused = true;
-	mGameLevel->Pause();
-	mPanel = new FactoryPanel(mGameLevel);
-	mPanel->Create();
+	mQuit = false;
 }
+
 
 //-------------------------------------------------------------------------------------
 // This is the clean up callback function. You should delete all your in-game 
 // resources, for example texture and quads, here.
 // 
 //-------------------------------------------------------------------------------------
-void Game::Destroy()
+void MapPanel::Destroy()
 {
-	if(mGameLevel)
-		mGameLevel->Destroy();
-
-	if(mPanel)
-		mPanel->Destroy();
-
-	if(mTutoPanel)
-		mTutoPanel->Destroy();
-
 	SAFE_DELETE(mFont);
-
-	SAFE_DELETE(mGameLevel);
-
-	SAFE_DELETE(mPanel);
-
-	SAFE_DELETE(mTutoPanel);
 }
 
 
@@ -108,65 +70,12 @@ void Game::Destroy()
 // before rendering. You should update the game logic here.
 //
 //-------------------------------------------------------------------------------------
-void Game::Update()
+void MapPanel::Update()
 {
 	JGE* engine = JGE::GetInstance();
+	mDeltaTime = engine->GetDelta();		// Get time elapsed since last update.
 
-	if(mPaused && mPanel)
-	{
-		if(mPlayTuto && mTutoPanel)
-		{
-			mPanel->EnableSkipControls(true);
-
-			mTutoPanel->Update();
-			if(mTutoPanel->HasQuit())
-			{
-				mTutoPanel->Destroy();
-				SAFE_DELETE(mTutoPanel);
-				mPlayTuto = false;
-				mPanel->EnableSkipControls(false);
-			}
-
-		}
-
-		mPanel->Update();
-		if(mPanel->HasQuit())
-		{
-			IPanel* newPanel = mPanel->GetNextPanel();
-			if(!newPanel)
-			{
-				mPaused = false;
-				mGameLevel->Resume();
-			}
-			mPanel->Destroy();
-			SAFE_DELETE(mPanel);
-			mPanel = newPanel;
-		}
-	}
-
-	if(mGameLevel->HasQuit())
-		mQuit = true;
-
-	if (engine->GetButtonClick(PSP_CTRL_START) && !mPlayTuto)	
-	{
-		if(!mPaused)// launch main panel
-		{
-			SAFE_DELETE(mPanel);
-			mPaused = true;
-			mGameLevel->Pause();
-			mPanel = new MainPanel(mGameLevel);
-			mPanel->Create();
-		}
-		else// stop current panel
-		{
-			mPaused = false;
-			mGameLevel->Resume();
-			mPanel->Destroy();
-			SAFE_DELETE(mPanel);
-		}
-	}
-
-	mGameLevel->Update();
+	
 }
 
 
@@ -174,19 +83,49 @@ void Game::Update()
 // All rendering operations should be done in Render() only.
 // 
 //-------------------------------------------------------------------------------------
-void Game::Render()
+void MapPanel::Render()
 {
-	mGameLevel->Render();
+	static int centerX = SCREEN_SIZE_X2;
+	static int centerY = SCREEN_SIZE_Y2;
 
-	// en overlay
-	if(mPaused && mPanel)
+	static float minimapRatio = SCREEN_SIZE_Y2/25000.0f;
+
+	// get JRenderer instance
+	JRenderer* renderer = JRenderer::GetInstance();	
+
+	renderer->FillRect(0, 0, SCREEN_SIZE_X, SCREEN_SIZE_Y, ARGB(255, 0, 0, 0));
+
+	CSpawnManager* mgr = mGameLevel->mWorldObjects->mSpawnMgr;
+
+	CSpeedWay* sw = NULL;
+	int i = 0;
+	while((sw = mgr->GetSpeedWay(i++)))
 	{
-		mPanel->Render();
+		Vector2D swPos1 = minimapRatio*sw->GetStart();
+		Vector2D swPos2 = minimapRatio*sw->GetEnd();
+		renderer->DrawLine(centerX+swPos1.x, centerY-swPos1.y, centerX+swPos2.x, centerY-swPos2.y, 1.0f, ARGB(255,0,0,255));
 	}
 
-	// en overoverlay :P
-	if(mPlayTuto && mTutoPanel)
+	i = 0;
+	CPlanet* planet = NULL;
+	while((planet = mgr->GetPlanet(i++)))
 	{
-		mTutoPanel->Render();
+		Vector2D planetPos = minimapRatio*planet->GetOriginPosition();
+		float planetRadius = planet->GetSize()*64.0f;
+		renderer->FillCircle(centerX+planetPos.x, centerY-planetPos.y, planetRadius*minimapRatio, ARGB(255,128,128,255));
+		mFont->SetColor(ARGB(255,255,255,255));
+		mFont->RenderString(planet->GetName().c_str(), centerX+planetPos.x, centerY-planetPos.y-20.0f, JGETEXT_CENTER);
 	}
+
+	Vector2D shipPos = minimapRatio*mgr->GetHero()->GetOriginPosition();
+	renderer->FillCircle(centerX+shipPos.x, centerY-shipPos.y, 2.0f, ARGB(255,0,255,0));
+
+// 	CObject* obj = NULL;
+// 	i = 1;
+// 	while((obj = mgr->GetObject(i++)))
+// 	{
+// 		Vector2D shipPos = minimapRatio*obj->GetOriginPosition();
+// 		renderer->FillCircle(centerX+shipPos.x, centerY-shipPos.y, 1.0f, ARGB(255,255,0,0));
+// 	}
+
 }

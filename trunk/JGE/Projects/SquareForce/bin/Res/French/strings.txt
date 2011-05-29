@@ -1,7 +1,7 @@
-Le Prologue
+Chapitre 1
 Nouveau jeu
 Options
 Crédits
-Réinitialiser
-Assemblage
-Déconnecter
+Continuer
+Carte
+Quitter

@@ -480,6 +480,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\MapPanel.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\MapPanel.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\TutoPanel1.cpp"
 					>
 				</File>
