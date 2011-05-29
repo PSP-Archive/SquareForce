@@ -53,8 +53,8 @@ void CWorldObjects::Create()
 {
 	b2AABB worldAABB;
 
-	worldAABB.minVertex.Set(-1000000.0f, -1000000.0f);
-	worldAABB.maxVertex.Set(1000000.0f, 1000000.0f);
+	worldAABB.minVertex.Set(-25000.0f, -25000.0f);
+	worldAABB.maxVertex.Set(25000.0f, 25000.0f);
 	
 	b2Vec2 gravity(0.0f, 0.0f);		// Define the gravity vector.
 	bool doSleep = true;				// Do we want to let bodies sleep?
@@ -116,8 +116,8 @@ void CWorldObjects::Create()
 // 		mSpawnMgr->AddPlanet(planet);
 // 	}
 
-	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3)));
-	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(3), mSpawnMgr->GetPlanet(0)));
+// 	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3)));
+// 	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(3), mSpawnMgr->GetPlanet(0)));
 }
 
 

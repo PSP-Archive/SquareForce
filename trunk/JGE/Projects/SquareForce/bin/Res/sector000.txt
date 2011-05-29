@@ -72,3 +72,47 @@ ColorTextureClouds = 0xffffffff
 ColorTextureShadows = 0xdcffffff
 ColorTextureLights = 0xff0096ff
 
+NbSpeedWays = 14
+
+IdPlanet1 = 0
+IdPlanet2 = 2
+
+IdPlanet1 = 2
+IdPlanet2 = 0
+
+IdPlanet1 = 1
+IdPlanet2 = 2
+
+IdPlanet1 = 2
+IdPlanet2 = 1
+
+IdPlanet1 = 1
+IdPlanet2 = 3
+
+IdPlanet1 = 3
+IdPlanet2 = 1
+
+IdPlanet1 = 3
+IdPlanet2 = 4
+
+IdPlanet1 = 4
+IdPlanet2 = 3
+
+IdPlanet1 = 2
+IdPlanet2 = 4
+
+IdPlanet1 = 4
+IdPlanet2 = 2
+
+IdPlanet1 = 4
+IdPlanet2 = 5
+
+IdPlanet1 = 5
+IdPlanet2 = 4
+
+IdPlanet1 = 2
+IdPlanet2 = 5
+
+IdPlanet1 = 5
+IdPlanet2 = 2
+

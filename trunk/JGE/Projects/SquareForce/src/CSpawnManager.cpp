@@ -242,6 +242,41 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 			AddPlanet(planet);
 
 		}
+
+		// speedways
+		getline(fichier, line);
+		while(line == "")
+			getline(fichier, line);
+		key = SplitString(line, "=", true);
+		if(key != "NbSpeedWays")
+			return false;
+		int nbSpeedWays = (int)atoi(line.c_str());
+
+		for(int i=0; i<nbSpeedWays; i++)
+		{
+			getline(fichier, line);
+			while(line == "")
+			{
+				getline(fichier, line);
+			}
+			key = SplitString(line, "=", true);
+			if(key != "IdPlanet1")
+				return false;
+			int idPlanet1 = (int)atoi(line.c_str());
+
+			getline(fichier, line);
+			key = SplitString(line, "=", true);
+			if(key != "IdPlanet2")
+				return false;
+			int idPlanet2 = (int)atoi(line.c_str());
+
+			if(idPlanet1 >= 0 && idPlanet1 < mListPlanets.size() && 
+				idPlanet2 >= 0 && idPlanet2 < mListPlanets.size())
+			{
+				CSpeedWay* sw = new CSpeedWay(mListPlanets[idPlanet1], mListPlanets[idPlanet2]);
+				AddSpeedWay(sw);
+			}
+		}
 		fichier.close();
 	}
 	else
@@ -306,6 +341,38 @@ bool CSpawnManager::WriteSectorRes(unsigned int num)
 			fichier.write((char*)&color, sizeof(PIXEL_TYPE));
 			
 			++it;
+		}
+
+		// speedways
+		vector<CSpeedWay*>::const_iterator itSW = mListSpeedWays.begin();
+		const vector<CSpeedWay*>::const_iterator itSWEnd = mListSpeedWays.end();
+
+		char nbSpeedWays = mListSpeedWays.size();
+		fichier.write((char*)&nbSpeedWays, sizeof(char));
+
+		while(itSW != itSWEnd)  // tant que l'on peut mettre la ligne dans "contenu"
+		{
+			if(!(*itSW))
+				continue;
+
+			CPlanet* planet1 = (*itSW)->GetPlanet(0);
+			CPlanet* planet2 = (*itSW)->GetPlanet(1);
+			char id1 = 0xff, id2 = 0xff;
+			it = mListPlanets.begin();
+			char i = 0;
+			while(it != itEnd)  // tant que l'on peut mettre la ligne dans "contenu"
+			{
+				if(*it == planet1)
+					id1 = i;
+				if(*it == planet2)
+					id2 = i;
+				++it;
+				++i;
+			}
+			fichier.write((char*)&id1, sizeof(char));
+			fichier.write((char*)&id2, sizeof(char));
+
+			++itSW;
 		}
 		fichier.close();
 	}
@@ -375,6 +442,26 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 			planet->SetLightsColor(color);
 
 			AddPlanet(planet);
+		}
+
+		// speedways
+		int nbSpeedWays = 0;
+		fichier.read((char*)&nbSpeedWays, sizeof(char));
+		for(int i=0; i<nbSpeedWays; i++)
+		{
+			char id1 = 0xff;
+			fichier.read((char*)&id1, sizeof(char));
+			char id2 = 0xff;
+			fichier.read((char*)&id2, sizeof(char));
+
+			if(id1 >= 0 && id1 < mListPlanets.size() && 
+				id2 >= 0 && id2 < mListPlanets.size())
+			{
+				CSpeedWay* sw = new CSpeedWay(mListPlanets[id1], mListPlanets[id2]);
+				AddSpeedWay(sw);
+			}
+			else
+				return false;
 		}
 		fichier.close();
 	}
