@@ -15,6 +15,101 @@
 
 CResourceManager* CResourceManager::mInstance = NULL;
 
+
+bool CResourceManager::mIsloadingTextures = false;
+
+u32 CResourceManager::mCurrentPlanetTexId = 0;
+u32 CResourceManager::mDemandedPlanetTexId = 0;
+JTexture* CResourceManager::mCurrentPlanetTex = NULL;
+JTexture* CResourceManager::mDemandedPlanetTex = NULL;
+
+u32 CResourceManager::mCurrentCloudsTexId = 0;
+u32 CResourceManager::mDemandedCloudsTexId = 0;
+JTexture* CResourceManager::mCurrentCloudsTex = NULL;
+JTexture* CResourceManager::mDemandedCloudsTex = NULL;
+
+void CResourceManager::_UpdateLoadTextures()
+{
+	if(mCurrentPlanetTexId != mDemandedPlanetTexId)
+	{
+		mIsloadingTextures = true;
+		JRenderer* renderer = JRenderer::GetInstance();
+
+		char name[100];
+		sprintf(name, "planets/planet%d.png", (unsigned int)mDemandedPlanetTexId);
+		mDemandedPlanetTex = renderer->LoadTexture(name);
+		Swap(mDemandedPlanetTex, mCurrentPlanetTex);
+		SAFE_DELETE(mDemandedPlanetTex);
+
+		mCurrentPlanetTexId = mDemandedPlanetTexId;
+
+		mIsloadingTextures = false;
+	}
+	if(mCurrentCloudsTexId != mDemandedCloudsTexId)
+	{
+		mIsloadingTextures = true;
+		JRenderer* renderer = JRenderer::GetInstance();
+
+		char name[100];
+		sprintf(name, "planets/clouds%d.png", (unsigned int)mDemandedCloudsTexId);
+		mDemandedCloudsTex = renderer->LoadTexture(name);
+		Swap(mDemandedCloudsTex, mCurrentCloudsTex);
+		SAFE_DELETE(mDemandedCloudsTex);
+
+		mCurrentCloudsTexId = mDemandedCloudsTexId;
+
+		mIsloadingTextures = false;
+	}
+}
+
+
+#ifdef PSP
+int CResourceManager::_ThreadLoadTextures(SceSize args, void *argp)
+{
+	for(;;)
+	{
+		_UpdateLoadTextures();
+		sceKernelDelayThread(100000);// wait 100ms
+	}
+}
+#else
+DWORD WINAPI CResourceManager::_ThreadLoadTextures(LPVOID lpParameter)
+{
+	for(;;)
+	{
+		_UpdateLoadTextures();
+		Sleep(100);// wait 100ms
+	}
+}
+#endif
+
+void CResourceManager::_InitLoaderThread()
+{
+#ifdef PSP
+	mThreadId = sceKernelCreateThread("threadLoadTextures", _ThreadLoadTextures, 0x01, 0xFA0, 0, 0);
+	sceKernelStartThread(mThreadId, 0, NULL);
+#else
+	CreateThread(NULL, 0, _ThreadLoadTextures, NULL, 0, &mThreadId);
+#endif
+}
+
+bool CResourceManager::LoadPlanet(CPlanet* planet)
+{
+	if(mIsloadingTextures || !planet)
+		return false;
+
+	u32 idPlanet = planet->GetIdTexPlanet();
+	u32 idClouds = planet->GetIdTexClouds();
+
+	if(idPlanet != mCurrentPlanetTexId)
+		mDemandedPlanetTexId = idPlanet;
+	if(idClouds != mCurrentCloudsTexId)
+		mDemandedCloudsTexId = idClouds;
+
+	return true;
+}
+
+
 hgeDistortionMesh* CreatePlanetMesh(int rows, int cols)
 {
 	float cellW =(float)(PLANET_TEXTURE_WIDTH/(cols-1));
@@ -119,6 +214,20 @@ CResourceManager::CResourceManager()
 		WriteShipsRes();
 	}
 	ReadShipsDesc();
+
+	mIsloadingTextures = false;
+
+	mCurrentPlanetTexId = 0;
+	mDemandedPlanetTexId = 0;
+	mCurrentPlanetTex = NULL;
+	mDemandedPlanetTex = NULL;
+
+	mCurrentCloudsTexId = 0;
+	mDemandedCloudsTexId = 0;
+	mCurrentCloudsTex = NULL;
+	mDemandedCloudsTex = NULL;
+
+	_InitLoaderThread();// start the loader thread 
 }
 
 CResourceManager::~CResourceManager()

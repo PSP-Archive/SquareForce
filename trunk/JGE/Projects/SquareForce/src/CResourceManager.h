@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include "CSquareShip.h"
+#include "CPlanet.h"
 
 #define PLANET_TEXTURE_WIDTH 128
 #define PLANET_TEXTURE_HEIGHT 128
@@ -43,12 +44,33 @@ public:
 
 	inline hgeDistortionMesh* GetPlasmaMesh() {return mPlasmaMesh;}
 
-	inline JTexture* GetPlanetTex(unsigned int id) {return mPlanetTex;}
-	inline JTexture* GetCloudsTex(unsigned int id) {return mCloudsTex;}
+	//inline JTexture* GetPlanetTex(unsigned int id) {return mPlanetTex;}
+	inline JTexture* GetPlanetTex() {return mCurrentPlanetTex;}
+	//inline JTexture* GetCloudsTex(unsigned int id) {return mCloudsTex;}
+	inline JTexture* GetCloudsTex() {return mCurrentCloudsTex;}
 	inline JTexture* GetShadowsTex() {return mShadowsTex;}
 	inline JTexture* GetLightsTex() {return mLightsTex;}
 
 	void UpdatePlasmaMesh(float dt);
+
+	bool LoadPlanet(CPlanet* planet);
+	inline bool IsLoading() {return mIsloadingTextures;}
+	inline string GetCurrentPlanetTexName()
+	{
+		char name[100];
+		sprintf(name, "planets/planet%d.png", (unsigned int)mDemandedPlanetTexId);
+		string filename = name;
+	
+		return filename;
+	}
+	inline string GetCurrentCloudsTexName()
+	{
+		char name[100];
+		sprintf(name, "planets/clouds%d.png", (unsigned int)mDemandedCloudsTexId);
+		string filename = name;
+
+		return filename;
+	}
 	
 	vector<CSquareTile*> mListTiles;
 	vector<CSquareShipData*> mListShipsDatas;
@@ -86,6 +108,7 @@ protected:
 	bool ReadShipsRes();
 	bool ReadShipsDesc();
 
+
 	static CResourceManager* mInstance;
 
 	JTexture* mSquareTilesTex;
@@ -111,6 +134,29 @@ protected:
 	JTexture* mLightsTex;
 
 	float mCosTable[361];
+
+#ifdef PSP
+	int mThreadId;
+	static int _ThreadLoadTextures(SceSize args, void *argp);
+#else
+	DWORD mThreadId;
+	static DWORD WINAPI _ThreadLoadTextures(LPVOID lpParameter);
+#endif
+	void _InitLoaderThread();
+	static void _UpdateLoadTextures();
+
+	static bool mIsloadingTextures;
+
+	static u32 mCurrentPlanetTexId;
+	static u32 mDemandedPlanetTexId;
+	static JTexture* mCurrentPlanetTex;
+	static JTexture* mDemandedPlanetTex;
+
+	static u32 mCurrentCloudsTexId;
+	static u32 mDemandedCloudsTexId;
+	static JTexture* mCurrentCloudsTex;
+	static JTexture* mDemandedCloudsTex;
+
 };
 
 #endif

@@ -9,6 +9,8 @@
 #include <pspdisplay_kernel.h>
 #include <pspsysevent.h>
 #include <psppower.h>
+#else
+#include <windows.h>
 #endif
 
 #include "Box2D.h"
