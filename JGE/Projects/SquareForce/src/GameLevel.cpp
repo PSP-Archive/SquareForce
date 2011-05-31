@@ -448,6 +448,15 @@ void GameLevel::Render()
 	mFont->SetColor(ARGB(255,0,255,255));
 	mFont->RenderString(txt, 0, 260);
 
+	if(CResourceManager::GetInstance()->IsLoading())
+	{
+		mFont->SetColor(ARGB(255,255,0,0));
+		mFont->RenderString("loading...", 0, 20);
+	}
+	mFont->SetColor(ARGB(255,0,255,0));
+	mFont->RenderString(CResourceManager::GetInstance()->GetCurrentPlanetTexName().c_str(), 0, 30);
+	mFont->RenderString(CResourceManager::GetInstance()->GetCurrentCloudsTexName().c_str(), 0, 40);
+
 // 	JGE* engine = JGE::GetInstance();
 // 	sprintf(txt, "heroRot=%f", mWorldObjects->mHero->GetRotation());
 // 	mFont->SetColor(ARGB(255,0,255,255));

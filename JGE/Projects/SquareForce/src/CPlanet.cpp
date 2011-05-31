@@ -32,8 +32,8 @@ CPlanet::CPlanet()
 	mIdTexClouds = 0;
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
-	mPlanetTex = resMgr->GetPlanetTex(mIdTexPlanet);
-	mCloudsTex = resMgr->GetCloudsTex(mIdTexClouds);
+	mPlanetTex = resMgr->GetPlanetTex();
+	mCloudsTex = resMgr->GetCloudsTex();
 	mShadowsTex = resMgr->GetShadowsTex();
 	mLightsTex = resMgr->GetLightsTex();
 
@@ -73,8 +73,8 @@ CPlanet::CPlanet(string name, float size, unsigned int idTexPlanet, unsigned int
 	mIdTexClouds = idTexClouds;
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
-	mPlanetTex = resMgr->GetPlanetTex(mIdTexPlanet);
-	mCloudsTex = resMgr->GetCloudsTex(mIdTexClouds);
+	mPlanetTex = resMgr->GetPlanetTex();
+	mCloudsTex = resMgr->GetCloudsTex();
 	mShadowsTex = resMgr->GetShadowsTex();
 	mLightsTex = resMgr->GetLightsTex();
 
@@ -100,6 +100,10 @@ void CPlanet::Update(float dt)
 	mDeltaTime = dt;
 	mTimer += mDeltaTime;
 	mCloudsRotation = fmod(mTimer*0.04f, (float)M_PI*2.0f);
+
+	CResourceManager* resMgr = CResourceManager::GetInstance();
+	mPlanetTex = resMgr->GetPlanetTex();
+	mCloudsTex = resMgr->GetCloudsTex();
 }
 
 void CPlanet::Render(const Vector2D& camPos, const float& camRot, const Matrix22& camMat)
@@ -116,14 +120,20 @@ void CPlanet::Render(const Vector2D& camPos, const float& camRot, const Matrix22
 	Matrix22 mat = mMatrixRot/camMat;// deja inversé pour le rendu
 
 
-	mPlanetMesh->SetTexture(mPlanetTex);
-	mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
-	mPlanetMesh->Clear(mPlanetColor);
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, 1.0f*mSizeX, 1.0f*mSizeY);
-	mPlanetMesh->SetTexture(mCloudsTex);
-	mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
-	mPlanetMesh->Clear(mCloudsColor);
-	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.02f*mSizeX, 1.02f*mSizeY, -rotation-mCloudsRotation);
+	if(mPlanetTex)
+	{
+		mPlanetMesh->SetTexture(mPlanetTex);
+		mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+		mPlanetMesh->Clear(mPlanetColor);
+		mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, 1.0f*mSizeX, 1.0f*mSizeY);
+	}
+	if(mCloudsTex)
+	{
+		mPlanetMesh->SetTexture(mCloudsTex);
+		mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+		mPlanetMesh->Clear(mCloudsColor);
+		mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.02f*mSizeX, 1.02f*mSizeY, -rotation-mCloudsRotation);
+	}
 	mPlanetMesh->SetTexture(mLightsTex);
 	mPlanetMesh->SetTextureRect(0,0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
 	mPlanetMesh->Clear(mLightsColor);

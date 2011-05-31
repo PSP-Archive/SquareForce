@@ -32,7 +32,7 @@ BUILD_PRX = 1
 PSP_FW_VERSION=371
 
 CFLAGS = -O2 -G0 -Wall -DDEVHOOK -DPSPFW3XX
-CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+CXXFLAGS = $(CFLAGS) -pthread -fno-strict-aliasing -fno-exceptions -fno-rtti
 ASFLAGS = $(CXXFLAGS)
 
 INCDIR = ../../JGE/include ../../JGE/include/psp ../../JGE/include/psp/freetype2 ../../JGE/src ../../JGE/Box2D/Include
@@ -42,7 +42,7 @@ LIBS = -lhgetools -lbox2d -ljge300 -lfreetype -ljpeg -lgif -lpng -lz -lmikmod -l
 	-lpspaudiocodec -lpspaudiolib -lpspaudio -lpspmp3 -lpspgum -lpspgu -lpsprtc -lstdc++ -lpspmath -lm
 
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = SquareForce - Le Prologue
+PSP_EBOOT_TITLE = SquareForce - Chapter 1
 PSP_EBOOT_ICON = icon.png
 
 PSPSDK=$(shell psp-config --pspsdk-path)
