@@ -32,7 +32,7 @@ BUILD_PRX = 1
 PSP_FW_VERSION=371
 
 CFLAGS = -O2 -G0 -Wall -DDEVHOOK -DPSPFW3XX
-CXXFLAGS = $(CFLAGS) -pthread -fno-strict-aliasing -fno-exceptions -fno-rtti
+CXXFLAGS = $(CFLAGS) -fno-strict-aliasing -fno-exceptions -fno-rtti
 ASFLAGS = $(CXXFLAGS)
 
 INCDIR = ../../JGE/include ../../JGE/include/psp ../../JGE/include/psp/freetype2 ../../JGE/src ../../JGE/Box2D/Include

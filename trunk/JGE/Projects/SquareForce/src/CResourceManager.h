@@ -94,6 +94,8 @@ public:
 		return mCosTable[iAngleDeg];
 	}
 
+	static bool HasloadTextures;
+
 protected:
 	CResourceManager();
 	~CResourceManager();

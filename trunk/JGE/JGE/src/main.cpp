@@ -355,7 +355,7 @@ __attribute__((constructor)) void handlerInit()
 
 //------------------------------------------------------------------------------------------------
 // The main loop
-int main()
+int main(int argc, char* argv[])
 { 
 	//scePowerSetClockFrequency(333, 333, 166); 
 
@@ -383,6 +383,11 @@ int main()
 		JRenderer::Set3DFlag(true);
 
 	engine = JGE::GetInstance();
+
+	std::string path = argv[0];
+	int sizeDel = strlen("eboot.pbp");
+	path.erase(path.size()-sizeDel, sizeDel);
+	engine->SetAppDir(path);
 
 	game = launcher->GetGameApp();
 	game->Create();

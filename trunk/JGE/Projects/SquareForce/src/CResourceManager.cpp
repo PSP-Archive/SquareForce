@@ -28,21 +28,29 @@ u32 CResourceManager::mDemandedCloudsTexId = 0;
 JTexture* CResourceManager::mCurrentCloudsTex = NULL;
 JTexture* CResourceManager::mDemandedCloudsTex = NULL;
 
+bool CResourceManager::HasloadTextures = false;
+
 void CResourceManager::_UpdateLoadTextures()
 {
 	if(mCurrentPlanetTexId != mDemandedPlanetTexId)
 	{
 		mIsloadingTextures = true;
+// #ifdef PSP
+// 		int disableInterrupts = pspSdkDisableInterrupts();
+// #endif
 		JRenderer* renderer = JRenderer::GetInstance();
 
-		char name[100];
-		sprintf(name, "planets/planet%d.png", (unsigned int)mDemandedPlanetTexId);
+ 		char name[100];
+ 		sprintf(name, "planets/planet%d.png", (unsigned int)mDemandedPlanetTexId);
 		mDemandedPlanetTex = renderer->LoadTexture(name);
-		Swap(mDemandedPlanetTex, mCurrentPlanetTex);
+		Swap<JTexture*>(mDemandedPlanetTex, mCurrentPlanetTex);
 		SAFE_DELETE(mDemandedPlanetTex);
-
+		
 		mCurrentPlanetTexId = mDemandedPlanetTexId;
 
+// #ifdef PSP
+// 		pspSdkEnableInterrupts(disableInterrupts);
+// #endif
 		mIsloadingTextures = false;
 	}
 	if(mCurrentCloudsTexId != mDemandedCloudsTexId)
@@ -53,7 +61,7 @@ void CResourceManager::_UpdateLoadTextures()
 		char name[100];
 		sprintf(name, "planets/clouds%d.png", (unsigned int)mDemandedCloudsTexId);
 		mDemandedCloudsTex = renderer->LoadTexture(name);
-		Swap(mDemandedCloudsTex, mCurrentCloudsTex);
+		Swap<JTexture*>(mDemandedCloudsTex, mCurrentCloudsTex);
 		SAFE_DELETE(mDemandedCloudsTex);
 
 		mCurrentCloudsTexId = mDemandedCloudsTexId;
@@ -66,6 +74,11 @@ void CResourceManager::_UpdateLoadTextures()
 #ifdef PSP
 int CResourceManager::_ThreadLoadTextures(SceSize args, void *argp)
 {
+// 	char dir[200];
+// 	strcpy(dir, JGE::GetInstance()->GetAppDir().c_str());
+// 	dir[strlen(dir)-1] = '\0';
+// 	sceIoChdir(dir);
+	sceIoChdir(JGE::GetInstance()->GetAppDir().c_str());
 	for(;;)
 	{
 		_UpdateLoadTextures();
@@ -86,7 +99,7 @@ DWORD WINAPI CResourceManager::_ThreadLoadTextures(LPVOID lpParameter)
 void CResourceManager::_InitLoaderThread()
 {
 #ifdef PSP
-	mThreadId = sceKernelCreateThread("threadLoadTextures", _ThreadLoadTextures, 0x01, 0xFA0, 0, 0);
+	mThreadId = sceKernelCreateThread("threadLoadTextures", _ThreadLoadTextures, 0x11, 0xFA0, PSP_THREAD_ATTR_USER, 0);
 	sceKernelStartThread(mThreadId, 0, NULL);
 #else
 	CreateThread(NULL, 0, _ThreadLoadTextures, NULL, 0, &mThreadId);
@@ -101,10 +114,15 @@ bool CResourceManager::LoadPlanet(CPlanet* planet)
 	u32 idPlanet = planet->GetIdTexPlanet();
 	u32 idClouds = planet->GetIdTexClouds();
 
+
 	if(idPlanet != mCurrentPlanetTexId)
 		mDemandedPlanetTexId = idPlanet;
 	if(idClouds != mCurrentCloudsTexId)
 		mDemandedCloudsTexId = idClouds;
+#ifdef PSP
+#else// NO TRHEAD FOR WINDOWS : can't run gl loadings thread-safely (glgentex pb)
+	_UpdateLoadTextures();
+#endif
 
 	return true;
 }

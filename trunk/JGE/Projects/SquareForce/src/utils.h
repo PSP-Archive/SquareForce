@@ -65,6 +65,7 @@ inline PIXEL_TYPE SerializeColor(PIXEL_TYPE c)// to ARGB
 
 #define HACK_SKIP_LOGO
 #define NO_SOUND
+#define DEBUG_PRINT
 
 // screen dimensions
 #define SCREEN_SIZE_X					480
@@ -139,7 +140,7 @@ inline float Random()
 inline float Random(float lo, float hi)
 {
 	if(lo > hi)
-		Swap(lo, hi);
+		Swap<float>(lo, hi);
 #ifdef PSP
 	return vfpu_randf(lo, hi);
 #else
