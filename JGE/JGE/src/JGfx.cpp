@@ -1200,20 +1200,28 @@ void JRenderer::LoadPNG(TextureInfo &textureInfo, const char* filename, int mode
     u32* line;
 
 	JFileSystem* fileSystem = JFileSystem::GetInstance();
-	if (!fileSystem->OpenFile(filename)) return;
+	if (!fileSystem->OpenFile(filename))
+	{
+		//JGE::GetInstance()->printf("can't open %s\n", filename);
+		return;
+	}
 	
     png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (png_ptr == NULL) {
+    if (png_ptr == NULL) 
+	{
             //fclose(fp);
 			fileSystem->CloseFile();
+			JGE::GetInstance()->printf("can't read png file\n");
             return;
     }
     png_set_error_fn(png_ptr, (png_voidp) NULL, (png_error_ptr) NULL, PNGCustomWarningFn);
     info_ptr = png_create_info_struct(png_ptr);
-    if (info_ptr == NULL) {
+    if (info_ptr == NULL) 
+	{
             //fclose(fp);
 			fileSystem->CloseFile();
             png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+			JGE::GetInstance()->printf("can't read png info\n");
             return;
     }
     png_init_io(png_ptr, NULL);
@@ -1229,10 +1237,12 @@ void JRenderer::LoadPNG(TextureInfo &textureInfo, const char* filename, int mode
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) png_set_tRNS_to_alpha(png_ptr);
     png_set_filler(png_ptr, 0xff, PNG_FILLER_AFTER);
     line = (u32*) malloc(width * 4);
-    if (!line) {
+    if (!line) 
+	{
             //fclose(fp);
 			fileSystem->CloseFile();
             png_destroy_read_struct(&png_ptr, png_infopp_NULL, png_infopp_NULL);
+			JGE::GetInstance()->printf("can't allocate mem for reading lines\n");
             return;
     }
     
@@ -1342,6 +1352,8 @@ void JRenderer::LoadPNG(TextureInfo &textureInfo, const char* filename, int mode
 			vfree(bits);
 		else
 			free(bits);
+
+		JGE::GetInstance()->printf("can't allocate mem for pixels\n");
 	}
 
 }

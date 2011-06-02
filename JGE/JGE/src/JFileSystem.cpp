@@ -205,6 +205,7 @@ bool JFileSystem::OpenFile(const string &filename)
 	default:
 		break;
 	}
+	JGE::GetInstance()->printf("can't open %s\n", path.c_str());
 	return false;
 
 	//--------------------------------------------

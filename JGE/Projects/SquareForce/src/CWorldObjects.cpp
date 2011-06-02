@@ -125,9 +125,6 @@ void CWorldObjects::Create()
 void CWorldObjects::Update(float dt)
 {
 	CResourceManager::GetInstance()->UpdatePlasmaMesh(dt);
-	CPlanet *nearestPlanet = NULL;
-	GetNearestPlanet(mCamPos, nearestPlanet);
-	CResourceManager::GetInstance()->LoadPlanet(nearestPlanet);
 
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
 	// second (60Hz) and 10 iterations. This provides a high quality simulation
@@ -237,6 +234,10 @@ void CWorldObjects::Update(float dt)
 void CWorldObjects::Render()
 {
 	int i = 0;
+
+	CPlanet *nearestPlanet = NULL;
+	GetNearestPlanet(mCamPos, nearestPlanet);
+	CResourceManager::GetInstance()->LoadPlanet(nearestPlanet);
 
 	JRenderer* renderer = JRenderer::GetInstance();	
 

@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <stdarg.h>
 
 #include "JTypes.h"
@@ -102,6 +102,8 @@ private:
 
 
 	static JGE* mInstance;
+
+	std::string mAppDir;
 	
 
 public:
@@ -201,6 +203,9 @@ public:
 	///
 	//////////////////////////////////////////////////////////////////////////
 	void printf(const char *format, ...);
+
+	inline void SetAppDir(const std::string& appDir) {mAppDir = appDir;}
+	inline const std::string& GetAppDir() const {return mAppDir;}
 
 
 	void Assert(const char *filename, long lineNumber);
