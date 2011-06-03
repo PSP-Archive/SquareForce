@@ -6,8 +6,8 @@
 #include "CSquareShip.h"
 #include "CPlanet.h"
 
-#define PLANET_TEXTURE_WIDTH 128
-#define PLANET_TEXTURE_HEIGHT 128
+#define PLANET_TEXTURE_WIDTH 256
+#define PLANET_TEXTURE_HEIGHT 256
 
 
 class hgeDistortionMesh;
