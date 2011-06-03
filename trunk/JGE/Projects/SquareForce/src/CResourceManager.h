@@ -6,8 +6,7 @@
 #include "CSquareShip.h"
 #include "CPlanet.h"
 
-#define PLANET_TEXTURE_WIDTH 256
-#define PLANET_TEXTURE_HEIGHT 256
+#define PLANET_TEXTURE_SIZE 256.0f
 
 
 class hgeDistortionMesh;
@@ -34,9 +33,9 @@ public:
 
 	inline hgeDistortionMesh* GetPlanetMesh(float zoom) 
 	{
-		if(zoom < 2.0f)
+		if(zoom < 1.0f)
 			return mPlanetMesh12;
-		else if (zoom < 3.0f)
+		else if (zoom < 1.5f)
 			return mPlanetMesh16;
 		else
 			return mPlanetMesh20;
@@ -44,9 +43,7 @@ public:
 
 	inline hgeDistortionMesh* GetPlasmaMesh() {return mPlasmaMesh;}
 
-	//inline JTexture* GetPlanetTex(unsigned int id) {return mPlanetTex;}
 	inline JTexture* GetPlanetTex() {return mCurrentPlanetTex;}
-	//inline JTexture* GetCloudsTex(unsigned int id) {return mCloudsTex;}
 	inline JTexture* GetCloudsTex() {return mCurrentCloudsTex;}
 	inline JTexture* GetShadowsTex() {return mShadowsTex;}
 	inline JTexture* GetLightsTex() {return mLightsTex;}
@@ -130,8 +127,6 @@ protected:
 	hgeDistortionMesh* mPlanetMesh16;
 	hgeDistortionMesh* mPlanetMesh12;
 
-	JTexture* mPlanetTex;
-	JTexture* mCloudsTex;
 	JTexture* mShadowsTex;
 	JTexture* mLightsTex;
 
