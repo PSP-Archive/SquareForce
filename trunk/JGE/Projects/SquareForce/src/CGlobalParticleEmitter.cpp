@@ -13,10 +13,12 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 	mNbParticles = nbParticles;
 	mParticles = new hgeParticle[nbParticles];
 
-	mPos = Vector2D();
+	mPos = Vector2D(0,0);
 
 	mStartColor = startColor;
 	mDeltaColor = deltaColor;
+
+	float popSize = mRadius+mZoom*GLOBAL_PARTICLE_SCALE*22.63f;
 
 	hgeParticle* par = mParticles;
 	for(int i=0; i<mNbParticles; i++)
@@ -32,8 +34,8 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 		par->fSize = b2Random(0.2f, 1.0f);
 		par->fSpin = b2Random(0.0f, 360.0f);
 
-		float x = b2Random(-mRadius, mRadius);
-		float y = b2Random(-mRadius, mRadius);
+		float x = b2Random(-popSize, popSize);
+		float y = b2Random(-popSize, popSize);
 
 		par->vecLocation = mPos+Vector2D(x, y);
 		par->vecVelocity = Vector2D(0,0);
@@ -73,6 +75,10 @@ void CGlobalParticleEmitter::ChangeColors(hgeColor startColor /*= hgeColor(1, 1,
 
 void CGlobalParticleEmitter::SpawnAt(float x, float y)
 {
+	mPos = Vector2D(x, y);
+
+	float popSize = mRadius+mZoom*GLOBAL_PARTICLE_SCALE*22.63f;
+
 	hgeParticle* par = mParticles;
 	int i = mNbParticles+1;
 	while(--i)
@@ -80,8 +86,8 @@ void CGlobalParticleEmitter::SpawnAt(float x, float y)
 		par->fSize = b2Random(0.2f, 1.0f);
 		par->fSpin = b2Random(0.0f, 360.0f);
 
-		float _x = x+b2Random(-mRadius, mRadius);
-		float _y = y+b2Random(-mRadius, mRadius);
+		float _x = b2Random(-popSize, popSize);
+		float _y = b2Random(-popSize, popSize);
 
 		par->vecLocation = mPos+Vector2D(_x, _y);
 		par->vecVelocity = Vector2D(0,0);
