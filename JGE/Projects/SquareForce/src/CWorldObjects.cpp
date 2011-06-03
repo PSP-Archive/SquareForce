@@ -100,13 +100,17 @@ void CWorldObjects::Create()
 	mCamMat.Set(mCamRot);
 
 
+	// num 2 : nb 10 : size < 4
+	// num 7 : nb ? : size < 4
+	// num 10 : nb ? : size < 6
+	// num 12 : nb ? : size < 10
 	int num = 10;
 	mGPE1 = new CGlobalParticleEmitter(80, resMgr->GetParticlesQuad(num), 1.0f, 
 		hgeColor(0.6f, 0.9f, 0.9f, 0.9f), hgeColor(-0.3f, -0.4f, -0.3f, 0.0f));
 	mGPE1->SpawnAt(mCamPos.x, mCamPos.y);
 	
 	num = 1;
-	mGPE2 = new CGlobalParticleEmitter(70, resMgr->GetParticlesQuad(num), 90.0f, 
+	mGPE2 = new CGlobalParticleEmitter(40, resMgr->GetParticlesQuad(num), 150.0f, 
 		hgeColor(0.6f, 0.0f, 0.9f, 0.2f), hgeColor(-0.6f, 0.3f, -0.3f, 0.0f));
 	mGPE2->SpawnAt(mCamPos.x, mCamPos.y);
 	

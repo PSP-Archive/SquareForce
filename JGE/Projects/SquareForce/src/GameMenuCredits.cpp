@@ -196,6 +196,11 @@ void GameMenuCredits::Render()
 		Y += 25;
 		mFont2->SetColor(ARGB(255, 0, 255, 0));
 		mFont2->RenderString(name, X, Y, JGETEXT_LEFT);
+
+		sprintf(name, "http://freebitmaps.blogspot.com");
+		Y += 15;
+		mFont2->SetColor(ARGB(255, 0, 255, 0));
+		mFont2->RenderString(name, X, Y, JGETEXT_LEFT);
 	}
 
 	{
@@ -212,7 +217,7 @@ void GameMenuCredits::Render()
 		mFont->SetColor(ARGB(255, 0, 255, 50));
 		mFont->RenderString(lStr, X, Y, JGETEXT_RIGHT);
 
-		sprintf(name, "http://ff7.ocremix.org/");
+		sprintf(name, "http://ff7.ocremix.org");
 		Y += 25;
 		mFont2->SetColor(ARGB(255, 0, 255, 0));
 		mFont2->RenderString(name, X, Y, JGETEXT_RIGHT);
