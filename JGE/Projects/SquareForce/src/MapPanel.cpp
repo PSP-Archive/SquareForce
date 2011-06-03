@@ -111,7 +111,7 @@ void MapPanel::Render()
 	while((planet = mgr->GetPlanet(i++)))
 	{
 		Vector2D planetPos = minimapRatio*planet->GetOriginPosition();
-		float planetRadius = planet->GetSize()*64.0f;
+		float planetRadius = planet->GetSize()*PLANET_TEXTURE_SIZE/2;
 		renderer->FillCircle(centerX+planetPos.x, centerY-planetPos.y, planetRadius*minimapRatio, ARGB(255,128,128,255));
 		mFont->SetColor(ARGB(255,255,255,255));
 		mFont->RenderString(planet->GetName().c_str(), centerX+planetPos.x, centerY-planetPos.y-20.0f, JGETEXT_CENTER);

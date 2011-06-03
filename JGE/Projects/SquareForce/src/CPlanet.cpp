@@ -39,7 +39,7 @@ CPlanet::CPlanet()
 
 	mPlanetMesh = resMgr->GetPlanetMesh(mSizeX);
 
-	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_HEIGHT*0.5f;
+	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_SIZE*0.5f;
 	mRenderDist *= mRenderDist;
 
 	mName = "Planet";
@@ -80,7 +80,7 @@ CPlanet::CPlanet(string name, float size, unsigned int idTexPlanet, unsigned int
 
 	mPlanetMesh = resMgr->GetPlanetMesh(size);
 
-	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_HEIGHT*0.5f;
+	mRenderDist = 300.0f+1.07f*b2Max(mSizeX, mSizeY)*PLANET_TEXTURE_SIZE*0.5f;
 	mRenderDist *= mRenderDist;
 
 	mName = name;
@@ -123,19 +123,19 @@ void CPlanet::Render(const Vector2D& camPos, const float& camRot, const Matrix22
 	if(mPlanetTex)
 	{
 		mPlanetMesh->SetTexture(mPlanetTex);
-		mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+		mPlanetMesh->SetTextureRect(fmod(mTimer*mPlanetAngularVelocity, (float)PLANET_TEXTURE_SIZE*2.0f),0,PLANET_TEXTURE_SIZE,PLANET_TEXTURE_SIZE);
 		mPlanetMesh->Clear(mPlanetColor);
 		mPlanetMesh->Render(SCREEN_SIZE_X2+position.x, SCREEN_SIZE_Y2-position.y, mat, 1.0f*mSizeX, 1.0f*mSizeY);
 	}
 	if(mCloudsTex)
 	{
 		mPlanetMesh->SetTexture(mCloudsTex);
-		mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_WIDTH*2.0f),0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+		mPlanetMesh->SetTextureRect(fmod(mTimer*mCloudsAngularVelocity, (float)PLANET_TEXTURE_SIZE*2.0f),0,PLANET_TEXTURE_SIZE,PLANET_TEXTURE_SIZE);
 		mPlanetMesh->Clear(mCloudsColor);
 		mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, 1.02f*mSizeX, 1.02f*mSizeY, -rotation-mCloudsRotation);
 	}
 	mPlanetMesh->SetTexture(mLightsTex);
-	mPlanetMesh->SetTextureRect(0,0,PLANET_TEXTURE_WIDTH,PLANET_TEXTURE_HEIGHT);
+	mPlanetMesh->SetTextureRect(0,0,PLANET_TEXTURE_SIZE,PLANET_TEXTURE_SIZE);
 	mPlanetMesh->Clear(mLightsColor);
 	mPlanetMesh->Render(SCREEN_SIZE_X2+position.x,  SCREEN_SIZE_Y2-position.y, mat, 1.07f*mSizeX, 1.07f*mSizeY);
 	mPlanetMesh->SetTexture(mShadowsTex);

@@ -102,7 +102,7 @@ void CResourceManager::_InitLoaderThread()
 	mThreadId = sceKernelCreateThread("threadLoadTextures", _ThreadLoadTextures, 0x11, 0xFA0, PSP_THREAD_ATTR_USER, 0);
 	sceKernelStartThread(mThreadId, 0, NULL);
 #else
-	CreateThread(NULL, 0, _ThreadLoadTextures, NULL, 0, &mThreadId);
+	//CreateThread(NULL, 0, _ThreadLoadTextures, NULL, 0, &mThreadId);
 #endif
 }
 
@@ -130,11 +130,11 @@ bool CResourceManager::LoadPlanet(CPlanet* planet)
 
 hgeDistortionMesh* CreatePlanetMesh(int rows, int cols)
 {
-	float cellW =(float)(PLANET_TEXTURE_WIDTH/(cols-1));
-	float cellH=(float)(PLANET_TEXTURE_HEIGHT/(rows-1));
+	float cellW =(float)(PLANET_TEXTURE_SIZE/(cols-1));
+	float cellH=(float)(PLANET_TEXTURE_SIZE/(rows-1));
 
 	hgeDistortionMesh* mesh = new hgeDistortionMesh(cols, rows);
-	mesh->SetTextureRect(0,0, PLANET_TEXTURE_WIDTH, PLANET_TEXTURE_HEIGHT);
+	mesh->SetTextureRect(0,0, PLANET_TEXTURE_SIZE, PLANET_TEXTURE_SIZE);
 
 	float dx = (float)(cellW*(cols-1))*0.5f;
 	float dy = (float)(cellH*(rows-1))*0.5f;
@@ -206,10 +206,8 @@ CResourceManager::CResourceManager()
 	mPlanetMesh16 = CreatePlanetMesh(16, 16);
 	mPlanetMesh20 = CreatePlanetMesh(20, 20);
 
-	mPlanetTex = renderer->LoadTexture("planet.png");
-	mCloudsTex = renderer->LoadTexture("clouds.png");
-	mShadowsTex = renderer->LoadTexture("shadows.png");
-	mLightsTex = renderer->LoadTexture("lights.png");
+	mShadowsTex = renderer->LoadTexture("planets/shadows.png");
+	mLightsTex = renderer->LoadTexture("planets/lights.png");
 
 	
 	mPlasmaMesh = new hgeDistortionMesh(8, 8);
@@ -271,8 +269,6 @@ CResourceManager::~CResourceManager()
 	SAFE_DELETE(mPlanetMesh16);
 	SAFE_DELETE(mPlanetMesh12);
 
-	SAFE_DELETE(mPlanetTex);
-	SAFE_DELETE(mCloudsTex);
 	SAFE_DELETE(mShadowsTex);
 	SAFE_DELETE(mLightsTex);
 

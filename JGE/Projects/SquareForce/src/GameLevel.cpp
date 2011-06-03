@@ -288,7 +288,7 @@ void GameLevel::UpdateControler()
 		float dist2 = mWorldObjects->GetNearestPlanet(mWorldObjects->mHero->GetOriginPosition(), planet);
 		if(planet)// on atterri sur la planete si on est au dessus
 		{
-			float distTest = planet->GetSize()*64.0f;
+			float distTest = planet->GetSize()*PLANET_TEXTURE_SIZE/2;
 			distTest *= distTest;
 			if(dist2 < distTest)
 				mWorldObjects->mHero->Land(true);
@@ -480,26 +480,23 @@ void GameLevel::DrawGui()
 
 	renderer->RenderQuad(mMinimapQuad, (float)centerX, (float)centerY);
 
-	Matrix22 camMat(mWorldObjects->mCamRot);
-	Vector2D dir = camMat / Vector2D(0, MINIMAP_RADIUS);
-	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
-	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
-
 	float minimapDistMax2 = minimapDistMax*minimapDistMax;
 	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
 
+	Vector2D refPos = mgr->GetHero()->GetCenterPosition();
+	Matrix22 camMat(mWorldObjects->mCamRot);
+	Vector2D dir = camMat / Vector2D(0, MINIMAP_RADIUS);
 
 	int i = 0;
 	CPlanet* planet = NULL;
 	while((planet = mgr->GetPlanet(i++)))
 	{
 		Vector2D planetPos = planet->GetOriginPosition();
-		float planetRadius = planet->GetSize()*64.0f;
-		Vector2D planetDir = planetPos - mWorldObjects->mCamPos;
-		if(planetDir.Length() <= minimapDistMax - planetRadius)
+		Vector2D planetDir = planetPos - refPos;
+		if(planetDir.Length2() <= minimapDistMax2)
 		{
 			planetDir = camMat / (minimapRatio * planetDir);
-			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, planetRadius*minimapRatio, ARGB(255,255,255,255));
+			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, 4.0f, ARGB(255,255,255,255));
 		}
 	}
 
@@ -508,13 +505,16 @@ void GameLevel::DrawGui()
 	while((obj = mgr->GetObject(i++)))
 	{
 		Vector2D shipPos = obj->GetOriginPosition();
-		Vector2D shipDir = shipPos - mWorldObjects->mCamPos;
+		Vector2D shipDir = shipPos - refPos;
 		if(shipDir.Length2() <= minimapDistMax2)
 		{
 			shipDir = camMat / (minimapRatio * shipDir);
 			renderer->FillCircle(centerX+shipDir.x, centerY-shipDir.y, 1.0f, ARGB(255,255,0,0));
 		}
 	}
+
+	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
+	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
 
 	char txt[50] = "";
 	sprintf(txt, "1/%d", (int)(mMinimapScale+0.5f));

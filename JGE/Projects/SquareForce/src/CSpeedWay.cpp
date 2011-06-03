@@ -92,14 +92,14 @@ CSpeedWay::CSpeedWay(CPlanet* planet1, CPlanet* planet2): mPlanet1(planet1), mPl
 {
 	mDir = mPlanet2->GetOriginPosition() - mPlanet1->GetOriginPosition();
 	float dist = mDir.Normalize();
-	dist -= (mPlanet1->GetSize() + mPlanet2->GetSize()) * 64.0f;
+	dist -= (mPlanet1->GetSize() + mPlanet2->GetSize()) * PLANET_TEXTURE_SIZE/2;
 	float fNbGates = dist/SPEEDGATES_DISTANCE;
 	int nbGates = (int)fNbGates - 1;
 
 	mRotation = mDir.Angle() - M_PI_2;
 	mMatrixRot.Set(mRotation);
 
-	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * 64.0f + SPEEDGATES_DISTANCE + (fNbGates - (float)(nbGates+1))/2*SPEEDGATES_DISTANCE)*mDir;
+	Vector2D pos = mPlanet1->GetOriginPosition() + (mPlanet1->GetSize() * PLANET_TEXTURE_SIZE/2 + SPEEDGATES_DISTANCE + (fNbGates - (float)(nbGates+1))/2*SPEEDGATES_DISTANCE)*mDir;
 	pos += (SPEEDGATE_WIDTH/2+10.0f)*Vector2D(mDir.y, -mDir.x);// right shift
 	mStart = pos;
 	for(int i = 0; i<nbGates; i++)
