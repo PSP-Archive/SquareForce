@@ -11,6 +11,7 @@
 #include <psppower.h>
 #else
 #include <windows.h>
+#include <assert.h>
 #endif
 
 #include "Box2D.h"
@@ -34,6 +35,17 @@ using namespace std;
 - cam follow sur les missiles si on reste appuyé apres le tir
 */
 
+//#define HACK_SKIP_LOGO
+#define NO_SOUND
+#define DEBUG_PRINT
+
+
+#ifdef PSP
+extern string exceptionDebugString;
+#define DebugLog(exp) do{exceptionDebugString = exp;}while(0)
+#else
+#define DebugLog(exp)
+#endif
 
 inline PIXEL_TYPE DeserializeColor(PIXEL_TYPE c)// from ARGB
 {
@@ -62,10 +74,6 @@ inline PIXEL_TYPE SerializeColor(PIXEL_TYPE c)// to ARGB
 	return c;
 }
 #endif
-
-#define HACK_SKIP_LOGO
-#define NO_SOUND
-#define DEBUG_PRINT
 
 // screen dimensions
 #define SCREEN_SIZE_X					480
@@ -396,5 +404,40 @@ inline u32 ramAvailable(void)
 #endif
 	return size;
 }
+
+#ifdef PSP
+#define PspAssert(x) ((x) ? (void) 0 : _PspAssert(__FILE__, __LINE__, #x))
+inline void _PspAssert(const char *filename, long line, const char *exp)
+{
+	SceCtrlData pad;
+	SceCtrlData oldPad;
+	sceCtrlReadBufferPositive(&oldPad, 1);
+
+	pspDebugScreenInit();
+	pspDebugScreenSetBackColor(0x00FF0000);
+	pspDebugScreenSetTextColor(0xFFFFFFFF);
+	pspDebugScreenClear();
+	pspDebugScreenPrintf("PSP ASSERT !\n");
+
+	pspDebugScreenPrintf("\nfile %s, line %ld, expression \"%s\"", filename, line, exp);
+	
+	pspDebugScreenPrintf("\n\nPress X to continue");
+	pspDebugScreenPrintf("\nPress O to quit");
+
+	for (;;)
+	{
+		sceCtrlReadBufferPositive(&pad, 1);
+		if ((pad.Buttons ^ oldPad.Buttons) & pad.Buttons & PSP_CTRL_CROSS)
+			break;
+		else if ((pad.Buttons ^ oldPad.Buttons) & pad.Buttons & PSP_CTRL_CIRCLE)
+			sceKernelExitGame();
+
+		oldPad = pad;
+		sceKernelDelayThread(100000);
+	}
+}
+#else
+#define PspAssert(cond) assert(cond)
+#endif
 
 #endif

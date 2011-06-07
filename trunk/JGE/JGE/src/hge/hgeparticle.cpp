@@ -136,6 +136,9 @@ hgeParticleSystem::hgeParticleSystem(hgeParticleSystemInfo *psi)
 hgeParticleSystem::hgeParticleSystem(const hgeParticleSystem &ps)
 {
 	memcpy(this, &ps, sizeof(hgeParticleSystem));
+	nMaxParticles = 0;
+	particles = NULL;// let the update generate our particles
+	nParticlesAlive = 0;
 	//hge=hgeCreate(HGE_VERSION);
 }
 
@@ -167,8 +170,13 @@ void hgeParticleSystem::Update(float fDeltaTime)
 	{
 		hgeParticle* p = particles;
 		particles = new hgeParticle[maxParticles];
-		memcpy(particles, p, nParticlesAlive*sizeof(hgeParticle));
-		delete[] p;
+		if(nParticlesAlive > maxParticles)
+			nParticlesAlive = maxParticles;
+		if(p)
+		{
+			memcpy(particles, p, nParticlesAlive*sizeof(hgeParticle));
+			delete[] p;
+		}
 		nMaxParticles = maxParticles;
 	}
 
@@ -184,7 +192,11 @@ void hgeParticleSystem::Update(float fDeltaTime)
 		if(par->fAge >= par->fTerminalAge)
 		{
 			--nParticlesAlive;
-			memcpy(par, &particles[nParticlesAlive], sizeof(hgeParticle));
+			if(i>1)
+			{
+				--i;
+				memcpy(par, &particles[nParticlesAlive], sizeof(hgeParticle));
+			}
 			continue;
 		}
 
@@ -250,17 +262,17 @@ void hgeParticleSystem::Update(float fDeltaTime)
 			par->fTangentialAccel = Random_Float(info.fTangentialAccelMin, info.fTangentialAccelMax);
 
 			par->fSize = Random_Float(info.fSizeStart, info.fSizeStart+(info.fSizeEnd-info.fSizeStart)*info.fSizeVar);
-			par->fSizeDelta = (info.fSizeEnd-par->fSize) / par->fTerminalAge;
+			par->fSizeDelta = (par->fTerminalAge > 0.0f)?(info.fSizeEnd-par->fSize) / par->fTerminalAge : 0.0f;
 
 			par->fSpin = Random_Float(info.fSpinStart, info.fSpinStart+(info.fSpinEnd-info.fSpinStart)*info.fSpinVar);
-			par->fSpinDelta = (info.fSpinEnd-par->fSpin) / par->fTerminalAge;
+			par->fSpinDelta = (par->fTerminalAge > 0.0f)?(info.fSpinEnd-par->fSpin) / par->fTerminalAge : 0.0f;
 
 			par->colColor.r = Random_Float(info.colColorStart.r, info.colColorStart.r+(info.colColorEnd.r-info.colColorStart.r)*info.fColorVar);
 			par->colColor.g = Random_Float(info.colColorStart.g, info.colColorStart.g+(info.colColorEnd.g-info.colColorStart.g)*info.fColorVar);
 			par->colColor.b = Random_Float(info.colColorStart.b, info.colColorStart.b+(info.colColorEnd.b-info.colColorStart.b)*info.fColorVar);
 			par->colColor.a = Random_Float(info.colColorStart.a, info.colColorStart.a+(info.colColorEnd.a-info.colColorStart.a)*info.fAlphaVar);
 
-			par->colColorDelta = (info.colColorEnd-par->colColor) / par->fTerminalAge;
+			par->colColorDelta = (par->fTerminalAge > 0.0f)?(info.colColorEnd-par->colColor) / par->fTerminalAge : hgeColorRGB(0x00000000);
 			
 			if(bUpdateBoundingBox) rectBoundingBox.Encapsulate(par->vecLocation.x, par->vecLocation.y);
 

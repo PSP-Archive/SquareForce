@@ -95,6 +95,11 @@ void Game::Destroy()
 	if(mTutoPanel)
 		mTutoPanel->Destroy();
 
+	if(mPlanetPanel)
+		mPlanetPanel->Destroy();
+
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 
 	SAFE_DELETE(mGameLevel);

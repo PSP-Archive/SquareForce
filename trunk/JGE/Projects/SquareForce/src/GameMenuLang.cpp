@@ -74,6 +74,8 @@ void GameMenuLang::Create()
 //-------------------------------------------------------------------------------------
 void GameMenuLang::Destroy()
 {
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 }
 

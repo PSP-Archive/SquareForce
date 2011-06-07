@@ -59,6 +59,8 @@ void MainPanel::Create()
 //-------------------------------------------------------------------------------------
 void MainPanel::Destroy()
 {
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 }
 

@@ -27,6 +27,7 @@ CSquareShip::CSquareShip(b2World* world, list<CMissile*> &missilesPt):
 CSquareShip::~CSquareShip()
 {
 	SAFE_DELETE(mEnginePS);
+	SAFE_DELETE(mMissilePS);
 
 	if(mSquareTiles)
 	{
@@ -417,6 +418,7 @@ void CSquareShip::Render(const Vector2D& camPos, const float& camRot, const Matr
 
 void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 {
+	DebugLog("Begin CSquareShip Update()");
 	if(!mBody)// don't use this update if we don't have a body
 	{
 		LightUpdate(dt, true);// do full update since we are visible
@@ -424,7 +426,10 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 	}
 
 	if(mAI)
+	{
 		mAI->Update(dt);
+		DebugLog("AI updated)");
+	}
 
 	if(updatePhysic)
 	{
@@ -434,6 +439,8 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 		mRotation = mBody->GetRotation();
 		mRotationMatrix = popCast(Matrix22, mBody->GetRotationMatrix());
 		mAngularVelocity = mBody->GetAngularVelocity();
+
+		DebugLog("Physics stored)");
 	}
 
 	Vector2D shipOrigin = mOriginPosition;
@@ -499,6 +506,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 // 		v = mBody->GetAngularVelocity();
 // 		v *= -500000.0f;
 // 		mBody->ApplyTorque(v);
+		DebugLog("Physics updated)");
 
 		// missiles collisions
 		list<CMissile*>::const_iterator itMissile = mMissilesPt.begin();
@@ -508,14 +516,17 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 			ComputeCollision(*itMissile);
 			++itMissile;
 		}
+		DebugLog("Missiles collisions updated)");
 	}
 
 	mEnginePS->vDirection = mRotationMatrix*Vector2D(1,-1);
 	mEnginePS->info.fSpeedMax = 0.0f+mEnginePower*2.5f;
 	mEnginePS->info.fSpeedMin = 0.0f+mEnginePower*2.0f;
 	mEnginePS->Update(dt);
+	DebugLog("Engine PS updated)");
 
 	mMissilePS->Update(dt);
+	DebugLog("Missile PS updated)");
 
 	// engine trails
 	static Vector2D delta = Vector2D((float)SQUARETILE_SIZE*0.5f, -(float)SQUARETILE_SIZE*0.5f);
@@ -530,6 +541,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 			listPos.pop_back();
 		itEngine++;
 	}
+	DebugLog("Engine trails updated)");
 
 	mDestroyed = true;
 	// update des squareTiles
@@ -543,19 +555,26 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 		if(mDestroyed && tile->GetCurrentLife()>0.0f)// 1ere tile non detruite
 			mDestroyed = false;
 	}
+	DebugLog("SquareTiles updated)");
+	DebugLog("End CSquareShip Update()");
 }
 
 void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 {
+	DebugLog("Begin CSquareShip LightUpdate()");
 	if(mBody)// don't use this update if we have a body
 		return;
 
 	if(mAI)
+	{
 		mAI->LightUpdate(dt);
+		DebugLog("Light : AI updated");
+	}
 
 	SetPosition(mCenterPosition + dt*mLinearVelocity);
 	mRotation += mAngularVelocity*dt;
 	mRotationMatrix.Set(mRotation);
+	DebugLog("Light : Displacement updated");
 
 	// engine trails
 	static Vector2D delta = Vector2D((float)SQUARETILE_SIZE*0.5f, -(float)SQUARETILE_SIZE*0.5f);
@@ -570,6 +589,7 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 			listPos.pop_back();
 		itEngine++;
 	}
+	DebugLog("Light : Engine trails updated");
 
 	if(!fullUpdate)
 		return;
@@ -582,13 +602,16 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 		ComputeCollision(*itMissile);
 		++itMissile;
 	}
+	DebugLog("Light : Missiles collisions updated");
 
 	mEnginePS->vDirection = mRotationMatrix*Vector2D(1,-1);
 	mEnginePS->info.fSpeedMax = 0.0f+mEnginePower*2.5f;
 	mEnginePS->info.fSpeedMin = 0.0f+mEnginePower*2.0f;
 	mEnginePS->Update(dt);
+	DebugLog("Light : Engine PS updated");
 
 	mMissilePS->Update(dt);
+	DebugLog("Light : Missile PS updated");
 
 	mDestroyed = true;
 	// update des squareTiles
@@ -602,6 +625,8 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 		if(mDestroyed && tile->GetCurrentLife()>0.0f)// 1ere tile non detruite
 			mDestroyed = false;
 	}
+	DebugLog("Light : SquareTiles updated");
+	DebugLog("End CSquareShip LightUpdate()");
 }
 
 void CSquareShip::FireAt(const Vector2D& target, float ratioError)
@@ -760,6 +785,7 @@ void CSquareShip::SetMissileParticleSystem()
 	info.sprite = mQuadPcl;
 
 	mMissilePS = new hgeParticleSystem(&info);
+	mMissilePS->Fire();
 }
 
 void CSquareShip::Straff(float power)

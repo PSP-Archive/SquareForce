@@ -53,6 +53,8 @@ bool done = false;
 JApp *game = NULL;
 JGE *engine = NULL;
 
+string exceptionDebugString;
+
 //------------------------------------------------------------------------------------------------
 // Exit callback
 int exit_callback(int arg1, int arg2, void *common)
@@ -195,6 +197,104 @@ static const unsigned char regName[32][5] =
 	"t8", "t9", "k0", "k1", "gp", "sp", "fp", "ra"
 };
 
+u32 _ramAvailableLineareMax(void)
+{
+	u32 size, sizeblock;
+	u8 *ram;
+
+	// Init variables
+	size = 0;
+	sizeblock = (1024 * 1024);
+
+#ifdef PSP
+	int disableInterrupts = pspSdkDisableInterrupts();
+#endif
+
+	// Check loop
+	while (sizeblock)
+	{
+		// Increment size
+		size += sizeblock;
+
+		// Allocate ram
+		ram = (u8 *) malloc(size);
+
+		// Check allocate
+		if (!(ram))
+		{
+			// Restore old size
+			size -= sizeblock;
+
+			// Size block / 2
+			sizeblock >>= 1;
+		}
+		else
+			free(ram);
+	}
+
+#ifdef PSP
+	pspSdkEnableInterrupts(disableInterrupts);
+#endif
+
+	return size;
+}
+
+u32 _ramAvailable(void)
+{
+	u8 **ram, **temp;
+	u32 size, count, x;
+
+	// Init variables
+	ram = NULL;
+	size = 0;
+	count = 0;
+
+#ifdef PSP
+	int disableInterrupts = pspSdkDisableInterrupts();
+#endif
+
+	// Check loop
+	for (;;)
+	{
+		// Check size entries
+		if (!(count % 10))
+		{
+			// Allocate more entries if needed
+			temp = (u8**) realloc(ram, sizeof(u8 *) * (count + 10));
+			if (!(temp)) break;
+
+			// Update entries and size (size contains also size of entries)
+			ram = temp;
+			size += (sizeof(u8 *) * 10);
+		}
+
+		// Find max lineare size available
+		x = _ramAvailableLineareMax();
+		if (!(x)) break;
+
+		// Allocate ram
+		ram[count] = (u8 *) malloc(x);
+		if (!(ram[count])) break;
+
+		// Update variables
+		size += x;
+		count++;
+	}
+
+	// Free ram
+	if (ram)
+	{
+		for (x = 0; x < count; x++)
+			free(ram[x]);
+		free(ram);
+	}
+
+#ifdef PSP
+	pspSdkEnableInterrupts(disableInterrupts);
+#endif
+	return size;
+}
+
 void ExceptionHandler(PspDebugRegBlock * regs)
 {
 	int i;
@@ -214,29 +314,8 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 	pspDebugScreenPrintf("BadVAddr  - %08X\n", (int)regs->badvaddr);
 	for (i = 0; i < 32; i += 4) pspDebugScreenPrintf("%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
 
-	FILE *log = fopen("exception.txt", "w");
-	if (log)
-	{
-		char testo[512];
-		sprintf(testo, "Exception details:\n\n");
-		fprintf(log, testo);
-		sprintf(testo, "Exception - %s\n", codeTxt[(regs->cause >> 2) & 31]);
-		fprintf(log, testo);
-		sprintf(testo, "EPC       - %08X / %s.text + %08X\n", (int)regs->epc, module_info.modname, (unsigned int)(regs->epc-(int)&_ftext));
-		fprintf(log, testo);
-		sprintf(testo, "Cause     - %08X\n", (int)regs->cause);
-		fprintf(log, testo);
-		sprintf(testo, "Status    - %08X\n", (int)regs->status);
-		fprintf(log, testo);
-		sprintf(testo, "BadVAddr  - %08X\n", (int)regs->badvaddr);
-		fprintf(log, testo);
-		for (i = 0; i < 32; i += 4)
-		{
-			sprintf(testo, "%s:%08X %s:%08X %s:%08X %s:%08X\n", regName[i], (int)regs->r[i], regName[i+1], (int)regs->r[i+1], regName[i+2], (int)regs->r[i+2], regName[i+3], (int)regs->r[i+3]);
-			fprintf(log, testo);
-		}
-		fclose(log);
-	}
+	pspDebugScreenPrintf("\nRam free : %d o\n", (int)_ramAvailable());
+	pspDebugScreenPrintf("\n%s\n", exceptionDebugString.c_str());
 
 	sceKernelDelayThread(1000000);
 	pspDebugScreenPrintf("\n\nPress X to dump information on file exception.log and quit");
@@ -247,7 +326,7 @@ void ExceptionHandler(PspDebugRegBlock * regs)
 		sceCtrlReadBufferPositive(&pad, 1);
 		if (pad.Buttons & PSP_CTRL_CROSS)
 		{
-			log = fopen("exception.log", "w");
+			FILE *log = fopen("exception.log", "w");
 			if (log != NULL)
 			{
 				char testo[512];
