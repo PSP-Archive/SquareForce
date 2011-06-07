@@ -72,6 +72,8 @@ void TutoPanel1::Create()
 //-------------------------------------------------------------------------------------
 void TutoPanel1::Destroy()
 {
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 }
 

@@ -49,7 +49,7 @@ void CMissile::AddPS(hgeParticleSystem* ps)
 	//SAFE_DELETE(mPS);
 	mPS = ps;
 	//mPS->MoveTo(mPosition.x, mPosition.y, true);
-	mPS->Fire();
+	//mPS->Fire();
 }
 
 void CMissile::SetPosition(const Vector2D &position)

@@ -64,6 +64,8 @@ void CWorldObjects::Create()
 // 	int size = ramAvailable();
 // #endif
 	mWorld = new b2World(worldAABB, gravity, doSleep);
+	PspAssert(mWorld);
+	//PspAssert(false && "b2World created");
 // #ifdef PSP
 // 	int size2 = ramAvailable();
 // 	FILE *f = fopen("debug.txt", "w");
@@ -79,6 +81,8 @@ void CWorldObjects::Create()
 	mHero->SetPosition(Vector2D(2000.0f, 4000.0f));
 	mHero->LoadPhysic();
 	mSpawnMgr->SetHero(mHero);
+	PspAssert(mHero);
+	//PspAssert(false && "hero created");
 
 	for(int i=1; i<NB_OBJECTS; i++)
 	{
@@ -87,13 +91,10 @@ void CWorldObjects::Create()
 		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
 		ship->SetAI(new CSquareShipAI(this, ship));
 		mSpawnMgr->AddObject(ship);
+		PspAssert(ship);
 	}
-// #ifdef PSP
-// 	size = ramAvailable();
-// 	f = fopen("debug.txt", "a");
-// 	fprintf(f, "Creating objects.\nram free : %d o\n", size);
-// 	fclose(f);
-// #endif
+	//PspAssert(false && "ennemies created");
+
 	
 	mCamPos = mHero->GetCenterPosition();
 	mCamRot = M_PI_4;
@@ -123,11 +124,20 @@ void CWorldObjects::Create()
 
 // 	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(0), mSpawnMgr->GetPlanet(3)));
 // 	mSpawnMgr->AddSpeedWay(new CSpeedWay(mSpawnMgr->GetPlanet(3), mSpawnMgr->GetPlanet(0)));
+
+// #ifdef PSP
+// 	int size = ramAvailable();
+// 	FILE *f = fopen("debug.txt", "a");
+// 	fprintf(f, "Creating objects.\nram free : %d o\n", size);
+// 	fclose(f);
+// #endif
+	//PspAssert(false && "CWorldObjects created");
 }
 
 
 void CWorldObjects::Update(float dt)
 {
+	DebugLog("Begin CWorldObjects Update()");
 	CResourceManager::GetInstance()->UpdatePlasmaMesh(dt);
 
 	// Prepare for simulation. Typically we use a time step of 1/60 of a
@@ -146,14 +156,17 @@ void CWorldObjects::Update(float dt)
 		// generally best to keep the time step and iterations fixed.
 		mWorld->Step(timeStep, iterations);
 	}
+	DebugLog("World updated");
 
 	mSpawnMgr->Update(timeStep, mCamPos);
+	DebugLog("SpawnMgr updated");
 
 	// on update les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
 	const list<CMissile*>::const_iterator itEnd = mListMissiles.end();
 	while(it != itEnd)
 	{
+		PspAssert(*it);
 		(*it)->Update(timeStep);
 		if(!(*it)->IsAlive())
 		{
@@ -161,8 +174,9 @@ void CWorldObjects::Update(float dt)
 			it = mListMissiles.erase(it);
 			continue;
 		}
-		it++;
+		++it;
 	}
+	DebugLog("Missiles updated");
 
 	// on update les vaisseaux
 	{
@@ -173,6 +187,7 @@ void CWorldObjects::Update(float dt)
 			obj->Update(timeStep);
 		}
 	}
+	DebugLog("Objects updated");
 
 	// on update les planetes
 	{
@@ -183,6 +198,7 @@ void CWorldObjects::Update(float dt)
 			planet->Update(timeStep);
 		}
 	}
+	DebugLog("Planets updated");
 
 	//on update les speedways
 	{
@@ -193,9 +209,11 @@ void CWorldObjects::Update(float dt)
 			speedWay->Update(timeStep);
 		}
 	}
+	DebugLog("SpeedWays updated");
 
 	mGPE1->Update(timeStep, mCamPos);
 	mGPE2->Update(timeStep, mCamPos);
+	DebugLog("GPEs updated");
 
 
 	//const Vector2D force = mHero->m_force;
@@ -231,17 +249,21 @@ void CWorldObjects::Update(float dt)
 			mCamMat.Set(mCamRot);
 		}
 	}
+	DebugLog("Camera updated");
 
 	mTimer = 0.0f;
+	DebugLog("End CWorldObjects Update()");
 }
 
 void CWorldObjects::Render()
 {
+	DebugLog("Begin CWorldObjects Render()");
 	int i = 0;
 
 	CPlanet *nearestPlanet = NULL;
 	GetNearestPlanet(mCamPos, nearestPlanet);
 	CResourceManager::GetInstance()->LoadPlanet(nearestPlanet);
+	DebugLog("Planet Textures Loaded");
 
 	JRenderer* renderer = JRenderer::GetInstance();	
 
@@ -252,6 +274,7 @@ void CWorldObjects::Render()
 
 	// on dessine l'émetteur de particules global
 	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.0f, 0.7f);
+	DebugLog("GPEs lower rendered");
 
 	// on dessine les planetes
 	i = 0;
@@ -260,15 +283,18 @@ void CWorldObjects::Render()
 	{
 		planet->Render(mCamPos, mCamRot, mCamMat);
 	}
+	DebugLog("Planets rendered");
 	
 	// on dessine les projectiles
 	list<CMissile*>::iterator it = mListMissiles.begin();
 	list<CMissile*>::iterator itEnd = mListMissiles.end();
 	while(it != itEnd)
 	{
+		PspAssert(*it);
 		(*it)->Render(mCamPos, mCamRot, mCamMat);
 		it++;
 	}
+	DebugLog("Missiles rendered");
 	
 	// on dessine les objets
 	i = 0;
@@ -277,6 +303,7 @@ void CWorldObjects::Render()
 	{
 		obj->Render(mCamPos, mCamRot, mCamMat);
 	}
+	DebugLog("Objects rendered");
 
 	// on dessine les speedways
 	i = 0;
@@ -285,9 +312,11 @@ void CWorldObjects::Render()
 	{
 		speedWay->Render(mCamPos, mCamRot, mCamMat);
 	}
+	DebugLog("SpeedWays rendered");
 
 	// on dessine l'émetteur de particules global
 	mGPE1->Render(mCamPos, mCamRot, mCamMat, 0.7f, 1.0f);
+	DebugLog("End CWorldObjects Render()");
 }
 
 

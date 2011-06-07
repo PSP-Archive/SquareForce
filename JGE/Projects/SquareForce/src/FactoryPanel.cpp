@@ -78,6 +78,8 @@ void FactoryPanel::Create()
 //-------------------------------------------------------------------------------------
 void FactoryPanel::Destroy()
 {
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 	mGameLevel->mWorldObjects->mHero->mEnginePower = 0.0f;
 	mGameLevel->mWorldObjects->mHero->LoadPhysic();

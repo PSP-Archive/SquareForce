@@ -43,8 +43,6 @@ public:
 private:
 	float mTimer;
 
-	JQuad* mEnginePclQuad;
-
 	b2World* mWorld;
 	float mScale;
 

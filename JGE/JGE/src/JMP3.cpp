@@ -21,7 +21,7 @@
 JMP3* JMP3::mInstance = NULL;
 bool JMP3::init_done = false;
 
-#define JLOG(s)
+#define JLOG(s) //do{FILE *f = fopen("debug.txt", "a");fprintf(f, s);fclose(f);}while(0)
 
 void JMP3::init() 
 {

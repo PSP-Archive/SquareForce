@@ -76,8 +76,14 @@ void GameMenuCredits::Destroy()
 
 	SAFE_DELETE(mBGMesh);
 
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
+	if(mFont2)
+		mFont2->Unload();
 	SAFE_DELETE(mFont2);
+	if(mFont3)
+		mFont3->Unload();
 	SAFE_DELETE(mFont3);
 }
 

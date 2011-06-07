@@ -119,7 +119,8 @@ bool CResourceManager::LoadPlanet(CPlanet* planet)
 		mDemandedPlanetTexId = idPlanet;
 	if(idClouds != mCurrentCloudsTexId)
 		mDemandedCloudsTexId = idClouds;
-#ifdef PSP
+#ifdef PSP// Use thread for PSP
+	//_UpdateLoadTextures();
 #else// NO TRHEAD FOR WINDOWS : can't run gl loadings thread-safely (glgentex pb)
 	_UpdateLoadTextures();
 #endif

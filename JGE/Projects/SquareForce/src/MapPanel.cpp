@@ -61,6 +61,8 @@ void MapPanel::Create()
 //-------------------------------------------------------------------------------------
 void MapPanel::Destroy()
 {
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 }
 

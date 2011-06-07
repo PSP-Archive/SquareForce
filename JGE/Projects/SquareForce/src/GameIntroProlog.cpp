@@ -94,8 +94,10 @@ void GameIntroProlog::Destroy()
 	JSoundSystem* sound = JSoundSystem::GetInstance();
 	sound->StopMusic(mMusic);
  	SAFE_DELETE(mMusic);
-	SAFE_DELETE(mFont);
 #endif
+	if(mFont)
+		mFont->Unload();
+	SAFE_DELETE(mFont);
 
 	GameIntro::Destroy();
 }

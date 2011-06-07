@@ -59,6 +59,8 @@ void PlanetMainPanel::Create()
 //-------------------------------------------------------------------------------------
 void PlanetMainPanel::Destroy()
 {
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 }
 

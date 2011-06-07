@@ -107,22 +107,26 @@ void GameLevel::Create()
 
 void GameLevel::Reset()
 {
+	//PspAssert(false && "begin reset");
 	SAFE_DELETE(mWorldObjects);
 
 	mWorldObjects = new CWorldObjects(mSpawnMgr);
+	//PspAssert(false && "CWorldObjects new");
 	
 	mWorldObjects->Create();
+	//PspAssert(false && "CWorldObjects created");
 
-	Matrix22 camMat = Matrix22(mWorldObjects->mCamRot);
+	Matrix22 camMat = mWorldObjects->mCamMat;
 
 	mTargetReticlePos = Vector2D(0, 0);
 	mTargetReticleWorldPos = mWorldObjects->mCamPos + camMat * mTargetReticlePos;
 
 	JGE* engine = JGE::GetInstance();
-	mDeltaTime = engine->GetDelta();		// Get time elapsed since last update.
+	mDeltaTime = engine->GetDelta(); // on reset le timer (un coup ds le vent)
 	mDeltaTime = 0.0f;
 
 	mTarget = NULL;
+	//PspAssert(false && "end reset");
 }
 
 
@@ -137,6 +141,8 @@ void GameLevel::Destroy()
 
 	SAFE_DELETE(mSpawnMgr);
 
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
 
 	SAFE_DELETE(mMinimapQuad);

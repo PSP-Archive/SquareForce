@@ -215,7 +215,11 @@ void GameMenu::Destroy()
 
 	SAFE_DELETE(mBGMesh);
 
+	if(mFont)
+		mFont->Unload();
 	SAFE_DELETE(mFont);
+	if(mFont2)
+		mFont2->Unload();
 	SAFE_DELETE(mFont2);
 
 	SAFE_DELETE(mSquareTilesTex);
