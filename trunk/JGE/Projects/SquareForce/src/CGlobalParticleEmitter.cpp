@@ -10,8 +10,11 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 {
 	mRadius = 300.0f;
 
+	mZoom = zoom;
+
 	mNbParticles = nbParticles;
 	mParticles = new hgeParticle[nbParticles];
+	PspAssert(mParticles);
 
 	mPos = Vector2D(0,0);
 
@@ -25,17 +28,17 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 	{
 		memset(par, 0, sizeof(hgeParticle));
 		hgeColor deltaColor = hgeColor(
-			b2Random(0.0f, mDeltaColor.r), 
-			b2Random(0.0f, mDeltaColor.g), 
-			b2Random(0.0f, mDeltaColor.b), 
-			b2Random(0.0f, mDeltaColor.a));
+			Random(0.0f, mDeltaColor.r), 
+			Random(0.0f, mDeltaColor.g), 
+			Random(0.0f, mDeltaColor.b), 
+			Random(0.0f, mDeltaColor.a));
 		par->colColor = mStartColor+deltaColor;
 
-		par->fSize = b2Random(0.2f, 1.0f);
-		par->fSpin = b2Random(0.0f, 360.0f);
+		par->fSize = Random(0.2f, 1.0f);
+		par->fSpin = Random(0.0f, 360.0f);
 
-		float x = b2Random(-popSize, popSize);
-		float y = b2Random(-popSize, popSize);
+		float x = Random(-popSize, popSize);
+		float y = Random(-popSize, popSize);
 
 		par->vecLocation = mPos+Vector2D(x, y);
 		par->vecVelocity = Vector2D(0,0);
@@ -44,8 +47,6 @@ CGlobalParticleEmitter::CGlobalParticleEmitter(int nbParticles, JQuad* quad, flo
 	}
 
 	mQuad = quad;
-
-	mZoom = zoom;
 }
 
 CGlobalParticleEmitter::~CGlobalParticleEmitter()
@@ -63,10 +64,10 @@ void CGlobalParticleEmitter::ChangeColors(hgeColor startColor /*= hgeColor(1, 1,
 	while(--i)
 	{
 		hgeColor deltaColor = hgeColor(
-			b2Random(0.0f, mDeltaColor.r), 
-			b2Random(0.0f, mDeltaColor.g), 
-			b2Random(0.0f, mDeltaColor.b), 
-			b2Random(0.0f, mDeltaColor.a));
+			Random(0.0f, mDeltaColor.r), 
+			Random(0.0f, mDeltaColor.g), 
+			Random(0.0f, mDeltaColor.b), 
+			Random(0.0f, mDeltaColor.a));
 		par->colColor = mStartColor+deltaColor;
 
 		++par;
@@ -83,11 +84,11 @@ void CGlobalParticleEmitter::SpawnAt(float x, float y)
 	int i = mNbParticles+1;
 	while(--i)
 	{
-		par->fSize = b2Random(0.2f, 1.0f);
-		par->fSpin = b2Random(0.0f, 360.0f);
+		par->fSize = Random(0.2f, 1.0f);
+		par->fSpin = Random(0.0f, 360.0f);
 
-		float _x = b2Random(-popSize, popSize);
-		float _y = b2Random(-popSize, popSize);
+		float _x = Random(-popSize, popSize);
+		float _y = Random(-popSize, popSize);
 
 		par->vecLocation = mPos+Vector2D(_x, _y);
 		par->vecVelocity = Vector2D(0,0);
@@ -115,19 +116,19 @@ void CGlobalParticleEmitter::Update(float deltaTime, const Vector2D& camPos)
 		if((par->vecLocation-mPos).Length2() > popSize2)// on est hors du radius de l'emetteur
 		{
 			hgeColor deltaColor = hgeColor(
-				b2Random(0.0f, mDeltaColor.r), 
-				b2Random(0.0f, mDeltaColor.g), 
-				b2Random(0.0f, mDeltaColor.b), 
-				b2Random(0.0f, mDeltaColor.a));
+				Random(0.0f, mDeltaColor.r), 
+				Random(0.0f, mDeltaColor.g), 
+				Random(0.0f, mDeltaColor.b), 
+				Random(0.0f, mDeltaColor.a));
 			par->colColor = mStartColor+deltaColor;
 
-			par->fSize = b2Random(0.2f, 1.0f);
-			par->fSpin = b2Random(0.0f, 360.0f);
+			par->fSize = Random(0.2f, 1.0f);
+			par->fSpin = Random(0.0f, 360.0f);
 
 			Vector2D localPos = deltaPos;
 			localPos.Normalize();
 			// on pop dans le demi plan devant nous
-			localPos = b2Random(0.001f, 1.0f)*localPos + b2Random(-1.0f, 1.0f)*Vector2D(-localPos.y, localPos.x);
+			localPos = Random(0.001f, 1.0f)*localPos + b2Random(-1.0f, 1.0f)*Vector2D(-localPos.y, localPos.x);
 			localPos.Normalize();
 			localPos *= popSize - 1.0f;
 

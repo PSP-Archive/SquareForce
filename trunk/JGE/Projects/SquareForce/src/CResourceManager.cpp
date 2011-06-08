@@ -99,8 +99,10 @@ DWORD WINAPI CResourceManager::_ThreadLoadTextures(LPVOID lpParameter)
 void CResourceManager::_InitLoaderThread()
 {
 #ifdef PSP
+#ifdef USE_MULTITHREADED_LOADER
 	mThreadId = sceKernelCreateThread("threadLoadTextures", _ThreadLoadTextures, 0x11, 0xFA0, PSP_THREAD_ATTR_USER, 0);
 	sceKernelStartThread(mThreadId, 0, NULL);
+#endif
 #else
 	//CreateThread(NULL, 0, _ThreadLoadTextures, NULL, 0, &mThreadId);
 #endif
@@ -119,8 +121,10 @@ bool CResourceManager::LoadPlanet(CPlanet* planet)
 		mDemandedPlanetTexId = idPlanet;
 	if(idClouds != mCurrentCloudsTexId)
 		mDemandedCloudsTexId = idClouds;
-#ifdef PSP// Use thread for PSP
-	//_UpdateLoadTextures();
+#ifdef PSP
+#ifndef USE_MULTITHREADED_LOADER
+	_UpdateLoadTextures();
+#endif
 #else// NO TRHEAD FOR WINDOWS : can't run gl loadings thread-safely (glgentex pb)
 	_UpdateLoadTextures();
 #endif
