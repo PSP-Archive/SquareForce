@@ -419,6 +419,7 @@ void GameLevel::UpdateControler()
 //-------------------------------------------------------------------------------------
 void GameLevel::Render()
 {
+	DebugLog("Begin GameLevel Render()");
 	// get JRenderer instance
 	JRenderer* renderer = JRenderer::GetInstance();		
 
@@ -470,11 +471,14 @@ void GameLevel::Render()
 // 	sprintf(txt, "camRot=%f", mWorldObjects->mCamRot);
 // 	mFont->SetColor(ARGB(255,0,255,255));
 // 	mFont->RenderString(txt, 350, 10);
+
+	DebugLog("End GameLevel Render()");
 }
 
 
 void GameLevel::DrawGui()
 {
+	DebugLog("Begin GameLevel DrawGui()");
 	static int centerX = SCREEN_SIZE_X-mMinimapTex->mWidth/2-1;
 	static int centerY = mMinimapTex->mHeight/2+1;
 	
@@ -485,6 +489,7 @@ void GameLevel::DrawGui()
 	JRenderer* renderer = JRenderer::GetInstance();	
 
 	renderer->RenderQuad(mMinimapQuad, (float)centerX, (float)centerY);
+	DebugLog("Minimap hud rendered");
 
 	float minimapDistMax2 = minimapDistMax*minimapDistMax;
 	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
@@ -505,6 +510,7 @@ void GameLevel::DrawGui()
 			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, 4.0f, ARGB(255,255,255,255));
 		}
 	}
+	DebugLog("Minimap planets rendered");
 
 	CObject* obj = NULL;
 	i = 1;
@@ -518,6 +524,7 @@ void GameLevel::DrawGui()
 			renderer->FillCircle(centerX+shipDir.x, centerY-shipDir.y, 1.0f, ARGB(255,255,0,0));
 		}
 	}
+	DebugLog("Minimap objects rendered");
 
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX+dir.x, (float)centerY-dir.y, ARGB(255,255,0,0));
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
@@ -546,6 +553,9 @@ void GameLevel::DrawGui()
 	mTargetReticleQuad->SetColor(color);
 	renderer->RenderQuad(mTargetReticleQuad, (float)(SCREEN_SIZE_X2+(int)mTargetReticlePos.x), (float)(SCREEN_SIZE_Y2-(int)mTargetReticlePos.y));
 	renderer->EnableTextureFilter(true);
+	DebugLog("Targeting rendered");
+
+	DebugLog("Begin GameLevel DrawGui()");
 }
 
 

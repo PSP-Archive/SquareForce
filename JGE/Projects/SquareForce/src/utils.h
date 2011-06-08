@@ -38,6 +38,7 @@ using namespace std;
 //#define HACK_SKIP_LOGO
 #define NO_SOUND
 #define DEBUG_PRINT
+//#define USE_MULTITHREADED_LOADER
 
 
 #ifdef PSP

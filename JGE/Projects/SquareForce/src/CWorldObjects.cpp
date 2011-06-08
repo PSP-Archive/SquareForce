@@ -51,6 +51,7 @@ CWorldObjects::~CWorldObjects()
 
 void CWorldObjects::Create()
 {
+	DebugLog("Begin  CWorldObjects Create()");
 	b2AABB worldAABB;
 
 	worldAABB.minVertex.Set(-25000.0f, -25000.0f);
@@ -65,6 +66,7 @@ void CWorldObjects::Create()
 // #endif
 	mWorld = new b2World(worldAABB, gravity, doSleep);
 	PspAssert(mWorld);
+	DebugLog("World created");
 	//PspAssert(false && "b2World created");
 // #ifdef PSP
 // 	int size2 = ramAvailable();
@@ -83,6 +85,7 @@ void CWorldObjects::Create()
 	mSpawnMgr->SetHero(mHero);
 	PspAssert(mHero);
 	//PspAssert(false && "hero created");
+	DebugLog("Hero created");
 
 	for(int i=1; i<NB_OBJECTS; i++)
 	{
@@ -94,6 +97,7 @@ void CWorldObjects::Create()
 		PspAssert(ship);
 	}
 	//PspAssert(false && "ennemies created");
+	DebugLog("Objects created");
 
 	
 	mCamPos = mHero->GetCenterPosition();
@@ -114,6 +118,7 @@ void CWorldObjects::Create()
 	mGPE2 = new CGlobalParticleEmitter(40, resMgr->GetParticlesQuad(num), 150.0f, 
 		hgeColor(0.6f, 0.0f, 0.9f, 0.2f), hgeColor(-0.6f, 0.3f, -0.3f, 0.0f));
 	mGPE2->SpawnAt(mCamPos.x, mCamPos.y);
+	DebugLog("GPEs created");
 	
 // 	for(int i=0; i<NB_PLANETS; ++i)
 // 	{
@@ -132,6 +137,7 @@ void CWorldObjects::Create()
 // 	fclose(f);
 // #endif
 	//PspAssert(false && "CWorldObjects created");
+	DebugLog("End  CWorldObjects Create()");
 }
 
 
