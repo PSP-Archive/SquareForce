@@ -97,7 +97,7 @@ void PlanetMainPanel::Update()
 	{
 		mLine--;
 		if(mLine<0)
-			mLine = 12;
+			mLine = 1;
 	}
 	if(engine->GetButtonClick(PSP_CTRL_DOWN))
 	{
