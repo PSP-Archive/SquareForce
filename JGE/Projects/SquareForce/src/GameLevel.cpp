@@ -297,7 +297,9 @@ void GameLevel::UpdateControler()
 			float distTest = planet->GetSize()*PLANET_TEXTURE_SIZE/2;
 			distTest *= distTest;
 			if(dist2 < distTest)
+			{
 				mWorldObjects->mHero->Land(true);
+			}
 		}
 		// on fait une requete d'attache au speedway 
 		mWorldObjects->mHero->RequestDock(true);
