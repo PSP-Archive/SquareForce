@@ -72,13 +72,11 @@ protected:
 	Vector2D mTargetReticlePos;// position locale % au centre de l'écran du réticule de visée
 	Vector2D mTargetReticleWorldPos;// world position
 
-	int mMinimapScale;
+	float mMinimapSight;
 
 	float mDeltaTime;
 
 	CObject *mTarget;
-
-	CSpawnManager* mSpawnMgr;
 
 };
 

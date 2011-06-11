@@ -35,8 +35,8 @@ using namespace std;
 - cam follow sur les missiles si on reste appuyé apres le tir
 */
 
-//#define HACK_SKIP_LOGO
-//#define NO_SOUND
+#define HACK_SKIP_LOGO
+#define NO_SOUND
 #define DEBUG_PRINT
 #define USE_MULTITHREADED_LOADER
 
@@ -107,15 +107,16 @@ inline PIXEL_TYPE SerializeColor(PIXEL_TYPE c)// to ARGB
 #define SMOOTH_CAM_COEFF				0.75f
 
 // minimap
-#define MINIMAP_SCALE_MIN				20
-#define MINIMAP_SCALE_MAX				500
-#define MINIMAP_RADIUS					40
+#define MINIMAP_NB_ZOOM_LEVELS			3
+#define MINIMAP_RADIUS					40.0f
+// vision max joueur
+#define PLAYER_MAX_SIGHT				2000.0f
 
 // zone morte du réticule (rayon)
 #define RETICLE_DEAD_ZONE				50.0f
 
 // projectiles
-#define GUN_MISSILES_SPEED				300.0f
+#define GUN_MISSILES_SPEED				400.0f
 
 // SquareTiles
 #define SQUARETILE_RECOVERY_TIME		2.0f

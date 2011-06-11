@@ -427,7 +427,7 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 
 	if(mAI)
 	{
-		mAI->Update(dt);
+		mAI->Update(dt, this);
 		DebugLog("AI updated)");
 	}
 
@@ -567,7 +567,7 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 
 	if(mAI)
 	{
-		mAI->LightUpdate(dt);
+		mAI->LightUpdate(dt, this);
 		DebugLog("Light : AI updated");
 	}
 
@@ -634,7 +634,7 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 	ratioError = max(0.0f, min(1.0f, ratioError));
 	static Vector2D delta = Vector2D(-SQUARETILE_SIZE/2, SQUARETILE_SIZE/2);
 
-	Vector2D shipFront = popCast(Matrix22, mRotationMatrix) * Vector2D(-1.0f, 1.0f);
+	Vector2D shipFront = mRotationMatrix * Vector2D(-1.0f, 1.0f);
 	shipFront.Normalize();
 
 	list<CSquareTileGun*>::iterator itGun = mlistSTGun.begin();
@@ -645,8 +645,7 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 		{
 			if((*itGun)->Fire())
 			{
-				Vector2D pos = popCast(Vector2D, mOriginPosition) + 
-					popCast(Matrix22, mRotationMatrix) * ((*itGun)->GetPosition() + delta);
+				Vector2D pos = mOriginPosition + mRotationMatrix * ((*itGun)->GetPosition() + delta);
 
 				Vector2D dir = target - pos;
 				dir.Normalize();
@@ -656,8 +655,9 @@ void CSquareShip::FireAt(const Vector2D& target, float ratioError)
 				// on tire seulement si on vise un objet dans le demi cercle face au canon
 				if( dir * shipFront >= 0.0f)
 				{
+					// ATENTION : LE GETSHOOTPOSITION() FAIT SES CALCULS A PARTIR DE GUN_MISSILES_SPEED !!!
 					dir *= (*itGun)->GetMissileSpeed();
-					dir += popCast(Vector2D, mLinearVelocity);
+					dir += mLinearVelocity;
 
 					CMissile *missile = new CMissile(1.0f, mQuadPcl, this, (*itGun)->GetHullDammages());
 					missile->SetPosition(pos);
@@ -852,15 +852,15 @@ void CSquareShip::Dash(float power)
 
 Vector2D CSquareShip::GetShootPoint(const Vector2D& pos, const Vector2D& vel)
 {
-	Vector2D P = popCast(Vector2D, mCenterPosition);//position initiale du projectile (approx)
+	Vector2D P = mCenterPosition;//position initiale du projectile (approx)
 	float spdP = GUN_MISSILES_SPEED;
 
 	Vector2D E = pos;//position de la cible
 	Vector2D velE = vel;//vitesse de la cible
-	Vector2D velE0 = vel - popCast(Vector2D, mLinearVelocity);//vitesse de la cible dans le référentiel dynamique du tireur
+	Vector2D velE0 = vel - mLinearVelocity;//vitesse de la cible dans le référentiel dynamique du tireur
 
 	//si la cible est à l'arret la position recherchée est E
-	if(velE0.Length() == 0.0f) return  E;
+	//if(velE0.Length() == 0.0f) return  E;
 
 	Vector2D PE = E - P;//vecteur PE
 
@@ -871,16 +871,23 @@ Vector2D CSquareShip::GetShootPoint(const Vector2D& pos, const Vector2D& vel)
 	float B = 2.0f * (PE * velE0);
 	float C = PE.Length2();
 
-	if(A > 0.0f)// si A>0 le projectile est moins rapide que l'ennemi
-		return E;
-
-	if(A == 0.0f)
-		return E - (C/B) * velE0;
+	if(A == 0.0f)// missile aussi rapide que l'ennemi (ds le ref dynamique)
+	{
+		float T = (B == 0.0f)?0.0f:-C/B;
+		if(T < 0.0f)// on tire globalement dans la direction ou va l'ennemi (+-90°) (ds le ref dynamique) : on le touchera jamais...
+			T = 0.0f;// tant pis... on tire pile sur lui
+		return E + T * velE0;
+	}
 
 	float Delta = B*B - 4.0f*A*C;// discriminant de l'équation du 2nd degré
+	if(Delta < 0.0f)// on le touchera jamais
+	{
+		return E;
+	}
 
-	T1 = (-B - sqrt(Delta)) / (2.0f * A);
-	T2 = (-B + sqrt(Delta)) / (2.0f * A);
+	float sqrtDelta = sqrt(Delta);
+	T1 = (-B - sqrtDelta) / (2.0f * A);
+	T2 = (-B + sqrtDelta) / (2.0f * A);
 
 	//on prend le T le plus petit positif
 	float T;

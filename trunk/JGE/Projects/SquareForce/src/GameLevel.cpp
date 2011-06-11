@@ -38,8 +38,6 @@ GameLevel::GameLevel()
 	mMinimapQuad = NULL;
 
 	mMusic = NULL;
-
-	mSpawnMgr = NULL;
 }
 
 
@@ -71,7 +69,7 @@ void GameLevel::Create()
 	mMinimapQuad = new JQuad(mMinimapTex, 0, 0, (float)mMinimapTex->mWidth, (float)mMinimapTex->mHeight);
 	mMinimapQuad->SetHotSpot((float)mMinimapTex->mWidth*0.5f, (float)mMinimapTex->mHeight*0.5f);
 
-	mMinimapScale = MINIMAP_SCALE_MIN;
+	mMinimapSight = PLAYER_MAX_SIGHT;
 
 	mPaused = false;
 	mQuit = false;
@@ -86,8 +84,6 @@ void GameLevel::Create()
 		sound->PlayMusic(mMusic, true);
 	sound->SetMusicVolume(50);
 #endif
-
-	mSpawnMgr = new CSpawnManager;
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 
@@ -110,7 +106,7 @@ void GameLevel::Reset()
 	//PspAssert(false && "begin reset");
 	SAFE_DELETE(mWorldObjects);
 
-	mWorldObjects = new CWorldObjects(mSpawnMgr);
+	mWorldObjects = new CWorldObjects();
 	//PspAssert(false && "CWorldObjects new");
 	
 	mWorldObjects->Create();
@@ -138,8 +134,6 @@ void GameLevel::Reset()
 void GameLevel::Destroy()
 {
 	SAFE_DELETE(mWorldObjects);
-
-	SAFE_DELETE(mSpawnMgr);
 
 	if(mFont)
 		mFont->Unload();
@@ -278,9 +272,9 @@ void GameLevel::UpdateControler()
 
 	if (engine->GetButtonClick(PSP_CTRL_SELECT))	
 	{
-		mMinimapScale *= 5;
-		if(mMinimapScale > MINIMAP_SCALE_MAX)
-			mMinimapScale = MINIMAP_SCALE_MIN;
+		mMinimapSight += PLAYER_MAX_SIGHT/MINIMAP_NB_ZOOM_LEVELS;
+		if(mMinimapSight> PLAYER_MAX_SIGHT + 1.0f)
+			mMinimapSight = PLAYER_MAX_SIGHT/MINIMAP_NB_ZOOM_LEVELS;
 	}
 
 	if (engine->GetButtonState(PSP_CTRL_UP))
@@ -484,8 +478,7 @@ void GameLevel::DrawGui()
 	static int centerX = SCREEN_SIZE_X-mMinimapTex->mWidth/2-1;
 	static int centerY = mMinimapTex->mHeight/2+1;
 	
-	float minimapDistMax = (float)MINIMAP_RADIUS*mMinimapScale;
-	float minimapRatio = 1.0f/mMinimapScale;
+	float minimapRatio = MINIMAP_RADIUS/mMinimapSight;
 
 	// get JRenderer instance
 	JRenderer* renderer = JRenderer::GetInstance();	
@@ -493,7 +486,7 @@ void GameLevel::DrawGui()
 	renderer->RenderQuad(mMinimapQuad, (float)centerX, (float)centerY);
 	DebugLog("Minimap hud rendered");
 
-	float minimapDistMax2 = minimapDistMax*minimapDistMax;
+	float sightMax2 = mMinimapSight*mMinimapSight;
 	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
 
 	Vector2D refPos = mgr->GetHero()->GetCenterPosition();
@@ -506,7 +499,7 @@ void GameLevel::DrawGui()
 	{
 		Vector2D planetPos = planet->GetOriginPosition();
 		Vector2D planetDir = planetPos - refPos;
-		if(planetDir.Length2() <= minimapDistMax2)
+		if(planetDir.Length2() <= sightMax2)
 		{
 			planetDir = camMat / (minimapRatio * planetDir);
 			renderer->FillCircle(centerX+planetDir.x, centerY-planetDir.y, 4.0f, ARGB(255,255,255,255));
@@ -520,7 +513,7 @@ void GameLevel::DrawGui()
 	{
 		Vector2D shipPos = obj->GetOriginPosition();
 		Vector2D shipDir = shipPos - refPos;
-		if(shipDir.Length2() <= minimapDistMax2)
+		if(shipDir.Length2() <= sightMax2)
 		{
 			shipDir = camMat / (minimapRatio * shipDir);
 			renderer->FillCircle(centerX+shipDir.x, centerY-shipDir.y, 1.0f, ARGB(255,255,0,0));
@@ -532,7 +525,7 @@ void GameLevel::DrawGui()
 	renderer->DrawLine((float)centerX, (float)centerY, (float)centerX-dir.x, (float)centerY+dir.y, ARGB(255,0,255,0));
 
 	char txt[50] = "";
-	sprintf(txt, "1/%d", (int)(mMinimapScale+0.5f));
+	sprintf(txt, "%d", (int)(mMinimapSight));
 	mFont->SetColor(ARGB(255,0,255,0));
 	mFont->RenderString(txt, (float)centerX, (float)centerY+MINIMAP_RADIUS);
 

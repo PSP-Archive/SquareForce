@@ -86,9 +86,6 @@ void Game::Create()
 //-------------------------------------------------------------------------------------
 void Game::Destroy()
 {
-	if(mGameLevel)
-		mGameLevel->Destroy();
-
 	if(mPanel)
 		mPanel->Destroy();
 
@@ -97,6 +94,9 @@ void Game::Destroy()
 
 	if(mPlanetPanel)
 		mPlanetPanel->Destroy();
+
+	if(mGameLevel)
+		mGameLevel->Destroy();
 
 	if(mFont)
 		mFont->Unload();

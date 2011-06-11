@@ -10,7 +10,7 @@
 #include "utils.h"
 
 
-CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
+CWorldObjects::CWorldObjects(float scale/* = 1.0f*/)
 {	
 	mWorld = NULL;
 
@@ -18,7 +18,7 @@ CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 
 	mScale = scale;
 
-	mSpawnMgr = spawnMgr;
+	mSpawnMgr = NULL;
 
 	mHero = NULL;
 
@@ -29,6 +29,8 @@ CWorldObjects::CWorldObjects(CSpawnManager* spawnMgr, float scale/* = 1.0f*/)
 
 CWorldObjects::~CWorldObjects()
 {
+	SAFE_DELETE(mSpawnMgr);
+
 	mWorld->CleanBodyList();
 	SAFE_DELETE(mWorld);
 
@@ -74,27 +76,30 @@ void CWorldObjects::Create()
 // 	fprintf(f, "ram free : %d o\nCreating b2World.\nram free : %d o\n", size, size2);
 // 	fclose(f);
 // #endif
+	mSpawnMgr = new CSpawnManager(mWorld, mListMissiles);
 
 	CResourceManager* resMgr = CResourceManager::GetInstance();
 
 	mHero = new CSquareShip(mWorld, mListMissiles);
+	PspAssert(mHero);
 	mHero->Create(3);
 	mHero->LoadShape(mSpawnMgr->GetEmptyShipDatas(3), resMgr->mListTiles);// vaisseau sans tiles
 	mHero->SetPosition(Vector2D(2000.0f, 4000.0f));
 	mHero->LoadPhysic();
 	mSpawnMgr->SetHero(mHero);
-	PspAssert(mHero);
 	//PspAssert(false && "hero created");
 	DebugLog("Hero created");
 
 	for(int i=1; i<NB_OBJECTS; i++)
 	{
 		CSquareShip *ship = new CSquareShip(mWorld, mListMissiles);
+		PspAssert(ship);
 		ship->Create(3);
 		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
-		ship->SetAI(new CSquareShipAI(this, ship));
+		CSquareShipAI *ai = new CSquareShipAI(mSpawnMgr);
+		ai->AddOwner(ship);
+		ship->SetAI(ai);
 		mSpawnMgr->AddObject(ship);
-		PspAssert(ship);
 	}
 	//PspAssert(false && "ennemies created");
 	DebugLog("Objects created");

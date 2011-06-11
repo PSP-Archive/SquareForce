@@ -16,7 +16,7 @@ using namespace std;
 class CSpawnManager
 {
 public:
-	CSpawnManager();
+	CSpawnManager(b2World* world, list<CMissile*> &missilesPt);
 	~CSpawnManager();
 
 	inline void AddObject(CObject* obj) {mListObjects.push_back(obj);}
@@ -38,10 +38,15 @@ public:
 
 	void Update(float dt, const Vector2D& camPos);
 
+	void AddGroup(unsigned int nbShips);
+
 protected:
 	bool ReadSectorTxt(unsigned int num);
 	bool WriteSectorRes(unsigned int num);
 	bool ReadSectorRes(unsigned int num);
+
+	b2World* mWorld;
+	list<CMissile*> mMissilesPt;
 
 	CSquareShip* mHero;
 	vector<CObject*> mListObjects;
