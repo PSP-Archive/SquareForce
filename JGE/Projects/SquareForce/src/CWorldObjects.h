@@ -21,7 +21,7 @@ class CWorldObjects
 
 public:
 
-	CWorldObjects(CSpawnManager* spawnMgr, float scale = 1.0f);
+	CWorldObjects(float scale = 1.0f);
 	~CWorldObjects();
 
 	void Update(float dt);
@@ -33,13 +33,13 @@ public:
 	CObject* GetNearestObject(const Vector2D& worldPos, CObject* skippedObj = NULL);
 	float GetNearestPlanet(const Vector2D& worldPos, CPlanet*& planetOut);
 	
-	CSpawnManager* mSpawnMgr;
-
 	CSquareShip *mHero;
 
 	Vector2D mCamPos;
 	float mCamRot;
 	Matrix22 mCamMat;
+
+	CSpawnManager* mSpawnMgr;
 private:
 	float mTimer;
 

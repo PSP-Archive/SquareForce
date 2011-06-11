@@ -4,19 +4,19 @@
 
 #include "CSquareShipAI.h"
 #include "CSquareShip.h"
-#include "CWorldObjects.h"
+#include "CSpawnManager.h"
 
 
-CSquareShipAI::CSquareShipAI(CWorldObjects *worldObjects, CSquareShip *owner):
-mWorldObjects(worldObjects), mOwner(owner)
+CSquareShipAI::CSquareShipAI(CSpawnManager *spawnMgr):
+mSpawnMgr(spawnMgr)
 {
 	mSpawnPoint = Vector2D(0,0);
 	mSpawnPointRadius = 0;
 
-	mPatrolPoint = mOwner->GetOriginPosition();
+	mPatrolPoint = Vector2D(0,0);
 	mPatrolPointRadius = 1000.0f;
 
-	mCurrentDest = mOwner->GetOriginPosition();
+	mCurrentDest = Vector2D(0,0);
 	mCurrentTarget = NULL;
 
 	mRatioErrorFiring = 0.1f;
@@ -29,13 +29,13 @@ CSquareShipAI::~CSquareShipAI()
 }
 
 
-void CSquareShipAI::Update(float dt)
+void CSquareShipAI::Update(float dt, CSquareShip *owner)
 {
 	float rangeMax = 500.0f;
-	Vector2D myPos = mOwner->GetOriginPosition();
+	Vector2D myPos = owner->GetOriginPosition();
 	bool leavingPatrolArea = false;
 
-	Vector2D shipRear = mOwner->GetRotationMatrix() * Vector2D(1.0f, -1.0f);
+	Vector2D shipRear = owner->GetRotationMatrix() * Vector2D(1.0f, -1.0f);
 	shipRear.Normalize();
 	Vector2D shipRight = Vector2D(-shipRear.y, shipRear.x);
 
@@ -51,23 +51,23 @@ void CSquareShipAI::Update(float dt)
 
 	float distMin = rangeMax;
 	CSquareShip *currentTarget = NULL;
-	CSpawnManager* mgr = mWorldObjects->mSpawnMgr;
+	CSpawnManager* mgr = mSpawnMgr;
 	int i = 0;
 	CObject* obj = NULL;
 	while((obj = mgr->GetActiveObject(i++)))
 	{
 		CSquareShip *ship = (CSquareShip*)obj;
-		if(ship != mOwner)
+		if(ship != owner)
 		{
 			Vector2D dir = myPos - ship->GetOriginPosition();
 			float dist = dir.Length();
 			dir.Normalize();
-			float power = 1.0f - dist/((mOwner->mSize+ship->mSize)*SQUARETILE_SIZE*2.0f);
+			float power = 1.0f - dist/((owner->mSize+ship->mSize)*SQUARETILE_SIZE*2.0f);
 			// on majore les rayons des vaisseaux et on double
 			if(power > 0.0f)
 			{
 				power *= (dir * shipRight >= 0)?1.0f:-1.0f;
-				mOwner->Straff(power);
+				owner->Straff(power);
 			}
 			if(dist < distMin && !ship->IsDestroyed() && !ship->IsLanded())
 			{
@@ -108,44 +108,43 @@ void CSquareShipAI::Update(float dt)
 
 	// on gère la puissance angulaire de manière à tourner jusqu'à être dans la direction désirée
 	float powerA = dir * shipRear;
-	float powerL = mOwner->mEnginePower;
-	if(powerA>=0.0f)// si on tourne le dos : on met la puissance à fond
+	float powerL = owner->mEnginePower;
+	if(powerA>=0.0f)// si on tourne le dos : on met la puissance angulaire à fond
 	{
 		powerA = 1.0f;
 
-		powerL -= 0.02f;
+		powerL -= dt;
 		if(powerL<0.0f)
 			powerL = 0.0f;
 	}
 	else// si on est de face on ajuste la puissance selon l'alignement
 	{
+		if(powerA < -0.8f)
+			powerL += dt;
+		else
+			powerL -= dt;
+		powerL = (powerL<0.0f)?0.0f:((powerL>1.0f)?1.0f:powerL);
 		powerA = 1.0f-powerA*powerA;// on rescale sur [0;1] avec une courbe logarithmique
-
-		powerL -= 0.04f*(powerA-0.5f);
-		if(powerL<0.0f)
-			powerL = 0.0f;
-		else if(powerL>1.0f)
-			powerL = 1.0f;
 
 		if(mCurrentTarget)
 		{
-			mOwner->FireAt(
-				mOwner->GetShootPoint(
+			owner->FireAt(
+				owner->GetShootPoint(
 					mCurrentTarget->GetOriginPosition(), 
 					mCurrentTarget->GetLinearVelocity()), mRatioErrorFiring);
 		}
 	}
 	if(dir * shipRight > 0.0f)// définition du sens
 		powerA = -powerA;
-	mOwner->mAngularPower = powerA;
-	mOwner->mEnginePower = powerL;
+	owner->mAngularPower = powerA;
+	owner->mEnginePower = powerL;
 }
 
-void CSquareShipAI::LightUpdate(float dt)
+void CSquareShipAI::LightUpdate(float dt, CSquareShip *owner)
 {
 	static float patrolSpdMax = 200.0f;
 
-	Vector2D myPos = mOwner->GetCenterPosition();
+	Vector2D myPos = owner->GetCenterPosition();
 
 	Vector2D dir;
 	if((mCurrentDest-myPos).Length2()<100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
@@ -158,5 +157,5 @@ void CSquareShipAI::LightUpdate(float dt)
 	dir = (mCurrentDest-myPos);
 	dir.Normalize();
 
-	mOwner->SetLinearVelocity(patrolSpdMax*dir);
+	owner->SetLinearVelocity(patrolSpdMax*dir);
 }

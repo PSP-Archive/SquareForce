@@ -9,11 +9,13 @@
 #include <string>
 
 #include "CLocalization.h"
+#include "CResourceManager.h"
 
 #include "CSpawnManager.h"
 
 
-CSpawnManager::CSpawnManager()
+CSpawnManager::CSpawnManager(b2World* world, list<CMissile*> &missilesPt)
+: mWorld(world), mMissilesPt(missilesPt)
 {
 	mHero = NULL;
 
@@ -136,6 +138,26 @@ void CSpawnManager::Update(float dt, const Vector2D& camPos)
 	}
 }
 
+void CSpawnManager::AddGroup(unsigned int nbShips)
+{
+	CResourceManager *resMgr = CResourceManager::GetInstance();
+
+	for(int i=1; i<NB_OBJECTS; i++)
+	{
+		CSquareShip *ship = new CSquareShip(mWorld, mMissilesPt);
+		ship->Create(3);
+		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
+		CSquareShipAI *ai = new CSquareShipAI(this);
+		ai->AddOwner(ship);
+		ship->SetAI(ai);
+		AddObject(ship);
+		PspAssert(ship);
+	}
+	//PspAssert(false && "ennemies created");
+	DebugLog("Objects created");
+}
+
+// Serialization/deserialization
 
 bool CSpawnManager::ReadSectorTxt(unsigned int num)
 {
@@ -262,16 +284,15 @@ bool CSpawnManager::ReadSectorTxt(unsigned int num)
 			key = SplitString(line, "=", true);
 			if(key != "IdPlanet1")
 				return false;
-			int idPlanet1 = (int)atoi(line.c_str());
+			unsigned int idPlanet1 = (unsigned int)atoi(line.c_str());
 
 			getline(fichier, line);
 			key = SplitString(line, "=", true);
 			if(key != "IdPlanet2")
 				return false;
-			unsigned int idPlanet2 = (int)atoi(line.c_str());
+			unsigned int idPlanet2 = (unsigned int)atoi(line.c_str());
 
-			if(idPlanet1 >= 0 && idPlanet1 < mListPlanets.size() && 
-				idPlanet2 >= 0 && idPlanet2 < mListPlanets.size())
+			if(idPlanet1 < mListPlanets.size() && idPlanet2 < mListPlanets.size())
 			{
 				CSpeedWay* sw = new CSpeedWay(mListPlanets[idPlanet1], mListPlanets[idPlanet2]);
 				AddSpeedWay(sw);
@@ -357,9 +378,9 @@ bool CSpawnManager::WriteSectorRes(unsigned int num)
 
 			CPlanet* planet1 = (*itSW)->GetPlanet(0);
 			CPlanet* planet2 = (*itSW)->GetPlanet(1);
-			char id1 = 0xff, id2 = 0xff;
+			unsigned char id1 = 0xff, id2 = 0xff;
 			it = mListPlanets.begin();
-			char i = 0;
+			unsigned char i = 0;
 			while(it != itEnd)  // tant que l'on peut mettre la ligne dans "contenu"
 			{
 				if(*it == planet1)
@@ -449,13 +470,12 @@ bool CSpawnManager::ReadSectorRes(unsigned int num)
 		fichier.read((char*)&nbSpeedWays, sizeof(char));
 		for(int i=0; i<nbSpeedWays; i++)
 		{
-			char id1 = 0xff;
+			unsigned char id1 = 0xff;
 			fichier.read((char*)&id1, sizeof(char));
-			char id2 = 0xff;
+			unsigned char id2 = 0xff;
 			fichier.read((char*)&id2, sizeof(char));
 
-			if(id1 >= 0 && id1 < mListPlanets.size() && 
-				id2 >= 0 && id2 < mListPlanets.size())
+			if((unsigned int)id1 < mListPlanets.size() && (unsigned int)id2 < mListPlanets.size())
 			{
 				CSpeedWay* sw = new CSpeedWay(mListPlanets[id1], mListPlanets[id2]);
 				AddSpeedWay(sw);
