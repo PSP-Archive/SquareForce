@@ -90,17 +90,23 @@ void CWorldObjects::Create()
 	//PspAssert(false && "hero created");
 	DebugLog("Hero created");
 
-	for(int i=1; i<NB_OBJECTS; i++)
-	{
-		CSquareShip *ship = new CSquareShip(mWorld, mListMissiles);
-		PspAssert(ship);
-		ship->Create(3);
-		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
-		CSquareShipAI *ai = new CSquareShipAI(mSpawnMgr);
-		ai->AddOwner(ship);
-		ship->SetAI(ai);
-		mSpawnMgr->AddObject(ship);
-	}
+	mSpawnMgr->AddGroup(5);
+	CSquareShipAI* ia = ((CSquareShip*)mSpawnMgr->GetObject(1))->GetAI();
+	//mHero->SetAI(ia);
+	//ia->AddOwner(mHero);
+	mSpawnMgr->AddGroup(5);
+
+// 	for(int i=1; i<NB_OBJECTS; i++)
+// 	{
+// 		CSquareShip *ship = new CSquareShip(mWorld, mListMissiles);
+// 		PspAssert(ship);
+// 		ship->Create(3);
+// 		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
+// 		CSquareShipAI *ai = new CSquareShipAI(mSpawnMgr);
+// 		ai->AddOwner(ship);
+// 		ship->SetAI(ai);
+// 		mSpawnMgr->AddObject(ship);
+// 	}
 	//PspAssert(false && "ennemies created");
 	DebugLog("Objects created");
 

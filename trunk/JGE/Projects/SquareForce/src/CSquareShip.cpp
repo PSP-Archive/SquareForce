@@ -425,12 +425,6 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 		return;
 	}
 
-	if(mAI)
-	{
-		mAI->Update(dt, this);
-		DebugLog("AI updated)");
-	}
-
 	if(updatePhysic)
 	{
 		mOriginPosition = popCast(Vector2D, mBody->GetOriginPosition());
@@ -441,6 +435,12 @@ void CSquareShip::Update(float dt, bool updatePhysic/* = true*/)
 		mAngularVelocity = mBody->GetAngularVelocity();
 
 		DebugLog("Physics stored)");
+	}
+
+	if(mAI)
+	{
+		mAI->Update(dt, this);
+		DebugLog("AI updated)");
 	}
 
 	Vector2D shipOrigin = mOriginPosition;
@@ -567,10 +567,15 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 
 	if(mAI)
 	{
-		mAI->LightUpdate(dt, this);
+		mAI->Update(dt, this);
 		DebugLog("Light : AI updated");
 	}
 
+	if(!IsDocked())
+	{
+		mLinearVelocity = 150.0f * mEnginePower * (mRotationMatrix*Vector2D(-1.0f, 1.0f));
+		mAngularVelocity = M_PI * mAngularPower;
+	}
 	SetPosition(mCenterPosition + dt*mLinearVelocity);
 	mRotation += mAngularVelocity*dt;
 	mRotationMatrix.Set(mRotation);
@@ -790,9 +795,6 @@ void CSquareShip::SetMissileParticleSystem()
 
 void CSquareShip::Straff(float power)
 {
-	if(!mBody)
-		return;
-
 	power = max(-1.0f, min(1.0f, power));
 
 	int nbEnginesAlive = 0;
@@ -812,18 +814,18 @@ void CSquareShip::Straff(float power)
 		return;
 
 	// poussée moteur
-	Vector2D p = popCast(Vector2D, mCenterPosition);
-	Vector2D f = popCast(Matrix22, mRotationMatrix) * Vector2D(1.0f, 1.0f);
+	Vector2D p = mCenterPosition;
+	Vector2D f = mRotationMatrix * Vector2D(1.0f, 1.0f);
 	f.Normalize();
 	f *= power * 15000.0f * nbEnginesAlive;
-	mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
+	if(mBody)
+		mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
+	else
+		mLinearVelocity += 0.004f*f;
 }
 
 void CSquareShip::Dash(float power)
 {
-	if(!mBody)
-		return;
-
 	power = max(-1.0f, min(1.0f, power));
 
 	int nbEnginesAlive = 0;
@@ -843,11 +845,14 @@ void CSquareShip::Dash(float power)
 		return;
 
 	// poussée moteur
-	Vector2D p = popCast(Vector2D, mCenterPosition);
-	Vector2D f = popCast(Matrix22, mRotationMatrix) * Vector2D(1.0f, 1.0f);
+	Vector2D p = mCenterPosition;
+	Vector2D f = mRotationMatrix * Vector2D(1.0f, 1.0f);
 	f.Normalize();
 	f *= power * 15000.0f * nbEnginesAlive;
-	mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
+	if(mBody)
+		mBody->ApplyImpulse(popCast(b2Vec2, f), popCast(b2Vec2, p));
+	else
+		mLinearVelocity += 0.004f*f;
 }
 
 Vector2D CSquareShip::GetShootPoint(const Vector2D& pos, const Vector2D& vel)

@@ -180,7 +180,7 @@ void GameLevel::Update()
 
 void GameLevel::UpdateControler()
 {
-	if(mWorldObjects->mHero->IsLanded())
+	if(mWorldObjects->mHero->IsLanded() || mWorldObjects->mHero->GetAI())
 		return;
 
 	JGE* engine = JGE::GetInstance();

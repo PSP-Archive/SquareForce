@@ -58,6 +58,7 @@ public:
 	void SetMissileParticleSystem();
 
 	void Straff(float power);
+	void Dash(float power);
 	inline void DashR() {if(mDashRTimer>0.5f) mDashRTimer = 0.0f;}
 	inline void DashL() {if(mDashLTimer>0.5f) mDashLTimer = 0.0f;}
 
@@ -68,6 +69,7 @@ public:
 	inline void ToggleStopEngine() {mStopEngine = !mStopEngine;}
 
 	inline CSquareShipAI *SetAI(CSquareShipAI *AI) {CSquareShipAI *lastAI = mAI; mAI = AI; return lastAI;}
+	inline CSquareShipAI *GetAI() {return mAI;}
 
 	inline bool IsDestroyed() {return mDestroyed;}
 
@@ -102,7 +104,6 @@ public:
 	CSquareShipData* mDatas;
 
 protected:
-	void Dash(float power);
 
 	JQuad** mQuad;
 	JQuad* mQuadPcl;

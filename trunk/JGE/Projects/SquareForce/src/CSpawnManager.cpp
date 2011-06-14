@@ -142,19 +142,20 @@ void CSpawnManager::AddGroup(unsigned int nbShips)
 {
 	CResourceManager *resMgr = CResourceManager::GetInstance();
 
-	for(int i=1; i<NB_OBJECTS; i++)
+	CSquareShipAI *ai = new CSquareShipAI(this);
+	PspAssert(ai);
+
+	for(unsigned int i=0; i<nbShips; i++)
 	{
 		CSquareShip *ship = new CSquareShip(mWorld, mMissilesPt);
 		ship->Create(3);
 		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
-		CSquareShipAI *ai = new CSquareShipAI(this);
-		ai->AddOwner(ship);
 		ship->SetAI(ai);
+		ship->SetPosition(Vector2D(2000.0f, 4000.0f));
+		ai->AddOwner(ship);
 		AddObject(ship);
 		PspAssert(ship);
 	}
-	//PspAssert(false && "ennemies created");
-	DebugLog("Objects created");
 }
 
 // Serialization/deserialization
