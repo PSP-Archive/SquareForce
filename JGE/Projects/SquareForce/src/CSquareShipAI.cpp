@@ -20,14 +20,45 @@ mSpawnMgr(spawnMgr)
 	mCurrentTarget = NULL;
 
 	mRatioErrorFiring = 0.1f;
+
+	mDir = Vector2D(0,0);
 }
 
 
 CSquareShipAI::~CSquareShipAI()
 {
-
+	// on enleve le pointeur sur notre IA pour les autres owners
+	for(unsigned int i=0; i<mOwners.size(); ++i)
+	{
+		mOwners[i]->SetAI(NULL);
+	}
 }
 
+bool CSquareShipAI::IsOwner(CSquareShip* ship) 
+{
+	// 		for(int i=0; i<mOwners.size(); ++i) 
+	// 			if(mOwners[i] == ship) 
+	// 				return true; 
+	// 		return false;
+	// faster
+	return (this == ship->GetAI());
+}
+
+bool CSquareShipAI::IsLeader(CSquareShip* ship)
+{
+	CSquareShip* leader = NULL;
+	vector<CSquareShip*>::const_iterator it = mOwners.begin();
+	const vector<CSquareShip*>::const_iterator itEnd = mOwners.end();
+	for(;it != itEnd;++it)
+	{
+		if(!(*it)->IsDestroyed())
+		{
+			leader = *it;
+			break;
+		}
+	}
+	return (ship == leader);
+}
 
 void CSquareShipAI::Update(float dt, CSquareShip *owner)
 {
@@ -39,71 +70,103 @@ void CSquareShipAI::Update(float dt, CSquareShip *owner)
 	shipRear.Normalize();
 	Vector2D shipRight = Vector2D(-shipRear.y, shipRear.x);
 
-	// perte de la cible courante
-	if((myPos-mPatrolPoint).Length()>=mPatrolPointRadius+rangeMax)
-	{
-		mCurrentTarget = NULL;
-		leavingPatrolArea = true;
-	}
-	if((mCurrentTarget && (mCurrentTarget->GetOriginPosition()-myPos).Length2()>=rangeMax*rangeMax)
-		|| (mCurrentTarget && mCurrentTarget->IsDestroyed()))
-		mCurrentTarget = NULL;
+	bool isLeader = IsLeader(owner);
 
+	if(isLeader)
+	{
+		// perte de la cible courante
+		if((myPos-mPatrolPoint).Length()>=mPatrolPointRadius+rangeMax)
+		{
+			mCurrentTarget = NULL;
+			leavingPatrolArea = true;
+		}
+		if((mCurrentTarget && (mCurrentTarget->GetOriginPosition()-myPos).Length2()>=rangeMax*rangeMax)
+			|| (mCurrentTarget && mCurrentTarget->IsDestroyed()))
+			mCurrentTarget = NULL;
+	}
+
+	bool waitForMates = false;
 	float distMin = rangeMax;
 	CSquareShip *currentTarget = NULL;
 	CSpawnManager* mgr = mSpawnMgr;
 	int i = 0;
 	CObject* obj = NULL;
-	while((obj = mgr->GetActiveObject(i++)))
+	while((obj = mgr->GetObject(i++)))
 	{
 		CSquareShip *ship = (CSquareShip*)obj;
 		if(ship != owner)
 		{
+			bool isOwner = IsOwner(ship);
 			Vector2D dir = myPos - ship->GetOriginPosition();
-			float dist = dir.Length();
-			dir.Normalize();
-			float power = 1.0f - dist/((owner->mSize+ship->mSize)*SQUARETILE_SIZE*2.0f);
-			// on majore les rayons des vaisseaux et on double
+			float dist = dir.Normalize();
+			float power = 1.0f - dist/((owner->mSize+ship->mSize)*SQUARETILE_SIZE * 2.0f);
 			if(power > 0.0f)
 			{
 				power *= (dir * shipRight >= 0)?1.0f:-1.0f;
 				owner->Straff(power);
 			}
-			if(dist < distMin && !ship->IsDestroyed() && !ship->IsLanded())
+			if(!ship->IsDestroyed() && !ship->IsLanded())
 			{
-				distMin = dist;
-				currentTarget = ship;
+				if(!isOwner)// ce n'est pas un membre du groupe
+				{
+					if(dist < distMin)// dans le range of sight et le plus proche : on le prend pour cible
+					{
+						distMin = dist;
+						currentTarget = ship;
+					}
+				}
+				else
+				{
+					if(shipRear*dir < 0.0f && dist > mGroupRadius)// c'est un membre du groupe à la bourre (derrière et a plus de 300pxl)
+					{
+						waitForMates = true;// je ralentis pr l'attendre
+					}
+					// aimantation vers le vaisseau du groupe (=>baricentre du groupe)
+					{
+						power = (dir * Vector2D(mDir.y, -mDir.x) <= 0)?0.05f:-0.05f;
+						owner->Straff(power);
+					}
+				}
 			}
 		}
 	}
 	// si on a pas de cible on en cherche une (la plus proche)
-	if(!leavingPatrolArea && !mCurrentTarget)
+	if(isLeader && !leavingPatrolArea && !mCurrentTarget)
 	{
 		mCurrentTarget = currentTarget;
 	}
 
 	Vector2D dir;
-	// si on a pas de cible en vue on continue la patrouille
-	if(!mCurrentTarget)
+	if(isLeader)
 	{
-		if((mCurrentDest-myPos).Length2()<100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
+		// si on a pas de cible en vue on continue la patrouille
+		if(!mCurrentTarget)
 		{
-			mCurrentDest = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
-			mCurrentDest.Normalize();
-			mCurrentDest = mPatrolPointRadius * mCurrentDest + mPatrolPoint;
-		}
+			dir = (mCurrentDest-myPos);
+			if(dir.Length2() < 100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
+			{
+				mCurrentDest = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
+				mCurrentDest.Normalize();
+				mCurrentDest = (Random(0.0f, 1.0f)*mPatrolPointRadius) * mCurrentDest + mPatrolPoint;
+				dir = (mCurrentDest-myPos);
+			}
 
-		dir = (mCurrentDest-myPos);
-		if(dir.Normalize()==0.0f)
-			dir = -shipRear;
+			if(dir.Normalize() == 0.0f)
+				dir = -shipRear;
+		}
+		else// si on a une cible
+		{
+			dir = (mCurrentTarget->GetOriginPosition()-myPos);
+			Vector2D trans = dir ;//+ Vector2D(-dir.y, dir.x);
+			trans.Normalize();
+			dir += 150.0f*trans;
+			dir.Normalize();
+		}
+		mDir = dir;
 	}
-	else// si on a une cible
+	else
 	{
-		dir = (mCurrentTarget->GetOriginPosition()-myPos);
-		Vector2D trans = dir ;//+ Vector2D(-dir.y, dir.x);
-		trans.Normalize();
-		dir += 150.0f*trans;
-		dir.Normalize();
+		dir = mDir;
 	}
 
 	// on gère la puissance angulaire de manière à tourner jusqu'à être dans la direction désirée
@@ -119,7 +182,7 @@ void CSquareShipAI::Update(float dt, CSquareShip *owner)
 	}
 	else// si on est de face on ajuste la puissance selon l'alignement
 	{
-		if(powerA < -0.8f)
+		if(powerA < -0.8f && !waitForMates)
 			powerL += dt;
 		else
 			powerL -= dt;
@@ -138,6 +201,7 @@ void CSquareShipAI::Update(float dt, CSquareShip *owner)
 		powerA = -powerA;
 	owner->mAngularPower = powerA;
 	owner->mEnginePower = powerL;
+
 }
 
 void CSquareShipAI::LightUpdate(float dt, CSquareShip *owner)
@@ -156,6 +220,13 @@ void CSquareShipAI::LightUpdate(float dt, CSquareShip *owner)
 
 	dir = (mCurrentDest-myPos);
 	dir.Normalize();
+
+	vector<CSquareShip*>::const_iterator it = mOwners.begin();
+	const vector<CSquareShip*>::const_iterator itEnd = mOwners.end();
+	for(;it != itEnd;++it)
+	{
+
+	}
 
 	owner->SetLinearVelocity(patrolSpdMax*dir);
 }

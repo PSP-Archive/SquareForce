@@ -16,7 +16,10 @@ public:
 	void LightUpdate(float dt, CSquareShip *owner);
 
 	inline CSquareShip* GetOwner(unsigned int i) const {return (i<mOwners.size())?mOwners[i]:NULL;}
-	inline void AddOwner(CSquareShip* owner) {mOwners.push_back(owner);}
+	bool IsOwner(CSquareShip* ship);
+	bool IsLeader(CSquareShip* ship);
+
+	inline void AddOwner(CSquareShip* owner) {mOwners.push_back(owner); mGroupRadius = GetGroupRadius();}
 
 	inline const Vector2D& GetSpawnPoint() const {return mSpawnPoint;}
 	inline void SetSpawnPoint(const Vector2D& spawnPoint) {mSpawnPoint = spawnPoint;}
@@ -33,6 +36,17 @@ public:
 	inline void SetCurrentTarget(CSquareShip* target) {mCurrentTarget = target;}
 
 protected:
+	inline float GetGroupRadius()
+	{
+// 		unsigned int nbOwners = 1;
+// 		unsigned int i;
+// 		for(i = 1; nbOwners < mOwners.size(); ++i)
+// 			nbOwners += i*4;
+// 
+// 		return 100.0f*(i-1);
+
+		return 50.0f * (mOwners.size()-1);
+	}
 	//CSquareShip *mOwner;
 	CSpawnManager *mSpawnMgr;
 
@@ -48,6 +62,10 @@ protected:
 	float mRatioErrorFiring;
 
 	vector<CSquareShip*> mOwners;
+
+	Vector2D mDir;
+
+	float mGroupRadius;
 };
 
 #endif

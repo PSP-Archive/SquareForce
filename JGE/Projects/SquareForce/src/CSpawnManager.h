@@ -46,7 +46,7 @@ protected:
 	bool ReadSectorRes(unsigned int num);
 
 	b2World* mWorld;
-	list<CMissile*> mMissilesPt;
+	list<CMissile*>& mMissilesPt;
 
 	CSquareShip* mHero;
 	vector<CObject*> mListObjects;
