@@ -563,7 +563,7 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 {
 	DebugLog("Begin CSquareShip LightUpdate()");
 	if(mBody)// don't use this update if we have a body
-		return;
+ 		return;
 
 	if(mAI)
 	{
@@ -571,11 +571,12 @@ void CSquareShip::LightUpdate(float dt, bool fullUpdate /*= false*/)
 		DebugLog("Light : AI updated");
 	}
 
-	if(!IsDocked())
+	if(!IsDocked() && !IsLanded())
 	{
-		mLinearVelocity = 150.0f * mEnginePower * (mRotationMatrix*Vector2D(-1.0f, 1.0f));
+		mLinearVelocity += (dt * 1000.0f * mEnginePower) * (mRotationMatrix*Vector2D(-1.0f, 1.0f));
 		mAngularVelocity = M_PI * mAngularPower;
 	}
+	mLinearVelocity -= dt * 10.0f * mLinearVelocity;
 	SetPosition(mCenterPosition + dt*mLinearVelocity);
 	mRotation += mAngularVelocity*dt;
 	mRotationMatrix.Set(mRotation);
