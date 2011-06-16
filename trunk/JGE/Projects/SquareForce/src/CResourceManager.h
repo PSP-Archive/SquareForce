@@ -3,17 +3,20 @@
 
 #include "utils.h"
 
-#include "CSquareShip.h"
-#include "CPlanet.h"
+//#include "CSquareShip.h"
+//#include "CPlanet.h"
 
 #define PLANET_TEXTURE_SIZE 256.0f
 
 
 class hgeDistortionMesh;
+class CSquareShip;
+class CSquareTile;
+class CSquareShipData;
+class CPlanet;
 
 class CResourceManager
 {
-	
 public:
 	inline static CResourceManager* GetInstance() {return mInstance?mInstance:(mInstance = new CResourceManager());}
 	inline static void DestroyInstance() {if(mInstance) delete mInstance; mInstance = NULL;}
@@ -85,12 +88,31 @@ public:
 	inline float TSinf(float angle) 
 	{
 		float fAngleDeg = RAD2DEG*fmodf(M_PI_2-angle, 2*M_PI);
-		int iAngleDeg = (int)(fAngleDeg);
+		int iAngleDeg = (int)(fAngleDeg+0.5f);
 		if(iAngleDeg < 0)
 			iAngleDeg += 360;
 		return mCosTable[iAngleDeg];
 	}
 
+	enum EFaction 
+	{
+		FACTION_CIVILIAN,
+		FACTION_SQUAREFORCE,
+		FACTION_BANDIT,
+		FACTION_COP,
+		FACTION_SQUAREMASTER,
+
+		NUM_FACTIONS
+	};
+	inline float GetFactionConflict(EFaction fac1, EFaction fac2)
+	{
+		return mTableFactionConficts[fac1+fac2*NUM_FACTIONS];
+	}
+	inline void SetFactionConflict(EFaction fac1, EFaction fac2, float val)
+	{
+		mTableFactionConficts[fac1+fac2*NUM_FACTIONS] = mTableFactionConficts[fac2+fac1*NUM_FACTIONS] = (val<0.0f)?0.0f:(val<1.0f)?val:1.0f;
+	}
+	
 	static bool HasloadTextures;
 
 protected:
@@ -153,6 +175,10 @@ protected:
 	static u32 mDemandedCloudsTexId;
 	static JTexture* mCurrentCloudsTex;
 	static JTexture* mDemandedCloudsTex;
+
+
+	// table 2d de taille NUM_FACTIONS contenant un indice de 0 à 1 modélisant le taux de paix entre 2 factions
+	float* mTableFactionConficts;
 
 };
 
