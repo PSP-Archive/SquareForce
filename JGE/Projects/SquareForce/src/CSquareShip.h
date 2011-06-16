@@ -10,6 +10,7 @@
 #include "CMissile.h"
 
 #include "CSquareShipAI.h"
+#include "CResourceManager.h"
 
 using namespace std;
 
@@ -88,6 +89,9 @@ public:
 			SetLinearVelocity(Vector2D(0,0));
 		}
 	}
+
+	inline CResourceManager::EFaction GetFaction() const {return mFaction;}
+	inline void SetFaction(CResourceManager::EFaction faction) {mFaction = faction;}
 	
 
 	int mSize;// taille du squareship (carré de mSize*mSize)
@@ -131,6 +135,8 @@ protected:
 	bool mWantToDock;
 	bool mIsDocked;
 	bool mIsLanded;
+
+	CResourceManager::EFaction mFaction;
 };
 
 #endif

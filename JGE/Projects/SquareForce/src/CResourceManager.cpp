@@ -11,6 +11,9 @@
 #include "CResourceManager.h"
 #include "utils.h"
 
+#include "CSquareShip.h"
+#include "CPlanet.h"
+
 #include <hge/hgedistort.h>
 
 CResourceManager* CResourceManager::mInstance = NULL;
@@ -248,6 +251,21 @@ CResourceManager::CResourceManager()
 	mCurrentCloudsTex = NULL;
 	mDemandedCloudsTex = NULL;
 
+	mTableFactionConficts = new float[NUM_FACTIONS*NUM_FACTIONS];
+	for(unsigned int i = 0; i < NUM_FACTIONS*NUM_FACTIONS; ++i)
+		mTableFactionConficts[i] = 1.0f, 
+	SetFactionConflict(FACTION_CIVILIAN, FACTION_SQUAREFORCE, 1.0f);
+	SetFactionConflict(FACTION_CIVILIAN, FACTION_BANDIT, 0.3f);
+	SetFactionConflict(FACTION_CIVILIAN, FACTION_COP, 1.0f);
+	SetFactionConflict(FACTION_CIVILIAN, FACTION_SQUAREMASTER, 0.0f);
+	SetFactionConflict(FACTION_SQUAREFORCE, FACTION_BANDIT, 0.2f);
+	SetFactionConflict(FACTION_SQUAREFORCE, FACTION_COP, 0.7f);
+	SetFactionConflict(FACTION_SQUAREFORCE, FACTION_SQUAREMASTER, 0.0f);
+	SetFactionConflict(FACTION_BANDIT, FACTION_COP, 0.1f);
+	SetFactionConflict(FACTION_BANDIT, FACTION_SQUAREMASTER, 0.0f);
+	SetFactionConflict(FACTION_COP, FACTION_SQUAREMASTER, 0.0f);
+	
+
 	_InitLoaderThread();// start the loader thread 
 }
 
@@ -296,6 +314,8 @@ CResourceManager::~CResourceManager()
 			++it;
 		}
 	}
+
+	SAFE_DELETE_ARRAY(mTableFactionConficts);
 }
 
 
