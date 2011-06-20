@@ -39,6 +39,7 @@ public:
 	void Update(float dt, const Vector2D& camPos);
 
 	void AddGroup(unsigned int nbShips);
+	void SpawnGroup(CGroupData* data);
 
 protected:
 	bool ReadSectorTxt(unsigned int num);
@@ -51,6 +52,8 @@ protected:
 	CSquareShip* mHero;
 	vector<CObject*> mListObjects;
 	vector<CObject*> mActiveObjects;
+
+	vector<CGroupData*> mPatrols;
 
 	vector<CPlanet*> mListPlanets;
 

@@ -60,6 +60,15 @@ CSpawnManager::~CSpawnManager()
 	}
 	mListSpeedWays.clear();
 
+	vector<CGroupData*>::iterator itgroupData = mPatrols.begin();
+	const vector<CGroupData*>::const_iterator itgroupDataEnd = mPatrols.end();
+	while(itgroupData != itgroupDataEnd)
+	{
+		SAFE_DELETE(*itgroupData);
+		++itgroupData;
+	}
+	mPatrols.clear();
+
 }
 
 CSquareShipData* CSpawnManager::GetEmptyShipDatas(int size)
@@ -142,20 +151,51 @@ void CSpawnManager::AddGroup(unsigned int nbShips)
 {
 	CResourceManager *resMgr = CResourceManager::GetInstance();
 
-	CSquareShipAI *ai = new CSquareShipAI(this);
+	CGroupData* data = new CGroupData;
+	mPatrols.push_back(data);
+	CSquareShipAI *ai = new CSquareShipAI(this, data);
 	PspAssert(ai);
 
 	for(unsigned int i=0; i<nbShips; i++)
 	{
 		CSquareShip *ship = new CSquareShip(mWorld, mMissilesPt);
+		PspAssert(ship);
 		ship->Create(3);
 		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
 		ship->SetAI(ai);
 		ship->SetPosition(Vector2D(2000.0f, 4000.0f));
 		ai->AddOwner(ship);
 		AddObject(ship);
-		PspAssert(ship);
 	}
+}
+
+void CSpawnManager::SpawnGroup(CGroupData* data)
+{
+	if(!data || data->mIsSpawned)
+		return;
+
+	CResourceManager *resMgr = CResourceManager::GetInstance();
+
+	Vector2D spawnPoint = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
+	spawnPoint.Normalize();
+	spawnPoint = (Random(0.0f, 1.0f)*data->mSpawnPointRadius) * spawnPoint + data->mSpawnPoint;
+
+	CSquareShipAI *ai = new CSquareShipAI(this, data);
+	PspAssert(ai);
+
+	for(unsigned int i=0; i<data->mNbShips; i++)
+	{
+		CSquareShip *ship = new CSquareShip(mWorld, mMissilesPt);
+		PspAssert(ship);
+		ship->Create(3);
+		ship->LoadShape(resMgr->mListShipsDatas[data->mSSDId], resMgr->mListTiles);
+		ship->SetAI(ai);
+		ship->SetPosition(spawnPoint);
+		ai->AddOwner(ship);
+		AddObject(ship);
+	}
+
+	data->mIsSpawned = true;
 }
 
 // Serialization/deserialization

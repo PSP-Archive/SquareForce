@@ -21,6 +21,8 @@ CSquareShip::CSquareShip(b2World* world, list<CMissile*> &missilesPt):
 	mAI = NULL;
 
 	mDatas = NULL;
+
+	mFaction = CResourceManager::FACTION_CIVILIAN;
 }
 
 
@@ -36,7 +38,12 @@ CSquareShip::~CSquareShip()
 		SAFE_DELETE_ARRAY(mSquareTiles)
 	}
 
-	SAFE_DELETE(mAI);
+	if(mAI)
+	{
+		mAI->RemoveOwner(this);
+		if(!mAI->GetOwner(0))// on était le dernier owner
+			SAFE_DELETE(mAI);
+	}
 }
 
 

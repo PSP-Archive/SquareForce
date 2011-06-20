@@ -2,35 +2,59 @@
 #define _CSQUARESHIPAI_H_
 #include "utils.h"
 
+#include "CResourceManager.h"
 #include "Box2D.h"
 class CSquareShip;
 class CSpawnManager;
 
+class CGroupData
+{
+public:
+	CGroupData():
+		mId(0),
+		mSSDId(0),
+		mNbShips(5),
+		mSpawnPoint(Vector2D(0,0)), 
+		mSpawnPointRadius(1000.0f), 
+		mPatrolPoint(Vector2D(0,0)), 
+		mPatrolPointRadius(1000.0f),
+		mIsSpawned(false) {}
+	~CGroupData() {}
+
+	unsigned int mId;// id du groupe
+
+	unsigned int mSSDId;// id de squareship data
+
+	unsigned int mNbShips;
+
+	CResourceManager::EFaction mFaction;
+
+	Vector2D mSpawnPoint;
+	float mSpawnPointRadius;
+
+	Vector2D mPatrolPoint;
+	float mPatrolPointRadius;
+
+	bool mIsSpawned;
+};
+
 class CSquareShipAI
 {
 public:
-	CSquareShipAI(CSpawnManager *spawnMgr);
+	CSquareShipAI(CSpawnManager *spawnMgr, CGroupData* groupData);
 	~CSquareShipAI();
 
 	void Update(float dt, CSquareShip *owner);
-	void LightUpdate(float dt, CSquareShip *owner);
 
 	inline CSquareShip* GetOwner(unsigned int i) const {return (i<mOwners.size())?mOwners[i]:NULL;}
 	bool IsOwner(CSquareShip* ship);
 	bool IsLeader(CSquareShip* ship);
 
 	inline void AddOwner(CSquareShip* owner) {mOwners.push_back(owner); mGroupRadius = GetGroupRadius();}
+	bool RemoveOwner(CSquareShip* owner);
 
-	inline const Vector2D& GetSpawnPoint() const {return mSpawnPoint;}
-	inline void SetSpawnPoint(const Vector2D& spawnPoint) {mSpawnPoint = spawnPoint;}
-	inline const float& GetSpawnPointRadius() const {return mSpawnPointRadius;}
-	inline void SetSpawnPointRadius(const float& spawnPointRadius) {mSpawnPointRadius = spawnPointRadius;}
-
-	inline const Vector2D& GetPatrolPoint() const {return mPatrolPoint;}
-	inline void SetPatrolPoint(const Vector2D& patrolPoint) {mPatrolPoint = patrolPoint;}
-	inline const float& GetPatrolPointRadius() const {return mPatrolPointRadius;}
-	inline void SetPatrolPointRadius(const float& patrolPointRadius) {mPatrolPointRadius = patrolPointRadius;}
-
+	inline CGroupData* GetGroupData() {return mGroupData;}
+	//inline void SetGroupData(CGroupData* groupData) {mGroupData = groupData;}
 
 	inline CSquareShip* GetCurrentTarget() const {return mCurrentTarget;}
 	inline void SetCurrentTarget(CSquareShip* target) {mCurrentTarget = target;}
@@ -50,11 +74,7 @@ protected:
 	//CSquareShip *mOwner;
 	CSpawnManager *mSpawnMgr;
 
-	Vector2D mSpawnPoint;
-	float mSpawnPointRadius;
-
-	Vector2D mPatrolPoint;
-	float mPatrolPointRadius;
+	CGroupData *mGroupData;
 
 	Vector2D mCurrentDest;
 	CSquareShip *mCurrentTarget;
