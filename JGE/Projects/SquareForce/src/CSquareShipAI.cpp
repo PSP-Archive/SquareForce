@@ -7,15 +7,9 @@
 #include "CSpawnManager.h"
 
 
-CSquareShipAI::CSquareShipAI(CSpawnManager *spawnMgr):
-mSpawnMgr(spawnMgr)
+CSquareShipAI::CSquareShipAI(CSpawnManager *spawnMgr, CGroupData* groupData):
+mSpawnMgr(spawnMgr), mGroupData(groupData)
 {
-	mSpawnPoint = Vector2D(0,0);
-	mSpawnPointRadius = 0;
-
-	mPatrolPoint = Vector2D(0,0);
-	mPatrolPointRadius = 1000.0f;
-
 	mCurrentDest = Vector2D(0,0);
 	mCurrentTarget = NULL;
 
@@ -27,11 +21,13 @@ mSpawnMgr(spawnMgr)
 
 CSquareShipAI::~CSquareShipAI()
 {
-	// on enleve le pointeur sur notre IA pour les autres owners
+	// on enleve le pointeur sur notre IA pour les autres owners (normalement il n'y en a plus aucun)
 	for(unsigned int i=0; i<mOwners.size(); ++i)
 	{
 		mOwners[i]->SetAI(NULL);
 	}
+	if(mGroupData)
+		mGroupData->mIsSpawned = false;
 }
 
 bool CSquareShipAI::IsOwner(CSquareShip* ship) 
@@ -60,6 +56,21 @@ bool CSquareShipAI::IsLeader(CSquareShip* ship)
 	return (ship == leader);
 }
 
+bool CSquareShipAI::RemoveOwner(CSquareShip* ship)
+{
+	vector<CSquareShip*>::const_iterator it = mOwners.begin();
+	const vector<CSquareShip*>::const_iterator itEnd = mOwners.end();
+	for(;it != itEnd;++it)
+	{
+		if((*it) == ship)
+		{
+			mOwners.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
 void CSquareShipAI::Update(float dt, CSquareShip *owner)
 {
 	float rangeMax = 500.0f;
@@ -75,7 +86,7 @@ void CSquareShipAI::Update(float dt, CSquareShip *owner)
 	if(isLeader)
 	{
 		// perte de la cible courante
-		if((myPos-mPatrolPoint).Length()>=mPatrolPointRadius+rangeMax)
+		if((myPos-mGroupData->mPatrolPoint).Length()>=mGroupData->mPatrolPointRadius+rangeMax)
 		{
 			mCurrentTarget = NULL;
 			leavingPatrolArea = true;
@@ -147,7 +158,7 @@ void CSquareShipAI::Update(float dt, CSquareShip *owner)
 			{
 				mCurrentDest = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
 				mCurrentDest.Normalize();
-				mCurrentDest = (Random(0.0f, 1.0f)*mPatrolPointRadius) * mCurrentDest + mPatrolPoint;
+				mCurrentDest = (Random(0.0f, 1.0f)*mGroupData->mPatrolPointRadius) * mCurrentDest + mGroupData->mPatrolPoint;
 				dir = (mCurrentDest-myPos);
 			}
 
@@ -202,31 +213,4 @@ void CSquareShipAI::Update(float dt, CSquareShip *owner)
 	owner->mAngularPower = powerA;
 	owner->mEnginePower = powerL;
 
-}
-
-void CSquareShipAI::LightUpdate(float dt, CSquareShip *owner)
-{
-	static float patrolSpdMax = 200.0f;
-
-	Vector2D myPos = owner->GetCenterPosition();
-
-	Vector2D dir;
-	if((mCurrentDest-myPos).Length2()<100.0f*100.0f)// destination atteinte : on en choisit une nouvelle
-	{
-		mCurrentDest = Vector2D(Random(-1.0f, 1.0f), Random(-1.0f, 1.0f));
-		mCurrentDest.Normalize();
-		mCurrentDest = mPatrolPointRadius * mCurrentDest + mPatrolPoint;
-	}
-
-	dir = (mCurrentDest-myPos);
-	dir.Normalize();
-
-	vector<CSquareShip*>::const_iterator it = mOwners.begin();
-	const vector<CSquareShip*>::const_iterator itEnd = mOwners.end();
-	for(;it != itEnd;++it)
-	{
-
-	}
-
-	owner->SetLinearVelocity(patrolSpdMax*dir);
 }
