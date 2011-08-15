@@ -40,6 +40,7 @@ public:
 
 	void AddGroup(unsigned int nbShips);
 	void SpawnGroup(CGroupData* data);
+	void UnspawnGroup(CGroupData* data);
 
 protected:
 	bool ReadSectorTxt(unsigned int num);

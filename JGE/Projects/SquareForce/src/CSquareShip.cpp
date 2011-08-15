@@ -82,6 +82,8 @@ void CSquareShip::Create(int size)
 	mWantToDock = false;
 	mIsDocked = false;
 	mIsLanded = false;
+
+	mIsUnspawned = false;
 }
 
 CSquareTile* CSquareShip::SetSquareTile(CSquareTile* squareTile, int slot)

@@ -53,6 +53,13 @@ CWorldObjects::~CWorldObjects()
 
 void CWorldObjects::Create()
 {
+	mWorld = NULL;
+	mTimer = 0.0f;
+	mSpawnMgr = NULL;
+	mHero = NULL;
+	mGPE1 = NULL;
+	mGPE2 = NULL;
+
 	DebugLog("Begin  CWorldObjects Create()");
 	b2AABB worldAABB;
 
@@ -91,7 +98,7 @@ void CWorldObjects::Create()
 	DebugLog("Hero created");
 
 	mSpawnMgr->AddGroup(5);
-	CSquareShipAI* ia = ((CSquareShip*)mSpawnMgr->GetObject(1))->GetAI();
+	//CSquareShipAI* ia = ((CSquareShip*)mSpawnMgr->GetObject(1))->GetAI();
 	//mHero->SetAI(ia);
 	//ia->AddOwner(mHero);
 	mSpawnMgr->AddGroup(5);

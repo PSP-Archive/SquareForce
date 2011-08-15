@@ -58,7 +58,7 @@ bool CSquareShipAI::IsLeader(CSquareShip* ship)
 
 bool CSquareShipAI::RemoveOwner(CSquareShip* ship)
 {
-	vector<CSquareShip*>::const_iterator it = mOwners.begin();
+	vector<CSquareShip*>::iterator it = mOwners.begin();
 	const vector<CSquareShip*>::const_iterator itEnd = mOwners.end();
 	for(;it != itEnd;++it)
 	{
