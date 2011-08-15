@@ -35,6 +35,10 @@ using namespace std;
 - cam follow sur les missiles si on reste appuyé apres le tir
 */
 
+/* SECTEURS
+Chaque secteur est un carré de dimensions 50000x50000 centré en 0,0
+*/
+
 #define HACK_SKIP_LOGO
 #define NO_SOUND
 #define DEBUG_PRINT
@@ -204,7 +208,7 @@ inline float Distance2FromSegment(const Vector2D& ref, const Vector2D& a, const 
 inline void StringExplode(const string& str, const string& separator, vector<string>& results)
 {
 	string localStr = str;
-	int found;
+	unsigned int found;
 	found = localStr.find_first_of(separator);
 	while(found != string::npos)
 	{

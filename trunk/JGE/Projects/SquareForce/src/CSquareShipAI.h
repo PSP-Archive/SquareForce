@@ -2,10 +2,14 @@
 #define _CSQUARESHIPAI_H_
 #include "utils.h"
 
+#include <list>
+
 #include "CResourceManager.h"
 #include "Box2D.h"
 class CSquareShip;
 class CSpawnManager;
+
+using namespace std;
 
 class CGroupData
 {
@@ -36,6 +40,8 @@ public:
 	float mPatrolPointRadius;
 
 	bool mIsSpawned;
+
+	list<CSquareShip*> m_listShips;
 };
 
 class CSquareShipAI

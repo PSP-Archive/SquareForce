@@ -51,6 +51,9 @@ public:
 	virtual bool IsLanded() = 0;
 	virtual void Land(bool state) = 0;
 
+	virtual bool IsUnspawned() = 0;
+	virtual void Unspawn() = 0;
+
 protected:
 	b2World* mWorld;// pointeur sur le world
 	b2Body* mBody;

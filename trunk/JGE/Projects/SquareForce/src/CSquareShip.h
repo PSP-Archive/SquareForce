@@ -72,15 +72,15 @@ public:
 	inline CSquareShipAI *SetAI(CSquareShipAI *AI) {CSquareShipAI *lastAI = mAI; mAI = AI; return lastAI;}
 	inline CSquareShipAI *GetAI() {return mAI;}
 
-	inline bool IsDestroyed() {return mDestroyed;}
+	inline virtual bool IsDestroyed() {return mDestroyed;}
 
-	inline bool IsDocked() {return mIsDocked;}
-	inline bool WantToDock() {return mWantToDock;}// true quand on veut  se docker/undocker
-	inline void Dock(bool state) {mIsDocked = state;}
-	inline void RequestDock(bool state) {mWantToDock = state;}// mettre à true pour se docker/undocker
+	inline virtual bool IsDocked() {return mIsDocked;}
+	inline virtual bool WantToDock() {return mWantToDock;}// true quand on veut  se docker/undocker
+	inline virtual void Dock(bool state) {mIsDocked = state;}
+	inline virtual void RequestDock(bool state) {mWantToDock = state;}// mettre à true pour se docker/undocker
 
-	inline bool IsLanded() {return mIsLanded;}
-	inline void Land(bool state) 
+	inline virtual bool IsLanded() {return mIsLanded;}
+	inline virtual void Land(bool state) 
 	{
 		mIsLanded = state;
 		if(state)
@@ -90,9 +90,12 @@ public:
 		}
 	}
 
+	inline virtual bool IsUnspawned() {return mIsUnspawned;}
+	inline virtual void Unspawn() {mIsUnspawned = true;}
+
 	inline CResourceManager::EFaction GetFaction() const {return mFaction;}
 	inline void SetFaction(CResourceManager::EFaction faction) {mFaction = faction;}
-	
+
 
 	int mSize;// taille du squareship (carré de mSize*mSize)
 
@@ -137,6 +140,8 @@ protected:
 	bool mIsLanded;
 
 	CResourceManager::EFaction mFaction;
+
+	bool mIsUnspawned;
 };
 
 #endif

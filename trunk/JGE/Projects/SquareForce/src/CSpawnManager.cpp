@@ -87,16 +87,43 @@ void CSpawnManager::Update(float dt, const Vector2D& camPos)
 	if(mListObjects.empty())
 		return;
 
+	const Vector2D& selfPos = camPos;
+
+	// update des patrouilles
+	vector<CGroupData*>::const_iterator itP = mPatrols.begin();
+	const vector<CGroupData*>::const_iterator itPEnd = mPatrols.end();
+	while(itP != itPEnd)
+	{
+		CGroupData* data = *itP;
+
+		float dist2 = (data->mSpawnPoint - selfPos).Length2();
+		float dist2Test = data->mPatrolPointRadius+data->mSpawnPointRadius+PLAYER_MAX_SIGHT;
+		dist2Test *= dist2Test; 
+		if(dist2 < dist2Test)
+			SpawnGroup(data);// spawn le groupe s'il ne l'est pas déjà
+		else
+			UnspawnGroup(data);// despawn le groupe s'il ne l'est pas déjà
+
+		++itP;
+	}	
+
 	// on vide l'ancienne liste d'objets visibles 
 	mActiveObjects.clear();
 	
 	// on charge la nouvelle
-	vector<CObject*>::const_iterator it = mListObjects.begin();
-	const vector<CObject*>::const_iterator itEnd = mListObjects.end();
-	const Vector2D& selfPos = camPos;
+	vector<CObject*>::iterator it = mListObjects.begin();
+	vector<CObject*>::const_iterator itEnd = mListObjects.end();
 	while(it != itEnd)
 	{
 		CObject* obj = *it;
+		if(obj->IsUnspawned())
+		{
+			it = mListObjects.erase(it);
+			itEnd = mListObjects.end();
+			SAFE_DELETE(obj);
+			continue;
+		}
+
 		if(!obj->IsDocked() && obj->WantToDock())// docking request : 
 		{
 			vector<CSpeedWay*>::const_iterator itSW = mListSpeedWays.begin();
@@ -153,26 +180,19 @@ void CSpawnManager::AddGroup(unsigned int nbShips)
 
 	CGroupData* data = new CGroupData;
 	mPatrols.push_back(data);
-	CSquareShipAI *ai = new CSquareShipAI(this, data);
-	PspAssert(ai);
+	data->mNbShips = nbShips;
+	data->mSpawnPoint = Vector2D(2000.0f, 4000.0f);
+	data->mSpawnPointRadius = 1000.0f;
 
-	for(unsigned int i=0; i<nbShips; i++)
-	{
-		CSquareShip *ship = new CSquareShip(mWorld, mMissilesPt);
-		PspAssert(ship);
-		ship->Create(3);
-		ship->LoadShape(resMgr->mListShipsDatas[(b2Random(0, 1)>0.5f)?0:1], resMgr->mListTiles);
-		ship->SetAI(ai);
-		ship->SetPosition(Vector2D(2000.0f, 4000.0f));
-		ai->AddOwner(ship);
-		AddObject(ship);
-	}
+	//SpawnGroup(data);
 }
 
 void CSpawnManager::SpawnGroup(CGroupData* data)
 {
 	if(!data || data->mIsSpawned)
 		return;
+
+	//PspAssert(false&&"Group spawned");
 
 	CResourceManager *resMgr = CResourceManager::GetInstance();
 
@@ -182,6 +202,9 @@ void CSpawnManager::SpawnGroup(CGroupData* data)
 
 	CSquareShipAI *ai = new CSquareShipAI(this, data);
 	PspAssert(ai);
+
+	data->m_listShips.clear();
+
 
 	for(unsigned int i=0; i<data->mNbShips; i++)
 	{
@@ -193,9 +216,32 @@ void CSpawnManager::SpawnGroup(CGroupData* data)
 		ship->SetPosition(spawnPoint);
 		ai->AddOwner(ship);
 		AddObject(ship);
+		data->m_listShips.push_back(ship);
 	}
 
 	data->mIsSpawned = true;
+}
+
+void CSpawnManager::UnspawnGroup(CGroupData* data)
+{
+	if(!data || !data->mIsSpawned)
+		return;
+
+	//PspAssert(false&&"Group unspawned");
+
+	list<CSquareShip*>::const_iterator it = data->m_listShips.begin();
+	const list<CSquareShip*>::const_iterator itEnd = data->m_listShips.end();
+	while(it != itEnd)
+	{
+		CSquareShip *ship = *it;
+		PspAssert(ship);
+		ship->Unspawn();// on le marque comme unspawned pour le supprimer de la liste des objets
+
+		++it;
+	}
+
+	data->m_listShips.clear();
+	data->mIsSpawned = false;
 }
 
 // Serialization/deserialization
