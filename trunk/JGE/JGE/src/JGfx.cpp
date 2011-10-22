@@ -218,18 +218,23 @@ void JRenderer::InitRenderer()
 	sceGuStart(GU_DIRECT,list);
 	mVideoBufferStart = 0;
 	sceGuDrawBuffer(BUFFER_FORMAT, (void *)mVideoBufferStart, FRAME_BUFFER_WIDTH);
+	mDrawBuffer = (void*)(mVideoBufferStart);
 	mVideoBufferStart += FRAME_BUFFER_SIZE;
 	valloc(FRAME_BUFFER_SIZE);
 	sceGuDispBuffer(SCREEN_WIDTH, SCREEN_HEIGHT, (void *)mVideoBufferStart, FRAME_BUFFER_WIDTH);
+	mDispBuffer = (void*)(mVideoBufferStart);
 	mVideoBufferStart += FRAME_BUFFER_SIZE;
 	valloc(FRAME_BUFFER_SIZE);
 	if (m3DEnabled)
 	{
 		sceGuDepthBuffer((void *)mVideoBufferStart, FRAME_BUFFER_WIDTH);
+		mDepthBuffer = (void*)(mVideoBufferStart);
 		mVideoBufferStart += (FRAME_BUFFER_WIDTH*SCREEN_HEIGHT*2);				// 16bit depth buffer
 
 		valloc(FRAME_BUFFER_WIDTH*SCREEN_HEIGHT*2);
 	}
+	else
+		mDepthBuffer = NULL;
 
 	//mCurrentPointer = mVideoBufferStart;
 	
@@ -284,6 +289,20 @@ void JRenderer::InitRenderer()
 	sceDisplayWaitVblankStart();
 	sceGuDisplay(1);
 
+	mCurrentFrame = 0;
+}
+
+void JRenderer::SwapRenderBufferToTarget(void* target /*= NULL*/)
+{
+	if(!target)
+		target = mCurrentFrame?mDispBuffer:mDrawBuffer;
+	else
+		target = vrelptr(target);
+	sceGuDrawBufferList(BUFFER_FORMAT, target, FRAME_BUFFER_WIDTH);
+
+	sceGuOffset(2048 - (SCREEN_WIDTH/2), 2048 - (SCREEN_HEIGHT/2));
+	sceGuViewport(2048, 2048, SCREEN_WIDTH, SCREEN_HEIGHT);
+	sceGuScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 
@@ -369,6 +388,7 @@ void JRenderer::EndScene()
 		sceDisplayWaitVblankStart();
 	
 	sceGuSwapBuffers();
+	mCurrentFrame ^= 1;
 
 	mCurrentTex = -1;
 	mCurrentBlend = -1;

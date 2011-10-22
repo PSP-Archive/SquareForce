@@ -540,7 +540,19 @@ private:
 	
 #else
 
+public:
+	inline void* GetDrawBuffer() {return mDrawBuffer;}
+	inline void* GetDispBuffer() {return mDispBuffer;}
+	inline void* GetDepthBuffer() {return mDepthBuffer;}
+
+	void SwapRenderBufferToTarget(void* target = NULL); 
+private:
+	int mCurrentFrame;
 	u32 mVideoBufferStart;
+
+	void* mDrawBuffer;
+	void* mDispBuffer;
+	void* mDepthBuffer;
 	//u32 mCurrentPointer;
 	PIXEL_TYPE* mVRAM;
 	int mCurrentTex;

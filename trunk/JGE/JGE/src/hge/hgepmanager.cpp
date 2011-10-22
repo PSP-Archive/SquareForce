@@ -19,34 +19,56 @@ hgeParticleManager::hgeParticleManager()
 hgeParticleManager::~hgeParticleManager()
 {
 	int i;
-	for(i=0;i<nPS;i++) delete psList[i];
+	for(i=0;i<nPS;i++) 
+		delete psList[i];
 }
 
 void hgeParticleManager::Update(float dt)
 {
-	int i;
-	for(i=0;i<nPS;i++)
+	int i = nPS+1;
+	hgeParticleSystem** ps = psList;
+	while(--i)
 	{
-		psList[i]->Update(dt);
-		if(psList[i]->GetAge()==-2.0f && psList[i]->GetParticlesAlive()==0)
+		(*ps)->Update(dt);
+		if((*ps)->GetAge()==-2.0f && (*ps)->GetParticlesAlive()==0)
 		{
-			delete psList[i];
-			psList[i]=psList[nPS-1];
-			nPS--;
-			i--;
+			--nPS;
+			delete (*ps);
+			if(i>1)
+				memcpy(*ps, *(ps+1), (i-1)*sizeof(hgeParticleSystem*));
+			continue;
 		}
+
+		++ps;
 	}
 }
 
 void hgeParticleManager::Render()
 {
-	int i;
-	for(i=0;i<nPS;i++) psList[i]->Render();
+	int i = nPS+1;
+	hgeParticleSystem** ps = psList;
+	while(--i)
+	{
+		(*ps)->Render();
+		++ps;
+	}
+}
+
+void hgeParticleManager::RenderLocal(const Vector2D& localPos, const float& localAngle, const Matrix22& localMat)
+{
+	int i = nPS+1;
+	hgeParticleSystem** ps = psList;
+	while(--i)
+	{
+		(*ps)->RenderLocal(localPos, localAngle, localMat);
+		++ps;
+	}
 }
 
 hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystemInfo *psi, float x, float y)
 {
-	if(nPS==MAX_PSYSTEMS) return 0;
+	if(nPS==MAX_PSYSTEMS) 
+		return 0;
 	psList[nPS]=new hgeParticleSystem(psi);
 	psList[nPS]->FireAt(x,y);
 	psList[nPS]->Transpose(tX,tY);
@@ -57,14 +79,17 @@ hgeParticleSystem* hgeParticleManager::SpawnPS(hgeParticleSystemInfo *psi, float
 bool hgeParticleManager::IsPSAlive(hgeParticleSystem *ps) const
 {
 	int i;
-	for(i=0;i<nPS;i++) if(psList[i]==ps) return true;
+	for(i=0;i<nPS;i++) 
+		if(psList[i]==ps) 
+			return true;
 	return false;
 }
 
 void hgeParticleManager::Transpose(float x, float y)
 {
 	int i;
-	for(i=0;i<nPS;i++) psList[i]->Transpose(x,y);
+	for(i=0;i<nPS;i++) 
+		psList[i]->Transpose(x,y);
 	tX=x; tY=y;
 }
 
@@ -86,6 +111,7 @@ void hgeParticleManager::KillPS(hgeParticleSystem *ps)
 void hgeParticleManager::KillAll()
 {
 	int i;
-	for(i=0;i<nPS;i++) delete psList[i];
+	for(i=0;i<nPS;i++) 
+		delete psList[i];
 	nPS=0;
 }
