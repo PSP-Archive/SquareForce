@@ -193,10 +193,7 @@ void hgeParticleSystem::Update(float fDeltaTime)
 		{
 			--nParticlesAlive;
 			if(i>1)
-			{
-				--i;
 				memcpy(par, &particles[nParticlesAlive], sizeof(hgeParticle));
-			}
 			continue;
 		}
 
@@ -234,7 +231,8 @@ void hgeParticleSystem::Update(float fDeltaTime)
 		i = nParticlesCreated+1;
 		while(--i)
 		{
-			if(nParticlesAlive>=nMaxParticles) break;
+			if(nParticlesAlive>=nMaxParticles) 
+				break;
 
 			par->fAge = 0.0f;
 			par->fTerminalAge = Random_Float(info.fParticleLifeMin, info.fParticleLifeMax);
@@ -266,6 +264,8 @@ void hgeParticleSystem::Update(float fDeltaTime)
 
 			par->fSpin = Random_Float(info.fSpinStart, info.fSpinStart+(info.fSpinEnd-info.fSpinStart)*info.fSpinVar);
 			par->fSpinDelta = (par->fTerminalAge > 0.0f)?(info.fSpinEnd-par->fSpin) / par->fTerminalAge : 0.0f;
+			if(info.bAutoSpin)
+				par->fSpin += par->vecVelocity.Angle()-M_PI_2;
 
 			par->colColor.r = Random_Float(info.colColorStart.r, info.colColorStart.r+(info.colColorEnd.r-info.colColorStart.r)*info.fColorVar);
 			par->colColor.g = Random_Float(info.colColorStart.g, info.colColorStart.g+(info.colColorEnd.g-info.colColorStart.g)*info.fColorVar);
@@ -350,7 +350,7 @@ void hgeParticleSystem::Render()
 	while(--i)
 	{
 		info.sprite->SetColor(par->colColor.GetHWColor());
-		JRenderer::GetInstance()->RenderQuad(info.sprite, par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin*par->fAge, par->fSize, par->fSize);
+		JRenderer::GetInstance()->RenderQuad(info.sprite, par->vecLocation.x+fTx, par->vecLocation.y+fTy, par->fSpin, par->fSize, par->fSize);
 		++par;
 	}
 
@@ -367,7 +367,7 @@ void hgeParticleSystem::RenderLocal(const Vector2D& localPos, const float& local
 		Vector2D pos = localMat / Vector2D(par->vecLocation.x+fTx-localPos.x, par->vecLocation.y+fTy-localPos.y);
 
 		info.sprite->SetColor(par->colColor.GetHWColor());
-		JRenderer::GetInstance()->RenderQuad(info.sprite, 240+pos.x, 136-pos.y, -(par->fSpin*par->fAge-localAngle), par->fSize, par->fSize);
+		JRenderer::GetInstance()->RenderQuad(info.sprite, 240+pos.x, 136-pos.y, -(par->fSpin-localAngle), par->fSize, par->fSize);
 		++par;
 	}
 }

@@ -1,7 +1,7 @@
 PSPSDK=$(shell psp-config --pspsdk-path)
 PSPDIR=$(shell psp-config --psp-prefix)
 TARGET_LIB = libhgetools.a
-OBJS = src/hge/hgecolor.o src/hge/hgeparticle.o \
+OBJS = src/hge/hgecolor.o src/hge/hgeparticle.o src/hge/hgepmanager.o \
        src/hge/hgerect.o src/hge/hgevector.o \
        src/hge/hgedistort.o src/hge/hgefont.o
 

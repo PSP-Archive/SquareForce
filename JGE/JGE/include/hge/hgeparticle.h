@@ -20,7 +20,7 @@
 class JQuad;
 
 #define MAX_PARTICLES	500
-#define MAX_PSYSTEMS	100
+#define MAX_PSYSTEMS	500
 
 struct hgeParticle
 {
@@ -46,6 +46,8 @@ struct hgeParticle
 
 struct hgeParticleSystemInfo
 {
+	hgeParticleSystemInfo() {memset(this, 0, sizeof(this));}
+
 	JQuad*		sprite;    // texture + blend mode
 	int			nEmission; // particles per sec
 	float		fLifetime;
@@ -56,6 +58,7 @@ struct hgeParticleSystemInfo
 	float		fDirection;
 	float		fSpread;
 	bool		bRelative;
+	bool		bAutoSpin;
 
 	float		fSpeedMin;
 	float		fSpeedMax;
@@ -147,6 +150,7 @@ public:
 
 	void				Update(float dt);
 	void				Render();
+	void				RenderLocal(const Vector2D& localPos, const float& localAngle, const Matrix22& localMat);
 
 	hgeParticleSystem*	SpawnPS(hgeParticleSystemInfo *psi, float x, float y);
 	bool				IsPSAlive(hgeParticleSystem *ps) const;
@@ -154,6 +158,8 @@ public:
 	void				GetTransposition(float *dx, float *dy) const {*dx=tX; *dy=tY;}
 	void				KillPS(hgeParticleSystem *ps);
 	void				KillAll();
+
+	inline int			GetNbParticleSystems() {return nPS;}
 
 private:
 	hgeParticleManager(const hgeParticleManager &);
