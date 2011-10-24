@@ -35,7 +35,7 @@ void hgeParticleManager::Update(float dt)
 			--nPS;
 			delete (*ps);
 			if(i>1)
-				memcpy(*ps, *(ps+1), (i-1)*sizeof(hgeParticleSystem*));
+				memcpy(ps, (ps+1), (i-1)*sizeof(hgeParticleSystem*));
 			continue;
 		}
 

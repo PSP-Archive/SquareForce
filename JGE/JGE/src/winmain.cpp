@@ -83,11 +83,11 @@ static u32 gWinKeyCodes[17] =
 {
 	VK_CONTROL,
 		VK_RETURN,
-		'W',
+		'Z',
 		'D',
 		'S',
-		'A',
 		'Q',
+		'A',
 		'E',
 		'I',
 		'L',
